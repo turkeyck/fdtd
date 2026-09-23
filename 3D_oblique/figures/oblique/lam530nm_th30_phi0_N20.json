@@ -1,0 +1,57 @@
+{
+  "wavelength_nm": 530.0,
+  "frequency_THz": 565.6461471698112,
+  "period_fs": 1.767889704550206,
+  "cells_per_wavelength": 20,
+  "Delta_nm": 26.5,
+  "dt_fs": 0.04419724261375515,
+  "courant": 0.5,
+  "requested": {
+    "angle_deg": 30.0,
+    "azimuth_deg": 0.0
+  },
+  "realized": {
+    "angle_deg": 30.000000000000004,
+    "azimuth_deg": 0.0,
+    "angle_error_deg": 3.552713678800501e-15,
+    "lattice_phase_front_angle_deg": 29.94865355012572
+  },
+  "solver": {
+    "nl": 20,
+    "S": 0.5,
+    "Lx": 2.0,
+    "Lz": 0.1,
+    "m": 1,
+    "n": 0,
+    "npml": 20,
+    "sf": 20,
+    "tf": 120
+  },
+  "cells": {
+    "Nx": 40,
+    "Nz": 2,
+    "Ny": 180
+  },
+  "size_nm": {
+    "Lx": 1060.0,
+    "Lz": 53.00000000000001
+  },
+  "ky_over_k0": {
+    "discrete": 0.8678205198679468,
+    "continuum": 0.8660254037844386
+  },
+  "check": {
+    "s": {
+      "measured_phase_front_angle_deg": 29.948653634572164,
+      "fit_rms_rad": 2.3153670874057652e-06,
+      "figure": "/mnt/c/Users/Sasha/onedrive_copy/coding/claude/FDTD/3D_oblique/figures/oblique/lam530nm_th30_phi0_N20_s_E.png",
+      "run": "/mnt/c/Users/Sasha/onedrive_copy/coding/claude/FDTD/3D_oblique/runs/oblique/lam530nm_th30_phi0_N20_s"
+    },
+    "p": {
+      "measured_phase_front_angle_deg": 29.948653429157954,
+      "fit_rms_rad": 2.3127157749168617e-06,
+      "figure": "/mnt/c/Users/Sasha/onedrive_copy/coding/claude/FDTD/3D_oblique/figures/oblique/lam530nm_th30_phi0_N20_p_E.png",
+      "run": "/mnt/c/Users/Sasha/onedrive_copy/coding/claude/FDTD/3D_oblique/runs/oblique/lam530nm_th30_phi0_N20_p"
+    }
+  }
+}

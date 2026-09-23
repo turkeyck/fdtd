@@ -1,0 +1,1 @@
+["pol=s", "inc=a", "nsteps=2000", "zk=20", "snap=10", "snapcomp=Ez", "energy_every=0", "nl=20", "npml=20", "sf=20", "tf=200"]

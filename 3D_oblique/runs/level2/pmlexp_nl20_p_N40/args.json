@@ -1,0 +1,1 @@
+["nl=20", "pol=p", "eps2=2.25", "ifmode=a", "inc=a", "nsteps=4400", "dft0=3200", "dft1=4400", "yplanes=50,80,81,100,140,141,160,180,181", "energy_every=0", "npml=40", "sf=20", "tf=160", "y1=60"]

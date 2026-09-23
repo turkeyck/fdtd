@@ -1,0 +1,1005 @@
+{
+  "table": [
+    {
+      "item": "L1-2",
+      "quantity": "far-PML echo |B|/|A| (s-pol, \u0394=\u03bb0/20)",
+      "theory": "quantify",
+      "measured": "3.000e-06 (-110.5 dB)",
+      "threshold": "\u2014",
+      "passed": null,
+      "note": "single-plane-wave model residual 4.3e-11"
+    },
+    {
+      "item": "L1-2",
+      "quantity": "k fit, raw TF phase (s-pol, \u0394=\u03bb0/20)",
+      "theory": "k_disc",
+      "measured": "max rel err 1.50e-09, RMS 1.43e-06 rad",
+      "threshold": "\u2014",
+      "passed": null,
+      "note": "echo NOT removed; shows the echo effect"
+    },
+    {
+      "item": "L1-2",
+      "quantity": "kx fit rel. error (s-pol, \u0394=\u03bb0/20, echo subtracted)",
+      "theory": "3.141592653590 /\u03bb0",
+      "measured": "5.94e-13",
+      "threshold": "< 1e-6",
+      "passed": true,
+      "note": "fit 3.141592653588 /\u03bb0"
+    },
+    {
+      "item": "L1-2",
+      "quantity": "ky fit rel. error (s-pol, \u0394=\u03bb0/20, echo subtracted)",
+      "theory": "5.029766886388 /\u03bb0",
+      "measured": "2.51e-13",
+      "threshold": "< 1e-6",
+      "passed": true,
+      "note": "fit 5.029766886390 /\u03bb0"
+    },
+    {
+      "item": "L1-2",
+      "quantity": "kz fit rel. error (s-pol, \u0394=\u03bb0/20, echo subtracted)",
+      "theory": "2.094395102393 /\u03bb0",
+      "measured": "3.16e-14",
+      "threshold": "< 1e-6",
+      "passed": true,
+      "note": "fit 2.094395102393 /\u03bb0"
+    },
+    {
+      "item": "L1-2",
+      "quantity": "phase residual RMS (s-pol, \u0394=\u03bb0/20)",
+      "theory": "0",
+      "measured": "9.01e-12 rad",
+      "threshold": "< 1e-3 rad",
+      "passed": true,
+      "note": "219000 samples, max 2.3e-11 rad"
+    },
+    {
+      "item": "L1-2",
+      "quantity": "far-PML echo |B|/|A| (p-pol, \u0394=\u03bb0/20)",
+      "theory": "quantify",
+      "measured": "3.000e-06 (-110.5 dB)",
+      "threshold": "\u2014",
+      "passed": null,
+      "note": "single-plane-wave model residual 5.4e-11"
+    },
+    {
+      "item": "L1-2",
+      "quantity": "k fit, raw TF phase (p-pol, \u0394=\u03bb0/20)",
+      "theory": "k_disc",
+      "measured": "max rel err 2.75e-10, RMS 1.43e-06 rad",
+      "threshold": "\u2014",
+      "passed": null,
+      "note": "echo NOT removed; shows the echo effect"
+    },
+    {
+      "item": "L1-2",
+      "quantity": "kx fit rel. error (p-pol, \u0394=\u03bb0/20, echo subtracted)",
+      "theory": "3.141592653590 /\u03bb0",
+      "measured": "2.82e-12",
+      "threshold": "< 1e-6",
+      "passed": true,
+      "note": "fit 3.141592653599 /\u03bb0"
+    },
+    {
+      "item": "L1-2",
+      "quantity": "ky fit rel. error (p-pol, \u0394=\u03bb0/20, echo subtracted)",
+      "theory": "5.029766886388 /\u03bb0",
+      "measured": "2.75e-13",
+      "threshold": "< 1e-6",
+      "passed": true,
+      "note": "fit 5.029766886387 /\u03bb0"
+    },
+    {
+      "item": "L1-2",
+      "quantity": "kz fit rel. error (p-pol, \u0394=\u03bb0/20, echo subtracted)",
+      "theory": "2.094395102393 /\u03bb0",
+      "measured": "6.89e-14",
+      "threshold": "< 1e-6",
+      "passed": true,
+      "note": "fit 2.094395102393 /\u03bb0"
+    },
+    {
+      "item": "L1-2",
+      "quantity": "phase residual RMS (p-pol, \u0394=\u03bb0/20)",
+      "theory": "0",
+      "measured": "8.39e-12 rad",
+      "threshold": "< 1e-3 rad",
+      "passed": true,
+      "note": "219000 samples, max 2.7e-11 rad"
+    },
+    {
+      "item": "L1-3",
+      "quantity": "|ky_meas \u2212 ky_disc|/ky_disc (\u0394=\u03bb0/10)",
+      "theory": "0",
+      "measured": "4.04e-14",
+      "threshold": "< 1e-6",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "item": "L1-3",
+      "quantity": "|ky_meas \u2212 ky_cont| (\u0394=\u03bb0/10)",
+      "theory": "3.013e-02 (leading term)",
+      "measured": "3.0969e-02 /\u03bb0",
+      "threshold": "\u2014",
+      "passed": null,
+      "note": ""
+    },
+    {
+      "item": "L1-3",
+      "quantity": "|ky_meas \u2212 ky_disc|/ky_disc (\u0394=\u03bb0/20)",
+      "theory": "0",
+      "measured": "2.51e-13",
+      "threshold": "< 1e-6",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "item": "L1-3",
+      "quantity": "|ky_meas \u2212 ky_cont| (\u0394=\u03bb0/20)",
+      "theory": "7.533e-03 (leading term)",
+      "measured": "7.5839e-03 /\u03bb0",
+      "threshold": "\u2014",
+      "passed": null,
+      "note": ""
+    },
+    {
+      "item": "L1-3",
+      "quantity": "|ky_meas \u2212 ky_disc|/ky_disc (\u0394=\u03bb0/40)",
+      "theory": "0",
+      "measured": "1.79e-13",
+      "threshold": "< 1e-6",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "item": "L1-3",
+      "quantity": "|ky_meas \u2212 ky_cont| (\u0394=\u03bb0/40)",
+      "theory": "1.883e-03 (leading term)",
+      "measured": "1.8864e-03 /\u03bb0",
+      "threshold": "\u2014",
+      "passed": null,
+      "note": ""
+    },
+    {
+      "item": "L1-3",
+      "quantity": "log-log slope of |ky_meas \u2212 ky_cont| vs \u0394",
+      "theory": "2",
+      "measured": "2.0186",
+      "threshold": "2 \u00b1 0.1",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "item": "L1-4",
+      "quantity": "max|\u2207\u00b7E|/(|K\u0303||E|), DFT, TF interior (s-pol, \u0394=\u03bb0/20)",
+      "theory": "0",
+      "measured": "1.71e-14",
+      "threshold": "< 1e-10",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "item": "L1-4",
+      "quantity": "max|\u2207\u00b7H|/(|K\u0303||H|), DFT, TF interior (s-pol, \u0394=\u03bb0/20)",
+      "theory": "0",
+      "measured": "3.72e-14",
+      "threshold": "< 1e-10",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "item": "L1-4",
+      "quantity": "time-domain max|\u2207\u00b7E| over run (s-pol, \u0394=\u03bb0/20)",
+      "theory": "0, not growing",
+      "measured": "4.51e-14 (late/early max ratio 1.74)",
+      "threshold": "< 1e-10",
+      "passed": true,
+      "note": "\u2207\u00b7H max 7.09e-14"
+    },
+    {
+      "item": "L1-4",
+      "quantity": "|E\u00b7K\u0303|, |H\u00b7K\u0303|, |E\u00b7H*| normalized (s-pol, \u0394=\u03bb0/20)",
+      "theory": "0",
+      "measured": "1.3e-16, 8.3e-15, 3.3e-16",
+      "threshold": "< 1e-10",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "item": "L1-4",
+      "quantity": "max|\u2207\u00b7E|/(|K\u0303||E|), DFT, TF interior (p-pol, \u0394=\u03bb0/20)",
+      "theory": "0",
+      "measured": "2.59e-14",
+      "threshold": "< 1e-10",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "item": "L1-4",
+      "quantity": "max|\u2207\u00b7H|/(|K\u0303||H|), DFT, TF interior (p-pol, \u0394=\u03bb0/20)",
+      "theory": "0",
+      "measured": "1.85e-14",
+      "threshold": "< 1e-10",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "item": "L1-4",
+      "quantity": "time-domain max|\u2207\u00b7E| over run (p-pol, \u0394=\u03bb0/20)",
+      "theory": "0, not growing",
+      "measured": "7.02e-14 (late/early max ratio 2.08)",
+      "threshold": "< 1e-10",
+      "passed": true,
+      "note": "\u2207\u00b7H max 4.71e-14"
+    },
+    {
+      "item": "L1-4",
+      "quantity": "|E\u00b7K\u0303|, |H\u00b7K\u0303|, |E\u00b7H*| normalized (p-pol, \u0394=\u03bb0/20)",
+      "theory": "0",
+      "measured": "7.1e-15, 1.0e-16, 3.1e-16",
+      "threshold": "< 1e-10",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "item": "L1-5",
+      "quantity": "|H|/|E| (own Yee points) vs |K\u0303|/(\u03bc0\u03c9\u0303) (s-pol, \u0394=\u03bb0/20)",
+      "theory": "1.000000000000000",
+      "measured": "1.000000000000000",
+      "threshold": "rel < 1e-8",
+      "passed": true,
+      "note": "max rel err 2.4e-15; |K\u0303|/(\u03bc0\u03c9\u0303) \u2261 1/\u03b70 (derivation \u00a72.5)"
+    },
+    {
+      "item": "L1-5",
+      "quantity": "|H'|/|E'| cell-centre interpolated (s-pol, \u0394=\u03bb0/20)",
+      "theory": "1.0060121133",
+      "measured": "1.0060121133",
+      "threshold": "\u2014",
+      "passed": null,
+      "note": "rel err vs interp theory 1.2e-12; deviation from 1/\u03b70 = +6.012e-03 (O((k0\u0394)\u00b2), (k0\u0394)\u00b2=0.099)"
+    },
+    {
+      "item": "L1-5",
+      "quantity": "S_y (conserved flux \u03a6) variation over 10 TF planes (s-pol, \u0394=\u03bb0/20)",
+      "theory": "0",
+      "measured": "1.85e-14",
+      "threshold": "< 1e-4",
+      "passed": true,
+      "note": "\u03a6/\u03a6_inc,theory \u2212 1 = -2.64e-11"
+    },
+    {
+      "item": "L1-5",
+      "quantity": "angle(S, k) (s-pol, \u0394=\u03bb0/20)",
+      "theory": "0.1050\u00b0 (interp. theory)",
+      "measured": "0.1050\u00b0",
+      "threshold": "report",
+      "passed": null,
+      "note": "angle(S, S_theory) = 0.0e+00\u00b0; angle(K\u0303,k) = 0.0499\u00b0, angle(v_g,k) = 0.2003\u00b0"
+    },
+    {
+      "item": "L1-5",
+      "quantity": "|H|/|E| (own Yee points) vs |K\u0303|/(\u03bc0\u03c9\u0303) (p-pol, \u0394=\u03bb0/20)",
+      "theory": "1.000000000000000",
+      "measured": "1.000000000000000",
+      "threshold": "rel < 1e-8",
+      "passed": true,
+      "note": "max rel err 2.2e-15; |K\u0303|/(\u03bc0\u03c9\u0303) \u2261 1/\u03b70 (derivation \u00a72.5)"
+    },
+    {
+      "item": "L1-5",
+      "quantity": "|H'|/|E'| cell-centre interpolated (p-pol, \u0394=\u03bb0/20)",
+      "theory": "1.0059991929",
+      "measured": "1.0059991929",
+      "threshold": "\u2014",
+      "passed": null,
+      "note": "rel err vs interp theory 1.2e-12; deviation from 1/\u03b70 = +5.999e-03 (O((k0\u0394)\u00b2), (k0\u0394)\u00b2=0.099)"
+    },
+    {
+      "item": "L1-5",
+      "quantity": "S_y (conserved flux \u03a6) variation over 10 TF planes (p-pol, \u0394=\u03bb0/20)",
+      "theory": "0",
+      "measured": "1.61e-14",
+      "threshold": "< 1e-4",
+      "passed": true,
+      "note": "\u03a6/\u03a6_inc,theory \u2212 1 = -2.64e-11"
+    },
+    {
+      "item": "L1-5",
+      "quantity": "angle(S, k) (p-pol, \u0394=\u03bb0/20)",
+      "theory": "0.1978\u00b0 (interp. theory)",
+      "measured": "0.1978\u00b0",
+      "threshold": "report",
+      "passed": null,
+      "note": "angle(S, S_theory) = 1.2e-06\u00b0; angle(K\u0303,k) = 0.0499\u00b0, angle(v_g,k) = 0.2003\u00b0"
+    },
+    {
+      "item": "L1-6",
+      "quantity": "PML reflection (s-pol, N_pml=5, \u0394=\u03bb0/20)",
+      "theory": "\u2014",
+      "measured": "-54.1 dB",
+      "threshold": "< \u221240 dB",
+      "passed": null,
+      "note": "target applies to N_pml=20"
+    },
+    {
+      "item": "L1-6",
+      "quantity": "PML reflection (s-pol, N_pml=10, \u0394=\u03bb0/20)",
+      "theory": "\u2014",
+      "measured": "-92.4 dB",
+      "threshold": "< \u221240 dB",
+      "passed": null,
+      "note": "target applies to N_pml=20"
+    },
+    {
+      "item": "L1-6",
+      "quantity": "PML reflection (s-pol, N_pml=20, \u0394=\u03bb0/20)",
+      "theory": "\u2014",
+      "measured": "-110.5 dB",
+      "threshold": "< \u221240 dB",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "item": "L1-6",
+      "quantity": "PML reflection (s-pol, N_pml=30, \u0394=\u03bb0/20)",
+      "theory": "\u2014",
+      "measured": "-121.0 dB",
+      "threshold": "< \u221240 dB",
+      "passed": null,
+      "note": "target applies to N_pml=20"
+    },
+    {
+      "item": "L1-6",
+      "quantity": "PML reflection (p-pol, N_pml=5, \u0394=\u03bb0/20)",
+      "theory": "\u2014",
+      "measured": "-54.1 dB",
+      "threshold": "< \u221240 dB",
+      "passed": null,
+      "note": "target applies to N_pml=20"
+    },
+    {
+      "item": "L1-6",
+      "quantity": "PML reflection (p-pol, N_pml=10, \u0394=\u03bb0/20)",
+      "theory": "\u2014",
+      "measured": "-92.4 dB",
+      "threshold": "< \u221240 dB",
+      "passed": null,
+      "note": "target applies to N_pml=20"
+    },
+    {
+      "item": "L1-6",
+      "quantity": "PML reflection (p-pol, N_pml=20, \u0394=\u03bb0/20)",
+      "theory": "\u2014",
+      "measured": "-110.5 dB",
+      "threshold": "< \u221240 dB",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "item": "L1-6",
+      "quantity": "PML reflection (p-pol, N_pml=30, \u0394=\u03bb0/20)",
+      "theory": "\u2014",
+      "measured": "-121.0 dB",
+      "threshold": "< \u221240 dB",
+      "passed": null,
+      "note": "target applies to N_pml=20"
+    },
+    {
+      "item": "L1-6",
+      "quantity": "PML reflection (s, N=20, \u03ba_max=1.0, \u03b1_max=0.000)",
+      "theory": "\u2014",
+      "measured": "-111.4 dB",
+      "threshold": "\u2014",
+      "passed": null,
+      "note": "sensitivity, not a gate"
+    },
+    {
+      "item": "L1-6",
+      "quantity": "PML reflection (s, N=20, \u03ba_max=1.0, \u03b1_max=0.314)",
+      "theory": "\u2014",
+      "measured": "-111.4 dB",
+      "threshold": "\u2014",
+      "passed": null,
+      "note": "sensitivity, not a gate"
+    },
+    {
+      "item": "L1-6",
+      "quantity": "PML reflection (s, N=20, \u03ba_max=10.0, \u03b1_max=0.314)",
+      "theory": "\u2014",
+      "measured": "-108.4 dB",
+      "threshold": "\u2014",
+      "passed": null,
+      "note": "sensitivity, not a gate"
+    },
+    {
+      "item": "L1-7",
+      "quantity": "steps run (\u0394=\u03bb0/20, S=0.5)",
+      "theory": "\u2265 20000",
+      "measured": "20000",
+      "threshold": "\u2265 20000",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "item": "L1-7",
+      "quantity": "W_total monotone from its peak (t=47.25 T0, off-ramp) down to 1e-8\u00b7peak",
+      "theory": "monotone",
+      "measured": "150 samples, max \u0394W/W = -2.63e-09",
+      "threshold": "\u0394W \u2264 0",
+      "passed": true,
+      "note": "source fully off at t = 80 T0; 1e-8\u00b7peak crossed at t = 84.8 T0"
+    },
+    {
+      "item": "L1-7",
+      "quantity": "final W_total / peak (t = 500 T0)",
+      "theory": "\u2192 0",
+      "measured": "2.93e-28",
+      "threshold": "< 1e-8",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "item": "L1-7",
+      "quantity": "late-time growth: max W over 2nd half / W at its start",
+      "theory": "\u2264 1",
+      "measured": "1.000000",
+      "threshold": "\u2264 1",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "item": "L1-7",
+      "quantity": "strict per-sample monotonicity over the whole tail (incl. round-off floor)",
+      "theory": "\u2014",
+      "measured": "28 increases, max +1.12e-03 relative, all at W/peak \u2264 4.9e-28",
+      "threshold": "\u2014",
+      "passed": null,
+      "note": "increases occur only at W/peak ~ 4e-28 (fields ~ 2e-14 \u2248 100 ulp of O(1)); no upward trend"
+    },
+    {
+      "item": "L1-8",
+      "quantity": "(m,n)=(\u22121,1) vs x-mirror of (1,1), s-pol, \u0394=\u03bb0/20",
+      "theory": "0",
+      "measured": "2.54e-15",
+      "threshold": "< 1e-6",
+      "passed": true,
+      "note": "all six components, x\u2013y slice + all y-planes (incl. SF)"
+    },
+    {
+      "item": "L1-8",
+      "quantity": "(m,n)=(\u22121,1) vs x-mirror of (1,1), p-pol, \u0394=\u03bb0/20",
+      "theory": "0",
+      "measured": "2.35e-15",
+      "threshold": "< 1e-6",
+      "passed": true,
+      "note": "all six components, x\u2013y slice + all y-planes (incl. SF)"
+    }
+  ],
+  "runs": {
+    "10_s": {
+      "nl": 10,
+      "Delta": 0.1,
+      "dt": 0.05,
+      "pol": "s",
+      "m": 1,
+      "ky_disc": 5.05315172519468,
+      "ky_cont": 5.022183027164529,
+      "echo_rel": 4.619711774533063e-06,
+      "echo_dB": -106.70770238772859,
+      "echo_model_residual": 3.380939157997032e-11,
+      "fits": {
+        "raw": {
+          "k": [
+            3.141592653589046,
+            5.053151712032841,
+            2.094395102393147
+          ],
+          "rms": 2.180769982989471e-06,
+          "max": 4.742007535973869e-06,
+          "npts": 54500,
+          "rel_err": [
+            2.377641321876282e-13,
+            2.604679108365099e-09,
+            2.3112030685301558e-14
+          ]
+        },
+        "echo_subtracted": {
+          "k": [
+            3.1415926535893757,
+            5.053151725194884,
+            2.0943951023931735
+          ],
+          "rms": 1.0195765405936742e-11,
+          "max": 2.325784009826748e-11,
+          "npts": 54500,
+          "rel_err": [
+            1.3287650669225359e-13,
+            4.042646008678051e-14,
+            1.038981195944749e-14
+          ]
+        }
+      },
+      "div_dft": [
+        5.8332681478535716e-15,
+        8.95101103786132e-15
+      ],
+      "EK": 5.552198403881828e-16,
+      "HK": 1.432710188340222e-14,
+      "EH": 1.4064349647996516e-15,
+      "ratio_raw": [
+        1.0,
+        0.9999999999999994,
+        0.9999999999999988,
+        0.9999999999999998,
+        1.0000000000000016
+      ],
+      "ratio_theory": 1.0,
+      "ratio_int": [
+        1.02471466686547,
+        1.024714666868988,
+        1.0247146668698481,
+        1.0247146668707523,
+        1.0247146668721219
+      ],
+      "ratio_int_theory": 1.0247146668722906,
+      "flux": [
+        2.3208596348003367,
+        2.3208596348003376,
+        2.3208596348003336,
+        2.320859634800331,
+        2.32085963480034,
+        2.3208596348003363,
+        2.3208596348003385,
+        2.3208596348003474,
+        2.3208596348002843,
+        2.3208596348002675
+      ],
+      "flux_theory": 2.3208596349425794,
+      "S_meas": [
+        0.23149216456333868,
+        0.3789613058994945,
+        0.15575171664192683
+      ],
+      "S_theory_interp": [
+        0.23149216456867133,
+        0.3789613059098502,
+        0.1557517166455148
+      ],
+      "ang_S_k": 0.42986943823483803,
+      "ang_Sth_k": 0.4298694383476031,
+      "ang_S_Sth": 0.0,
+      "ang_Kt_k": 0.2026945154056098,
+      "ang_vg_k": 0.8205023597100312,
+      "jlo": 32,
+      "jhi": 129,
+      "jsf": 25,
+      "pairs": [
+        35,
+        55,
+        80,
+        105,
+        127
+      ]
+    },
+    "20_s": {
+      "nl": 20,
+      "Delta": 0.05,
+      "dt": 0.025,
+      "pol": "s",
+      "m": 1,
+      "ky_disc": 5.029766886388454,
+      "ky_cont": 5.022183027164529,
+      "echo_rel": 3.000074783714105e-06,
+      "echo_dB": -110.45735838727626,
+      "echo_model_residual": 4.336134829072622e-11,
+      "fits": {
+        "raw": {
+          "k": [
+            3.1415926535874235,
+            5.029766878864068,
+            2.0943951023930865
+          ],
+          "rms": 1.425966371740279e-06,
+          "max": 3.0429578105617416e-06,
+          "npts": 219000,
+          "rel_err": [
+            7.542862124573033e-13,
+            1.4959710318639475e-09,
+            5.194905979723744e-14
+          ]
+        },
+        "echo_subtracted": {
+          "k": [
+            3.1415926535879266,
+            5.029766886389716,
+            2.094395102393129
+          ],
+          "rms": 9.008464291282536e-12,
+          "max": 2.3440804852725705e-11,
+          "npts": 219000,
+          "rel_err": [
+            5.94127614497385e-13,
+            2.509264470704149e-13,
+            3.159350983587094e-14
+          ]
+        }
+      },
+      "div_dft": [
+        1.7092580771212842e-14,
+        3.724871592551885e-14
+      ],
+      "EK": 1.3321307106573766e-16,
+      "HK": 8.32356079354353e-15,
+      "EH": 3.261697869963538e-16,
+      "ratio_raw": [
+        1.0,
+        1.0000000000000002,
+        1.0000000000000007,
+        1.0000000000000009,
+        0.9999999999999976
+      ],
+      "ratio_theory": 1.0,
+      "ratio_int": [
+        1.0060121132577209,
+        1.0060121132578794,
+        1.0060121132578956,
+        1.006012113257912,
+        1.0060121132598716
+      ],
+      "ratio_int_theory": 1.0060121132589679,
+      "flux": [
+        2.3787467630607413,
+        2.378746763060741,
+        2.378746763060738,
+        2.3787467630607395,
+        2.378746763060731,
+        2.3787467630607324,
+        2.378746763060725,
+        2.3787467630607226,
+        2.3787467630607644,
+        2.3787467630607666
+      ],
+      "flux_theory": 2.378746763123436,
+      "S_meas": [
+        0.24530934561245918,
+        0.39443439944589054,
+        0.16391406404892334
+      ],
+      "S_theory_interp": [
+        0.24530934561580636,
+        0.3944343994517072,
+        0.16391406405116363
+      ],
+      "ang_S_k": 0.10501450635014481,
+      "ang_Sth_k": 0.10501450637443911,
+      "ang_S_Sth": 0.0,
+      "ang_Kt_k": 0.04992619206250334,
+      "ang_vg_k": 0.2002919348309557,
+      "jlo": 42,
+      "jhi": 239,
+      "jsf": 30,
+      "pairs": [
+        50,
+        90,
+        140,
+        190,
+        234
+      ]
+    },
+    "40_s": {
+      "nl": 40,
+      "Delta": 0.025,
+      "dt": 0.0125,
+      "pol": "s",
+      "m": 1,
+      "ky_disc": 5.02406940268439,
+      "ky_cont": 5.022183027164529,
+      "echo_rel": 2.631681446559341e-06,
+      "echo_dB": -111.5953336261937,
+      "echo_model_residual": 8.543358899500337e-11,
+      "fits": {
+        "raw": {
+          "k": [
+            3.141592653595105,
+            5.0240693963528775,
+            2.0943951023934035
+          ],
+          "rms": 1.2547111132713512e-06,
+          "max": 2.664703742993879e-06,
+          "npts": 878000,
+          "rel_err": [
+            1.6907828686660055e-12,
+            1.260235816016776e-09,
+            9.944534304042596e-14
+          ]
+        },
+        "echo_subtracted": {
+          "k": [
+            3.1415926535955823,
+            5.024069402683491,
+            2.094395102393298
+          ],
+          "rms": 5.459627405894011e-12,
+          "max": 1.9049650745728286e-11,
+          "npts": 878000,
+          "rel_err": [
+            1.8427427034470404e-12,
+            1.7890607965253685e-13,
+            4.8980542094538164e-14
+          ]
+        }
+      },
+      "div_dft": [
+        6.967039897549096e-14,
+        1.3981411496178095e-13
+      ],
+      "EK": 1.2440566167634237e-16,
+      "HK": 9.642166039935604e-15,
+      "EH": 4.1871765219455523e-16,
+      "ratio_raw": [
+        1.0,
+        0.9999999999999993,
+        1.0,
+        1.000000000000001,
+        0.9999999999999989
+      ],
+      "ratio_theory": 1.0000000000000002,
+      "ratio_int": [
+        1.001493056459973,
+        1.001493056459795,
+        1.0014930564597933,
+        1.001493056459792,
+        1.0014930564608227
+      ],
+      "ratio_int_theory": 1.0014930564603193,
+      "flux": [
+        2.393129243279213,
+        2.3931292432792124,
+        2.393129243279215,
+        2.393129243279216,
+        2.3931292432792133,
+        2.393129243279215,
+        2.3931292432792044,
+        2.3931292432792053,
+        2.3931292432792164,
+        2.3931292432792133
+      ],
+      "flux_theory": 2.393129243328925,
+      "S_meas": [
+        0.24882332652392147,
+        0.3983451909973814,
+        0.16597701781256835
+      ],
+      "S_theory_interp": [
+        0.24882332652739245,
+        0.39834519100312127,
+        0.16597701781489832
+      ],
+      "ang_S_k": 0.02610514358092231,
+      "ang_Sth_k": 0.02610514360884514,
+      "ang_S_Sth": 0.0,
+      "ang_Kt_k": 0.012436126038630977,
+      "ang_vg_k": 0.049780892471326714,
+      "jlo": 62,
+      "jhi": 459,
+      "jsf": 40,
+      "pairs": [
+        80,
+        160,
+        260,
+        360,
+        448
+      ]
+    },
+    "20_p": {
+      "nl": 20,
+      "Delta": 0.05,
+      "dt": 0.025,
+      "pol": "p",
+      "m": 1,
+      "ky_disc": 5.029766886388454,
+      "ky_cont": 5.022183027164529,
+      "echo_rel": 3.0000745244428976e-06,
+      "echo_dB": -110.45735913792463,
+      "echo_model_residual": 5.402152920871048e-11,
+      "fits": {
+        "raw": {
+          "k": [
+            3.1415926535989875,
+            5.029766887773358,
+            2.094395102393049
+          ],
+          "rms": 1.4254318789848833e-06,
+          "max": 3.0177726983993125e-06,
+          "npts": 219000,
+          "rel_err": [
+            2.9266757388898066e-12,
+            2.753417139794535e-10,
+            6.976016601343315e-14
+          ]
+        },
+        "echo_subtracted": {
+          "k": [
+            3.141592653598654,
+            5.029766886387069,
+            2.094395102393051
+          ],
+          "rms": 8.388821498477494e-12,
+          "max": 2.6503244043851737e-11,
+          "npts": 219000,
+          "rel_err": [
+            2.820515891521847e-12,
+            2.75295095695128e-13,
+            6.89120180983762e-14
+          ]
+        }
+      },
+      "div_dft": [
+        2.5882192949057034e-14,
+        1.8518185591346475e-14
+      ],
+      "EK": 7.117398219577674e-15,
+      "HK": 1.0112607301413345e-16,
+      "EH": 3.121649784624113e-16,
+      "ratio_raw": [
+        1.0000000000000002,
+        0.9999999999999997,
+        0.9999999999999993,
+        0.9999999999999994,
+        1.0000000000000022
+      ],
+      "ratio_theory": 1.0,
+      "ratio_int": [
+        1.0059991929321812,
+        1.0059991929323382,
+        1.005999192932353,
+        1.0059991929323693,
+        1.0059991929343202
+      ],
+      "ratio_int_theory": 1.0059991929334187,
+      "flux": [
+        2.378746763060741,
+        2.37874676306074,
+        2.378746763060737,
+        2.378746763060737,
+        2.37874676306073,
+        2.3787467630607306,
+        2.3787467630607266,
+        2.3787467630607244,
+        2.3787467630607595,
+        2.3787467630607626
+      ],
+      "flux_theory": 2.378746763123435,
+      "S_meas": [
+        0.24854668124642343,
+        0.3949547429487188,
+        0.16550822260210912
+      ],
+      "S_theory_interp": [
+        0.24854668125036045,
+        0.3949547429545409,
+        0.16550822260473172
+      ],
+      "ang_S_k": 0.19775996088044787,
+      "ang_Sth_k": 0.1977599609136213,
+      "ang_S_Sth": 1.2074182697257333e-06,
+      "ang_Kt_k": 0.04992619206250334,
+      "ang_vg_k": 0.2002919348309557,
+      "jlo": 42,
+      "jhi": 239,
+      "jsf": 30,
+      "pairs": [
+        50,
+        90,
+        140,
+        190,
+        234
+      ]
+    }
+  },
+  "pml": [
+    {
+      "pol": "s",
+      "N": 5,
+      "kappa_max": 5.0,
+      "alpha_max": 0.3141592653589793,
+      "R": 0.001972007931758107,
+      "R_dB": -54.101826851670495,
+      "model_res": 1.1107163247425847e-12
+    },
+    {
+      "pol": "s",
+      "N": 10,
+      "kappa_max": 5.0,
+      "alpha_max": 0.3141592653589793,
+      "R": 2.3868651808066955e-05,
+      "R_dB": -92.443442217982,
+      "model_res": 1.837889805086065e-11
+    },
+    {
+      "pol": "s",
+      "N": 20,
+      "kappa_max": 5.0,
+      "alpha_max": 0.3141592653589793,
+      "R": 3.000074783712113e-06,
+      "R_dB": -110.45735838728204,
+      "model_res": 3.739233665103207e-11
+    },
+    {
+      "pol": "s",
+      "N": 30,
+      "kappa_max": 5.0,
+      "alpha_max": 0.3141592653589793,
+      "R": 8.888071637233571e-07,
+      "R_dB": -121.0238490734008,
+      "model_res": 1.409640656056537e-10
+    },
+    {
+      "pol": "p",
+      "N": 5,
+      "kappa_max": 5.0,
+      "alpha_max": 0.3141592653589793,
+      "R": 0.0019701459651869017,
+      "R_dB": -54.11003192827212,
+      "model_res": 9.167676950608083e-13
+    },
+    {
+      "pol": "p",
+      "N": 10,
+      "kappa_max": 5.0,
+      "alpha_max": 0.3141592653589793,
+      "R": 2.386863206252089e-05,
+      "R_dB": -92.44344940346136,
+      "model_res": 1.88785058741401e-11
+    },
+    {
+      "pol": "p",
+      "N": 20,
+      "kappa_max": 5.0,
+      "alpha_max": 0.3141592653589793,
+      "R": 3.0000745243602675e-06,
+      "R_dB": -110.45735913816385,
+      "model_res": 6.318598677425492e-11
+    },
+    {
+      "pol": "p",
+      "N": 30,
+      "kappa_max": 5.0,
+      "alpha_max": 0.3141592653589793,
+      "R": 8.88807140838347e-07,
+      "R_dB": -121.02384929704512,
+      "model_res": 1.547330352040638e-10
+    },
+    {
+      "pol": "s",
+      "N": 20,
+      "kappa_max": 1.0,
+      "alpha_max": 0.0,
+      "R": 2.6800875992336007e-06,
+      "R_dB": -111.43702021463297,
+      "model_res": 3.90349592603517e-11
+    },
+    {
+      "pol": "s",
+      "N": 20,
+      "kappa_max": 1.0,
+      "alpha_max": 0.3141592653589793,
+      "R": 2.6784029914084867e-06,
+      "R_dB": -111.44248157278481,
+      "model_res": 3.955393018258041e-11
+    },
+    {
+      "pol": "s",
+      "N": 20,
+      "kappa_max": 10.0,
+      "alpha_max": 0.3141592653589793,
+      "R": 3.7916549764777742e-06,
+      "R_dB": -108.42342376755015,
+      "model_res": 3.0376052199136163e-11
+    }
+  ],
+  "passed": true
+}

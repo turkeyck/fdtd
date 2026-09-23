@@ -1,0 +1,18 @@
+{
+  "units": "c = eps0 = mu0 = 1, lambda0 = 1",
+  "nl": 20, "Delta": 0.050000000000000003, "dt": 0.025000000000000001, "S": 0.5, "omega0": 6.2831853071795862,
+  "Lx": 1.1000000000000001, "Lz": 0.10000000000000001, "m": 1, "n": 0, "pol": "s",
+  "Nx": 22, "Ny": 220, "Nz": 2, "j0": 40, "j1": 100, "npml": 20, "sf": 20, "tf": 160,
+  "kx": 5.7119866428905324, "ky": 2.6461097664330948, "kz": 0, "ky_disc": 2.6461097664330948, "ky_cont": 2.6175611159622574,
+  "Ktilde": [5.692593530931406, 2.6441802107944889, 0], "Ktilde_src": [5.692593530931406, 2.6441802107944889, 0], "omega_tilde": 6.2767276582275953,
+  "E0": [0, 0, 1], "H0": [0.42126731551407554, -0.90693651866024483, 0],
+  "offsets": {"Ex": [0.5, 0, 0, 0], "Ey": [0, 0.5, 0, 0], "Ez": [0, 0, 0.5, 0], "Hx": [0, 0.5, 0.5, 0.5], "Hy": [0.5, 0, 0.5, 0.5], "Hz": [0.5, 0.5, 0, 0.5]},
+  "pml": {"m": 3, "sig_fac": 0.8, "kappa_max": 5, "alpha_max": 0.31415926535897931},
+  "eps2": 2.25, "y1": 60, "ifmode": "a",
+  "inc": "a", "ky_mode": "discrete", "ramp": "e", "ramp_T": 10, "erf_t0": 20, "erf_tau": 4, "off_t": -1, "na": 40,
+  "init": "0", "nsteps": 4400, "dft0": 3200, "dft1": 4400,
+  "aux": {"jlo": -2220, "L": 4660, "ja": 0, "dft_jlo": 0, "dft_jhi": 220},
+  "slices": [{"name": "y30", "type": 0, "idx": 30, "shape": "Nx,Nz"}, {"name": "y60", "type": 0, "idx": 60, "shape": "Nx,Nz"}, {"name": "y61", "type": 0, "idx": 61, "shape": "Nx,Nz"}, {"name": "y80", "type": 0, "idx": 80, "shape": "Nx,Nz"}, {"name": "y120", "type": 0, "idx": 120, "shape": "Nx,Nz"}, {"name": "y121", "type": 0, "idx": 121, "shape": "Nx,Nz"}, {"name": "y140", "type": 0, "idx": 140, "shape": "Nx,Nz"}, {"name": "y160", "type": 0, "idx": 160, "shape": "Nx,Nz"}, {"name": "y161", "type": 0, "idx": 161, "shape": "Nx,Nz"}, {"name": "xy", "type": 1, "idx": 0, "shape": "Nx,Ny+1"}, {"name": "yz", "type": 2, "idx": 10, "shape": "Ny+1,Nz"}],
+  "snap_every": 0, "snapcomp": "Ez", "nsnap": 0, "zk": 0, "xi": 10, "dump": 0,
+  "threads": 8, "runtime_s": 4.000
+}

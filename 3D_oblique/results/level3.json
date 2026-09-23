@@ -1,0 +1,371 @@
+{
+  "table": [
+    {
+      "item": "L3-a",
+      "quantity": "vacuum ky, s-pol, \u0394=\u03bb0/20, S=0.5 (recurrence estimator)",
+      "ours": "5.029766886388",
+      "meep": "5.029766886388",
+      "theory": "5.029766886388 (discrete)",
+      "threshold": "|\u0394ky|/ky < 1e-6",
+      "passed": true,
+      "note": "ours\u2212theory 1.2e-15, meep\u2212theory 1.2e-15; continuous ky = 5.022183"
+    },
+    {
+      "item": "L3-b",
+      "quantity": "polar angle \u03b8 from phase fit, s-pol",
+      "ours": "36.89467211\u00b0",
+      "meep": "36.89467205\u00b0",
+      "theory": "36.89467207\u00b0 (discrete k)",
+      "threshold": "|\u0394\u03b8| < 1e-4\u00b0",
+      "passed": true,
+      "note": "phase residual RMS ours 2.1e-06 rad, meep 6.7e-06 rad (raw, echo included)"
+    },
+    {
+      "item": "L3-b",
+      "quantity": "Meep k_point check: fitted kx/(2\u03c0), s-pol",
+      "ours": "0.5000000000",
+      "meep": "0.5000000000",
+      "theory": "0.5000000000 (k_point.x)",
+      "threshold": "|\u0394| < 1e-8",
+      "passed": true,
+      "note": "confirms k_point in units of 2\u03c0/a with Bloch phase exp(2\u03c0i k\u00b7r)"
+    },
+    {
+      "item": "L3-b",
+      "quantity": "Meep k_point check: fitted kz/(2\u03c0), s-pol",
+      "ours": "\u2014",
+      "meep": "0.3333333333",
+      "theory": "0.3333333333 (k_point.z)",
+      "threshold": "|\u0394| < 1e-8",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "item": "L3-d",
+      "quantity": "point-wise DFT field, vacuum TF region, s-pol (ref. point Ez at y=3.00\u03bb0)",
+      "ours": "\u2014",
+      "meep": "rel. L2 = 1.56e-05",
+      "theory": "0",
+      "threshold": "< 1e-3",
+      "passed": true,
+      "note": "E-only 1.6e-05, H-only 1.6e-05; LS-scaled 1.1e-05"
+    },
+    {
+      "item": "L3-e",
+      "quantity": "PML reflection (N=20 cells, s-pol, \u03b8=36.9\u00b0)",
+      "ours": "-110.5 dB",
+      "meep": "-100.4 dB",
+      "theory": "\u2014",
+      "threshold": "record only",
+      "passed": null,
+      "note": "ours: CPML m=3, \u03ba_max=5, \u03b1_max=0.1\u03c0; Meep: default PML (quadratic profile, R_asymptotic 1e-15)"
+    },
+    {
+      "item": "L3-a",
+      "quantity": "vacuum ky, p-pol, \u0394=\u03bb0/20, S=0.5 (recurrence estimator)",
+      "ours": "5.029766886388",
+      "meep": "5.029766886388",
+      "theory": "5.029766886388 (discrete)",
+      "threshold": "|\u0394ky|/ky < 1e-6",
+      "passed": true,
+      "note": "ours\u2212theory 3.0e-15, meep\u2212theory 1.2e-15; continuous ky = 5.022183"
+    },
+    {
+      "item": "L3-b",
+      "quantity": "polar angle \u03b8 from phase fit, p-pol",
+      "ours": "36.89467206\u00b0",
+      "meep": "36.89467196\u00b0",
+      "theory": "36.89467207\u00b0 (discrete k)",
+      "threshold": "|\u0394\u03b8| < 1e-4\u00b0",
+      "passed": true,
+      "note": "phase residual RMS ours 2.1e-06 rad, meep 6.7e-06 rad (raw, echo included)"
+    },
+    {
+      "item": "L3-b",
+      "quantity": "Meep k_point check: fitted kx/(2\u03c0), p-pol",
+      "ours": "0.5000000000",
+      "meep": "0.5000000000",
+      "theory": "0.5000000000 (k_point.x)",
+      "threshold": "|\u0394| < 1e-8",
+      "passed": true,
+      "note": "confirms k_point in units of 2\u03c0/a with Bloch phase exp(2\u03c0i k\u00b7r)"
+    },
+    {
+      "item": "L3-b",
+      "quantity": "Meep k_point check: fitted kz/(2\u03c0), p-pol",
+      "ours": "\u2014",
+      "meep": "0.3333333333",
+      "theory": "0.3333333333 (k_point.z)",
+      "threshold": "|\u0394| < 1e-8",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "item": "L3-d",
+      "quantity": "point-wise DFT field, vacuum TF region, p-pol (ref. point Ey at y=3.00\u03bb0)",
+      "ours": "\u2014",
+      "meep": "rel. L2 = 1.56e-05",
+      "theory": "0",
+      "threshold": "< 1e-3",
+      "passed": true,
+      "note": "E-only 1.6e-05, H-only 1.6e-05; LS-scaled 1.1e-05"
+    },
+    {
+      "item": "L3-e",
+      "quantity": "PML reflection (N=20 cells, p-pol, \u03b8=36.9\u00b0)",
+      "ours": "-110.5 dB",
+      "meep": "-100.4 dB",
+      "theory": "\u2014",
+      "threshold": "record only",
+      "passed": null,
+      "note": "ours: CPML m=3, \u03ba_max=5, \u03b1_max=0.1\u03c0; Meep: default PML (quadratic profile, R_asymptotic 1e-15)"
+    },
+    {
+      "item": "L3-c",
+      "quantity": "R, s-pol, Meep eps_averaging=True, Meep flux = native",
+      "ours": "0.066145",
+      "meep": "0.066159",
+      "theory": "0.069991 (Fresnel)",
+      "threshold": "rel diff < 0.5%",
+      "passed": true,
+      "note": "rel diff 2.15e-04; Meep vs Fresnel -5.47e-02; ours vs Fresnel -5.50e-02"
+    },
+    {
+      "item": "L3-c",
+      "quantity": "R, s-pol, Meep eps_averaging=True, Meep flux = phi",
+      "ours": "0.066145",
+      "meep": "0.066159",
+      "theory": "0.069991 (Fresnel)",
+      "threshold": "rel diff < 0.5%",
+      "passed": null,
+      "note": "rel diff 2.15e-04; Meep vs Fresnel -5.47e-02; ours vs Fresnel -5.50e-02"
+    },
+    {
+      "item": "L3-c",
+      "quantity": "T, s-pol, Meep eps_averaging=True, Meep flux = native",
+      "ours": "0.933854",
+      "meep": "0.933838",
+      "theory": "0.930009 (Fresnel)",
+      "threshold": "rel diff < 0.5%",
+      "passed": true,
+      "note": "rel diff 1.74e-05; Meep vs Fresnel +4.12e-03; ours vs Fresnel +4.13e-03"
+    },
+    {
+      "item": "L3-c",
+      "quantity": "T, s-pol, Meep eps_averaging=True, Meep flux = phi",
+      "ours": "0.933854",
+      "meep": "0.933838",
+      "theory": "0.930009 (Fresnel)",
+      "threshold": "rel diff < 0.5%",
+      "passed": null,
+      "note": "rel diff 1.74e-05; Meep vs Fresnel +4.12e-03; ours vs Fresnel +4.13e-03"
+    },
+    {
+      "item": "L3-c",
+      "quantity": "R, T with Meep eps_averaging=False, s-pol",
+      "ours": "0.066145, 0.933854",
+      "meep": "0.073973, 0.926024",
+      "theory": "\u2014",
+      "threshold": "attribution",
+      "passed": null,
+      "note": "R rel diff 1.18e-01: interface \u03b5 treatment differs (no averaging on the tangential interface plane)"
+    },
+    {
+      "item": "L3-c",
+      "quantity": "Meep R+T\u22121, s-pol (native add_flux / conserved \u03a6)",
+      "ours": "-7.2e-07",
+      "meep": "-2.8e-06 / -2.8e-06",
+      "theory": "0",
+      "threshold": "record",
+      "passed": null,
+      "note": ""
+    },
+    {
+      "item": "L3-c",
+      "quantity": "R, p-pol, Meep eps_averaging=True, Meep flux = native",
+      "ours": "0.015830",
+      "meep": "0.015837",
+      "theory": "0.017864 (Fresnel)",
+      "threshold": "rel diff < 0.5%",
+      "passed": true,
+      "note": "rel diff 4.66e-04; Meep vs Fresnel -1.13e-01; ours vs Fresnel -1.14e-01"
+    },
+    {
+      "item": "L3-c",
+      "quantity": "R, p-pol, Meep eps_averaging=True, Meep flux = phi",
+      "ours": "0.015830",
+      "meep": "0.015837",
+      "theory": "0.017864 (Fresnel)",
+      "threshold": "rel diff < 0.5%",
+      "passed": null,
+      "note": "rel diff 4.66e-04; Meep vs Fresnel -1.13e-01; ours vs Fresnel -1.14e-01"
+    },
+    {
+      "item": "L3-c",
+      "quantity": "T, p-pol, Meep eps_averaging=True, Meep flux = native",
+      "ours": "0.984170",
+      "meep": "0.984161",
+      "theory": "0.982136 (Fresnel)",
+      "threshold": "rel diff < 0.5%",
+      "passed": true,
+      "note": "rel diff 8.79e-06; Meep vs Fresnel +2.06e-03; ours vs Fresnel +2.07e-03"
+    },
+    {
+      "item": "L3-c",
+      "quantity": "T, p-pol, Meep eps_averaging=True, Meep flux = phi",
+      "ours": "0.984170",
+      "meep": "0.984161",
+      "theory": "0.982136 (Fresnel)",
+      "threshold": "rel diff < 0.5%",
+      "passed": null,
+      "note": "rel diff 8.79e-06; Meep vs Fresnel +2.06e-03; ours vs Fresnel +2.07e-03"
+    },
+    {
+      "item": "L3-c",
+      "quantity": "R, T with Meep eps_averaging=False, p-pol",
+      "ours": "0.015830, 0.984170",
+      "meep": "0.020508, 0.979491",
+      "theory": "\u2014",
+      "threshold": "attribution",
+      "passed": null,
+      "note": "R rel diff 2.96e-01: interface \u03b5 treatment differs (no averaging on the tangential interface plane)"
+    },
+    {
+      "item": "L3-c",
+      "quantity": "Meep R+T\u22121, p-pol (native add_flux / conserved \u03a6)",
+      "ours": "-3.5e-07",
+      "meep": "-1.6e-06 / -1.6e-06",
+      "theory": "0",
+      "threshold": "record",
+      "passed": null,
+      "note": ""
+    }
+  ],
+  "summary": {
+    "s": {
+      "ky_ours": 5.0297668863884475,
+      "ky_meep": 5.0297668863884475,
+      "ky_theory": 5.029766886388454,
+      "L2": 1.5576338595767992e-05,
+      "L2_ls": 1.1030456425029708e-05,
+      "echo_ours": 3.0000732966906342e-06,
+      "echo_meep": 9.504902280978979e-06,
+      "jlo": 42,
+      "jhi": 239
+    },
+    "p": {
+      "ky_ours": 5.029766886388439,
+      "ky_meep": 5.0297668863884475,
+      "ky_theory": 5.029766886388454,
+      "L2": 1.5572613203214486e-05,
+      "L2_ls": 1.1030456858862017e-05,
+      "echo_ours": 3.0000732970670887e-06,
+      "echo_meep": 9.504902281318508e-06,
+      "jlo": 42,
+      "jhi": 239
+    },
+    "c": {
+      "s": {
+        "ours": {
+          "nl": 20,
+          "Delta": 0.05,
+          "pol": "s",
+          "ifmode": "a",
+          "R": 0.066144886577546,
+          "T": 0.9338543941582896,
+          "RT": 0.9999992807358357,
+          "R_fresnel": 0.06999105608315195,
+          "T_fresnel": 0.9300089439168481,
+          "R_relerr": -0.05495229992010072,
+          "T_relerr": 0.00413485296737682,
+          "R_disc": 0.06614508739144433,
+          "T_disc": 0.9338549126085555,
+          "R_vs_disc": -3.0359608891447763e-06,
+          "T_vs_disc": -5.551721780649322e-07,
+          "R_disc_vs_fresnel": -0.05494943078353432,
+          "flux_var_medium": 1.7992244890021415e-15,
+          "flux_var_all": 2.5988798174475378e-15,
+          "theta1": 36.93618989341961,
+          "theta2": 23.616743811158223,
+          "ky_med_disc": 8.694550644361748,
+          "ky_med_cont": 8.63541222894346,
+          "k_med": [
+            3.141592653587971,
+            8.694550639783191,
+            2.094395102393276
+          ],
+          "ky_med_relerr": 5.266006707097133e-10,
+          "kx_med_relerr": 5.799918159131027e-13,
+          "kz_med_relerr": 3.859073013509067e-14,
+          "fit_rms": 2.0388510616331663e-06
+        },
+        "meep": {
+          "1": {
+            "R_native": 0.0661591079502764,
+            "T_native": 0.9338381049437992,
+            "R_phi": 0.06615910795028027,
+            "T_phi": 0.9338381049438086
+          },
+          "0": {
+            "R_native": 0.07397314992004562,
+            "T_native": 0.9260241478523782,
+            "R_phi": 0.07397314992005101,
+            "T_phi": 0.926024147852402
+          }
+        },
+        "R_fresnel": 0.06999105608315195
+      },
+      "p": {
+        "ours": {
+          "nl": 20,
+          "Delta": 0.05,
+          "pol": "p",
+          "ifmode": "a",
+          "R": 0.015829579088989496,
+          "T": 0.9841700690591755,
+          "RT": 0.999999648148165,
+          "R_fresnel": 0.01786424697626258,
+          "T_fresnel": 0.9821357530237375,
+          "R_relerr": -0.11389609032928645,
+          "T_relerr": 0.0020713185821561817,
+          "R_disc": 0.015829663652717388,
+          "T_disc": 0.9841703363472825,
+          "R_vs_disc": -5.342105160720139e-06,
+          "T_vs_disc": -2.71587241668945e-07,
+          "R_disc_vs_fresnel": -0.11389135664372982,
+          "flux_var_medium": 1.7072391733453817e-15,
+          "flux_var_all": 1.7072391733453817e-15,
+          "theta1": 36.93618989341961,
+          "theta2": 23.616743811158223,
+          "ky_med_disc": 8.694550644361748,
+          "ky_med_cont": 8.63541222894346,
+          "k_med": [
+            3.141592653594864,
+            8.694550637504685,
+            2.0943951023933467
+          ],
+          "ky_med_relerr": 7.886620889181033e-10,
+          "kx_med_relerr": 1.6141668403391954e-12,
+          "kz_med_relerr": 7.230460975860395e-14,
+          "fit_rms": 2.039248590856712e-06
+        },
+        "meep": {
+          "1": {
+            "R_native": 0.01583696187467532,
+            "T_native": 0.984161417945071,
+            "R_phi": 0.015836961874674788,
+            "T_phi": 0.9841614179452458
+          },
+          "0": {
+            "R_native": 0.020507693105679493,
+            "T_native": 0.979490716811484,
+            "R_phi": 0.020507693105680385,
+            "T_phi": 0.9794907168117392
+          }
+        },
+        "R_fresnel": 0.01786424697626258
+      }
+    }
+  },
+  "passed": true
+}

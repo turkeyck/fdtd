@@ -1,0 +1,86 @@
+{
+  "tolerance": 1e-10,
+  "main": [
+    {
+      "pol": "s",
+      "ramp": "erf(t0=20,tau=4)",
+      "nl": 20,
+      "Delta": 0.05,
+      "dt": 0.025,
+      "causal_end_step": 840,
+      "leak_E": 3.773625641e-16,
+      "leak_H": 7.077671782e-16,
+      "passed": true
+    },
+    {
+      "pol": "s",
+      "ramp": "raised-cosine 10T0",
+      "nl": 20,
+      "Delta": 0.05,
+      "dt": 0.025,
+      "causal_end_step": 840,
+      "leak_E": 2.384373864e-15,
+      "leak_H": 3.941291737e-15,
+      "passed": true
+    },
+    {
+      "pol": "p",
+      "ramp": "erf(t0=20,tau=4)",
+      "nl": 20,
+      "Delta": 0.05,
+      "dt": 0.025,
+      "causal_end_step": 840,
+      "leak_E": 4.592352987e-16,
+      "leak_H": 4.857225733e-16,
+      "passed": true
+    },
+    {
+      "pol": "p",
+      "ramp": "raised-cosine 10T0",
+      "nl": 20,
+      "Delta": 0.05,
+      "dt": 0.025,
+      "causal_end_step": 840,
+      "leak_E": 3.110362591e-15,
+      "leak_H": 2.886579864e-15,
+      "passed": true
+    }
+  ],
+  "controls": [
+    {
+      "nl": 20,
+      "Delta": 0.05,
+      "k0Delta": 0.3141592653589793,
+      "dft_window": [
+        1920,
+        2560
+      ],
+      "sf_plane": 30,
+      "ky_leak_steady": 0.0006338231704189348,
+      "discrete_run_sf_amplitude": 2.4450822562756445e-06,
+      "window_leak_discrete": 0.005395558934,
+      "window_leak_continuous": 0.005449158472,
+      "ky_cont": 5.0221830271645285,
+      "ky_disc": 5.029766886388454
+    },
+    {
+      "nl": 40,
+      "Delta": 0.025,
+      "k0Delta": 0.15707963267948966,
+      "dft_window": [
+        3840,
+        5120
+      ],
+      "sf_plane": 40,
+      "ky_leak_steady": 0.00015660692098871785,
+      "discrete_run_sf_amplitude": 2.1476846625861733e-06,
+      "window_leak_discrete": 0.005139412327,
+      "window_leak_continuous": 0.005146288549,
+      "ky_cont": 5.0221830271645285,
+      "ky_disc": 5.02406940268439
+    }
+  ],
+  "control_scaling_exponent": 2.0169324291031927,
+  "control_scaling_ok": true,
+  "passed": true
+}
