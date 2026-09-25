@@ -56,6 +56,7 @@ def main():
     ap.add_argument("--variant", default="cont", choices=("cont", "disc"))
     ap.add_argument("--decay", type=float, default=1e-10)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--shapes-only", action="store_true", help="check the sample-position rule and exit")
     a = ap.parse_args()
     with open(a.grid) as fh:
         g = json.load(fh)
@@ -122,10 +123,11 @@ def main():
         return (lo - du / 2 + du * np.arange(n + 1)) if half else (lo + du * np.arange(n))
 
     def axis_strict(lo, hi, half):
-        """grid points (integer or half-integer multiples of du) strictly inside (lo, hi)"""
+        """Meep's Yee DFT samples for a volume whose limits are off the grid: every grid point inside plus the
+        nearest one outside each end (floor/ceil); checked against every component's array shape below."""
         off = 0.5 if half else 0.0
-        m0 = math.ceil(lo / du - off)
-        m1 = math.floor(hi / du - off)
+        m0 = math.floor(lo / du - off)
+        m1 = math.ceil(hi / du - off)
         return du * (np.arange(m0, m1 + 1) + off)
     # y limits a quarter cell off the grid, so that no sample lies on the boundary of the DFT volume
     lo_y = -Ly / 2 + npml * du + du / 4
@@ -149,6 +151,13 @@ def main():
     dft = sim.add_dft_fields(list(COMPS.values()), [1.0], center=center, size=size, yee_grid=True,
                              decimation_factor=1)
     comp = mp.Ez if abs(J[2]) >= abs(J[0]) else mp.Ex
+    if a.shapes_only:
+        sim.run(until=0.05)
+        for name, c in COMPS.items():
+            arr = sim.get_dft_array(dft, c, 0)
+            xs, ys, zs = pos[name]
+            print(name, arr.shape, (len(xs), len(ys), len(zs)), "OK" if arr.shape == (len(xs), len(ys), len(zs)) else "MISMATCH")
+        return
     t0 = time.time()
     sim.run(until_after_sources=mp.stop_when_fields_decayed(20, comp, mp.Vector3(0, (Ny - npml - 5) * du - Ly / 2, 0),
                                                             a.decay))

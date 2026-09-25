@@ -1,6 +1,6 @@
 {
  "gate": "gate0_regression",
- "created_utc": "2026-09-25T15:58:01Z",
+ "created_utc": "2026-09-25T17:29:24Z",
  "table": [
   {
    "item": "0-1a",
@@ -46,14 +46,14 @@
    "item": "0-1b",
    "quantity": "legacy regression (run_all_regression.py --fresh, new binary, D7)",
    "theory": "PASS",
-   "measured": "None",
+   "measured": "PASS",
    "threshold": "PASS",
-   "passed": false,
+   "passed": true,
    "grid": "",
    "note": "results/regression.log"
   }
  ],
- "passed": false,
+ "passed": true,
  "detail": {
   "s_vac|mesh=uniform|1": {
    "Ex": 0.0,
