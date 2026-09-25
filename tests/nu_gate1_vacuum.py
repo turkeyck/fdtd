@@ -89,6 +89,11 @@ def theta_series(a, geo, used, meta):
     return idx, yy, th_m, th_p, th_c
 
 
+def envelope_at(t, meta):
+    """erf turn-on ramp of the source (t0, tau in periods)."""
+    return 0.5 * math.erfc(-(t - meta["erf_t0"]) / meta["erf_tau"])
+
+
 def db(x):
     return 20 * math.log10(max(x, 1e-300))
 
@@ -122,6 +127,14 @@ def item_10_11_12(grid, pol, out, meta, geo, used, full):
     raw = max(np.max(L["maxE_SF"][w]), np.max(L["maxH_SF"][w]) / H0)
     T.row("1-1", f"literal SF max / E0 (same window) ({grid}, {pol})", "—", f"{raw:.2e}", "INFO (D8)", None, grid=gi,
           note="includes the physical numerical reflection of the grid grading")
+    g = np.max(envelope_at(L["n"][w].max() * meta["dt"], meta))
+    lEa = np.nanmax(L["leakE_ref"])
+    lHa = np.nanmax(L["leakH_ref"]) / H0
+    rawa = max(np.max(L["maxE_SF"]), np.max(L["maxH_SF"]) / H0)
+    T.row("1-1", f"whole run (steady incident amplitude 1): D8 leakage / literal SF max ({grid}, {pol})", "0 / —",
+          f"E {lEa:.1e}, H·η0 {lHa:.1e} / {rawa:.2e}", "INFO", None, grid=gi,
+          note=f"the frozen window ends at t = {L['n'][w].max() * meta['dt']:.1f} T0, where the ramped incident amplitude "
+               f"is only {g:.1e}; the whole-run value is the informative one")
     if full:
         pl = R.load_planar(out, meta)
         a = R.load_proj(out, meta)
@@ -255,6 +268,8 @@ def main():
     os.makedirs(FIG, exist_ok=True)
     store = {}
     Rm = {}
+    global G0
+    G0 = nc.Table("gate0_divergence")
     # --- main runs: base-20 taper and abrupt (full diagnostics), s and p
     for grid in ("L1_taper_r1.1_base20", "L1_abrupt_r4_base20"):
         for pol in POLS:
@@ -288,7 +303,7 @@ def main():
                   grid=nc.grid_info(geo, meta["dt"]))
             T.row("1-5", f"control: ½-average interpolation ({grid}, {pol})", "—",
                   f"{(Sh.max() - Sh.min()) / abs(Sh.mean()):.2e}", "INFO", None, grid=grid)
-            if grid.startswith("L1_taper") and pol == "s":
+            if grid.startswith("L1_taper"):
                 # 0-5 divergence (gate 0) on the same run: C log (nonuniform operator) + dumped fields, both operators
                 import analyze_nu as an
                 L = nc.load_log(out)
@@ -302,15 +317,18 @@ def main():
                 dEu = np.abs(an.div_E(F, used, uniform_delta=used["hx"][0])[:, lo5:hi5 + 1, :]).max() / (K * Emax)
                 dHu = np.abs(an.div_H(F, used, uniform_delta=used["hx"][0])[:, lo5:hi5 + 1, :]).max() / (K * Hmax)
                 logE = np.nanmax(L["divE_TF"]) / (K * Emax)
-                G0 = nc.Table("gate0_divergence")
                 th5 = TH["gate0"]["0-5"]
-                G0.row("0-5", f"max|div E|, |div H| / (|K~| max|F|), TF j∈[{lo5},{hi5}] ({grid}, s, final step)", "0",
+                G0.row("0-5", f"max|div E|, |div H| / (|K~| max|F|), TF j∈[{lo5},{hi5}] ({grid}, {pol}, final step)", "0",
                        f"E {dE:.1e}, H {dH:.1e} (C log, all periods: E {logE:.1e})", f"< {th5['rel']:g}",
                        max(dE, dH, logE) < th5["rel"], grid=nc.grid_info(geo, meta["dt"]))
-                G0.row("0-5", "control: uniform operator (every difference / Δx)", "clearly ≠ 0",
-                       f"E {dEu:.2e}, H {dHu:.2e}", f"≥ {th5['control_min']:g}", min(dEu, dHu) >= th5["control_min"],
-                       grid=grid, note="proves the test is sensitive to the metric")
-                G0.save()
+                # the wrong (uniform) operator can only be exposed by the field with a nonzero y (normal)
+                # component: H for s (Ey = 0), E for p (Hy = 0)
+                sens, which = (dHu, "H") if pol == "s" else (dEu, "E")
+                G0.row("0-5", f"control: uniform operator (every difference / Δx) on div {which} ({pol})", "clearly ≠ 0",
+                       f"E {dEu:.2e}, H {dHu:.2e}", f"div {which} ≥ {th5['control_min']:g}", sens >= th5["control_min"],
+                       grid=grid, note=f"div {'E' if pol == 's' else 'H'} is blind to the y metric here: its normal "
+                                       f"component {'Ey' if pol == 's' else 'Hy'} is identically 0")
+    G0.save()
     # --- 1-3a / 1-3b / 1-4 on the refinement families
     for grid in ("L1_taper_r1.1_base40", "L1_taper_r1.1_base80"):
         for pol in POLS:
@@ -354,7 +372,11 @@ def main():
     for pol in POLS:
         seq = []
         for b in (20, 40, 80):
-            grid = f"L1_taper_r1.1_base{b}"
+            grid = "L1_taper_r1.1_base20" if b == 20 else f"L1_taper_r1.1_base{b}_P3"      # D17: far PML 3 λ0
+            if (grid, pol) not in Rm:
+                out, meta, geo = R.level1(grid, pol)
+                Rm[(grid, pol)] = measure_R_uniform_region(R.load_proj(out, meta), geo, nc.load_used(out), "tf_a",
+                                                           geo.j0 + 2, None)
             Rmeas, ky, res = Rm[(grid, pol)]
             Rd = nc.pred(f"L1/{grid}/{pol}/R_disc")
             rel = abs(Rmeas - Rd) / Rd

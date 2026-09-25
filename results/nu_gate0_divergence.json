@@ -1,0 +1,27 @@
+{
+ "gate": "gate0_divergence",
+ "created_utc": "2026-09-25T17:32:48Z",
+ "table": [
+  {
+   "item": "0-5",
+   "quantity": "max|div E|, |div H| / (|K~| max|F|), TF j∈[42,206] (L1_taper_r1.1_base20, s, final step)",
+   "theory": "0",
+   "measured": "E 6.6e-14, H 2.4e-13 (C log, all periods: E 6.8e-14)",
+   "threshold": "< 1e-10",
+   "passed": true,
+   "grid": "Δy_min=λ0/80, Δy_max=λ0/20, r_max=1.0968, Δx=λ0/20, Δt=0.0102041 T0",
+   "note": ""
+  },
+  {
+   "item": "0-5",
+   "quantity": "control: uniform operator (every difference / Δx)",
+   "theory": "clearly ≠ 0",
+   "measured": "E 6.58e-14, H 5.38e-01",
+   "threshold": "≥ 1e-06",
+   "passed": false,
+   "grid": "L1_taper_r1.1_base20",
+   "note": "proves the test is sensitive to the metric"
+  }
+ ],
+ "passed": false
+}

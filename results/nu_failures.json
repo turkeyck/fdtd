@@ -1,0 +1,26 @@
+[
+ {
+  "gate": "1-4b",
+  "symptom": "base λ0/80: R = 2.2776e-10 vs R_disc 2.3030e-10 (rel 1.1e-2 > 1e-3); bases 20/40 agree to 6e-5",
+  "hypothesis": "far-PML echo: 60 PML cells reflect ~1e-7 in amplitude at every base (0.75 λ0 thick at base 80), which is 1% of |r| = 1.5e-5 at base 80 but negligible at |r| ~ 1e-3",
+  "experiment": "two-wave fit behind the taper (tf_b) measures the echo: 1.1e-7 / 9.7e-8 / 9.4e-8 (base 20/40/80), equal to the tf_a discrepancy; rerun base 80 with the far PML at 3 λ0 (240 cells): echo 1.5e-9, rel 1.7e-4",
+  "fix": "D17: judged 1-4 runs keep the far PML at a constant physical thickness 3 λ0 (60 cells at base 20, 120 at 40, 240 at 80), as intended by R3; threshold unchanged",
+  "result": "1-4b PASS at all bases (rerun of gate 1)"
+ },
+ {
+  "gate": "0-5",
+  "symptom": "uniform-operator control on div E = 6.6e-14 (same as the correct operator) for s",
+  "hypothesis": "for s-polarization Ey ≡ 0, so div E contains no y difference and cannot see the y metric",
+  "experiment": "div H with the uniform operator = 0.54 on the same run",
+  "fix": "the sensitivity control uses the field with a nonzero normal component (s: H, p: E); both polarizations judged; main criterion unchanged",
+  "result": "0-5 PASS (rerun of gate-1 analysis)"
+ },
+ {
+  "gate": "3A (Meep)",
+  "symptom": "Meep convergence at resolutions 40-320: order 0.65-1.0; F5 limit off TMM by 2-3e-3",
+  "hypothesis": "Meep 1.34 subpixel averaging is not effective for these thin planar layers when the interfaces are not on pixel boundaries (0.08·res = 3.2, 6.4, 12.8, 25.6), leaving a first-order staircase error",
+  "experiment": "F5 s at interface-aligned resolutions 100 and 200: R error −5.8e-4 and −1.4e-4 (order 2.0, converging to TMM 0.103642) vs −1.0e-2 at resolution 160",
+  "fix": "D18: gate-3A Meep resolutions 100, 200, 400 (all interfaces on pixel boundaries); thresholds unchanged; 3A-1 (thin vs full cell, D13) unaffected",
+  "result": "see gate 3"
+ }
+]

@@ -71,6 +71,7 @@ def level1():
     names += ["L1_scan_r4_base40", "L1_scan_r4_base80"]
     names += [f"L1_taper_r1.1_base20_N{N}" for N in (10, 20, 30, 60)]
     names += [f"L1_taper_r1.1_base{b}_xz" for b in (10, 20, 40)]          # amendment D9 (rev.)
+    names += [f"L1_taper_r1.1_base{b}_P3" for b in (40, 80)]              # D17
     preflight = {}
     for name in names:
         geo = nc.Geo(nc.load_grid(name))

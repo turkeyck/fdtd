@@ -66,12 +66,12 @@ def part_A():
     conv = {}
     for st in ("F1", "F5"):
         for pol in ("s", "p"):
-            ress = G3["3A-2"]["resolutions"]
+            ress = G3["3A-2"].get("resolutions_D18", G3["3A-2"]["resolutions"])      # D18
             Rs = [meep_A(st, pol, r)["R"] for r in ress]
             Ts = [meep_A(st, pol, r)["T"] for r in ress]
-            Rinf = Rs[-1] + (Rs[-1] - Rs[-2]) / 3.0
-            Tinf = Ts[-1] + (Ts[-1] - Ts[-2]) / 3.0
-            p = math.log2(abs((Rs[1] - Rs[2]) / (Rs[2] - Rs[3])))
+            p = math.log2(abs((Rs[-3] - Rs[-2]) / (Rs[-2] - Rs[-1])))
+            Rinf = Rs[-1] + (Rs[-1] - Rs[-2]) / (2 ** p - 1)               # 3-level Richardson (observed order)
+            Tinf = Ts[-1] + (Ts[-1] - Ts[-2]) / (2 ** p - 1)
             Rt, Tt = nc.pred(f"L2/{st}/{pol}/R_TMM"), nc.pred(f"L2/{st}/{pol}/T_TMM")
             conv[(st, pol)] = (ress, Rs, Rinf, Rt)
             T.row("3A-2", f"Meep Richardson limit vs TMM ({st}, {pol}), res {ress}", f"R {Rt:.8f}, T {Tt:.8f}",
@@ -207,7 +207,7 @@ def main():
     import matplotlib.pyplot as plt
     fig, ax = plt.subplots(figsize=(6, 4))
     for (st, pol), (ress, Rs, Rinf, Rt) in conv.items():
-        ax.loglog([1 / r for r in ress], np.abs(np.array(Rs) - Rinf), "o-", label=f"Meep {st} {pol}")
+        ax.loglog([1 / r for r in ress], np.abs(np.array(Rs) - Rt), "o-", label=f"Meep {st} {pol} (vs TMM)")
     ax.set_xlabel("1/resolution [λ0]")
     ax.set_ylabel("|R − R_∞|")
     ax.set_title("Gate 3A: Meep convergence (thin Bloch cell)", fontsize=9)

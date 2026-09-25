@@ -214,6 +214,11 @@
         80,
         160,
         320
+      ],
+      "resolutions_D18": [
+        100,
+        200,
+        400
       ]
     },
     "3A-3": {
@@ -344,6 +349,16 @@
       "gate": "B0-2, B1-1, B1-2, B2-1, B2-2",
       "change": "test setups: B0-2 on B_ops_xz_graded_pec (x AND z graded, PEC y, source-free); B1/B2 families B_{vac,film}_k{1,2,4}: classical incidence m=1, n=0 (θ=30°) on a thin uniform z cell, x graded (λ0/(28.6k) | λ0/(20k)), y uniform h=0.02/k with the film aligned; s-polarization; 70 periods, DFT 50..70 T0. B3 (grating) keeps the conical A2 angle on B_grating_ppw40.",
       "reason": "with the A2 angle (Lz = 3) a three-level x/z refinement needs ~25M cells at k=4 per run and 8 runs per level; the injection-order physics is carried by the x nonuniformity. Decided before any stage-B run."
+    },
+    "D17": {
+      "gate": "1-4 (and 1-4b decreasing check)",
+      "change": "judged reflection runs at base 40/80 use L1_taper_r1.1_base{40,80}_P3: far PML at constant physical thickness 3 λ0 (120 / 240 cells); base 20 unchanged (60 cells = 3 λ0)",
+      "reason": "failure protocol (results/nu_failures.json): the 60-cell far PML echo (~1e-7) is 1% of the base-80 taper reflection; with 3 λ0 the echo is 1.5e-9 and the base-80 rel. error 1.7e-4. Threshold unchanged."
+    },
+    "D18": {
+      "gate": "3A-2, 3A-3",
+      "change": "Meep resolutions 100, 200, 400 (interfaces on pixel boundaries) instead of 40, 80, 160, 320",
+      "reason": "failure protocol: Meep subpixel averaging left first-order errors at non-aligned resolutions (F5 −1e-2 at 160); aligned resolutions converge at order 2 (F5 s: −5.8e-4, −1.4e-4). Thresholds unchanged."
     }
   }
 }

@@ -532,6 +532,8 @@ def all_grids():
         tag = src["name"]
         gs.append(pec_variant(src, tag + "_pec"))
         gs.append(pec_variant(src, tag + "_pec_thin", Lx=0.2, Lz=0.3))
+    for base in (40, 80):                               # D17: far PML at constant physical thickness 3 λ0
+        gs.append(level1(base, 1.1, npml_far=60 * base // 20, name=f"L1_taper_r1.1_base{base}_P3"))
     for base in (10, 20, 40):                           # amendment D9 (rev. 2026-09-25): x/z refined with the base
         gs.append(level1(base, 1.1, dxz=1.0 / base, name=f"L1_taper_r1.1_base{base}_xz"))
     for struct in ("F1", "F5"):

@@ -72,6 +72,7 @@ typedef struct {
     int ndump;
     long dump_at[MAXDUMP];
     char mode;              /* 't': time stepping (default), 'e': power iteration for lambda_max (gate 0-4) */
+    int jsrc;               /* inc=j: y index of the current sheet (default j0) */
     int proj;               /* 1: DFT of every y row projected on the transverse Floquet phase (dft_proj.bin) */
     int planar;             /* 1: full-volume DFT kept in memory; per (component, y plane) RMS phase residual
                                against kx x + kz z + const written to dft_planar.bin (gate 1-2) */
@@ -90,7 +91,11 @@ static double *Ex, *Ey, *Ez, *Hx, *Hy, *Hz;
    dual spacings d (x, z periodic; y: d at the two walls = adjacent h) */
 static double *xn, *xd, *hxv, *dxv, *yn, *yd, *hyv, *dyv, *zn, *zd, *hzv, *dzv;
 static double *epsT, *epsN;
-static int xnonuni, znonuni;
+static int xnonuni, znonuni, grating;
+/* per-(i, j) materials (stage B, x-y dependent eps; exact copies of epsT/epsN for layered media) and coefficients */
+static double *eTx, *eTz, *eNy, *ayx, *ayz, *cEy2;
+static int gr_jlo, gr_jhi, gr_ilo, gr_ihi;
+static double gr_ridge, gr_groove;
 static char grid_hash[80] = "";
 /* update coefficients (derivation_nonuniform §1) */
 static double *cHy, *ay, *cEyn, *cHz, *zfac;
@@ -149,7 +154,7 @@ static void parse_args(int argc, char **argv) {
     p.na = 40; p.nsteps = 1000; p.dft0 = -1; p.dft1 = -1; p.nyplanes = 0; p.zk = -1; p.xi = -1;
     p.init = '0'; p.energy_every = 10; p.snap_every = 0; strcpy(p.snapcomp, "Ez"); p.dump = 0;
     strcpy(p.out, "out");
-    p.mode = 't'; p.eig_maxit = 200000; p.eig_tol = 1e-10;
+    p.mode = 't'; p.jsrc = -1; p.eig_maxit = 200000; p.eig_tol = 1e-10;
     p.mesh = 'u'; p.dtfac = 1.0; p.dt_set = 0.0; p.auxref = 0; p.ref_every = 0; p.seed = 12345; p.divop = 'n';
     int got_eps = 0;
     for (int a = 1; a < argc; a++) {
@@ -207,6 +212,7 @@ static void parse_args(int argc, char **argv) {
         else if (!strcmp(k, "dump_at")) parse_llist(v, p.dump_at, &p.ndump);
         else if (!strcmp(k, "mode")) p.mode = (v[0] == 'e') ? 'e' : 't';
         else if (!strcmp(k, "proj")) p.proj = atoi(v);
+        else if (!strcmp(k, "jsrc")) p.jsrc = atoi(v);
         else if (!strcmp(k, "planar")) p.planar = atoi(v);
         else if (!strcmp(k, "eig_maxit")) p.eig_maxit = atol(v);
         else if (!strcmp(k, "eig_tol")) p.eig_tol = atof(v);
@@ -674,6 +680,48 @@ static void build_file_mesh(void) {
         if (hi > lo && maxreldiff(hyv, lo, hi, ref) > 1e-12) die("grid file: aux source j_a+-5 not uniform");
     }
     for (int j = 1; j < Ny; j++) if (hyv[j] <= 0.0) die("grid file: non-positive spacing");
+    double *gj = jget("grating.j_lo", NULL, 0);
+    if (gj) { /* lamellar grating: ridge cells i in [i_lo, i_hi) of the layer cells j in [j_lo, j_hi) */
+        grating = 1;
+        gr_jlo = (int)lround(*gj);
+        gr_jhi = (int)lround(*jget("grating.j_hi", NULL, 1));
+        gr_ilo = (int)lround(*jget("grating.i_lo", NULL, 1));
+        gr_ihi = (int)lround(*jget("grating.i_hi", NULL, 1));
+        gr_ridge = *jget("grating.eps_ridge", NULL, 1);
+        gr_groove = *jget("grating.eps_groove", NULL, 1);
+        if (gr_jlo < 1 || gr_jhi > Ny - 1 || gr_ilo < 0 || gr_ihi > Nx || gr_ilo >= gr_ihi) die("grid file: bad grating");
+    }
+}
+
+/* eps of cell (i, j) = [x_i, x_i+1] x [y_j, y_j+1]; periodic in i */
+static double eps_cell2(int i, int j) {
+    i = (i % Nx + Nx) % Nx;
+    if (grating && j >= gr_jlo && j < gr_jhi) return (i >= gr_ilo && i < gr_ihi) ? gr_ridge : gr_groove;
+    return epsN[j];
+}
+
+/* stage B materials: tangential components average the adjacent cells with length weights
+   (Ex over y, Ey over x, Ez over the four cells); layered media reproduce epsT/epsN exactly */
+static void build_materials(void) {
+    size_t n = (size_t)Nx * SY;
+    eTx = xcalloc(n, sizeof(double)); eTz = xcalloc(n, sizeof(double)); eNy = xcalloc(n, sizeof(double));
+    for (int i = 0; i < Nx; i++)
+        for (int j = 0; j <= Ny; j++) {
+            size_t q = (size_t)i * SY + j;
+            if (!grating || j < gr_jlo - 1 || j > gr_jhi) {
+                eTx[q] = epsT[j];
+                eTz[q] = epsT[j];
+                eNy[q] = epsN[j];
+                continue;
+            }
+            int jm = j > 0 ? j - 1 : 0, jp = j < Ny ? j : Ny - 1;
+            double wm = (j > 0) ? hyv[jm] : 0.0, wp = (j < Ny) ? hyv[jp] : 0.0;
+            eTx[q] = (wm * eps_cell2(i, jm) + wp * eps_cell2(i, jp)) / (wm + wp);
+            double a = hxv[(i + Nx - 1) % Nx], b = hxv[i];
+            eTz[q] = (wm * (a * eps_cell2(i - 1, jm) + b * eps_cell2(i, jm)) + wp * (a * eps_cell2(i - 1, jp) + b * eps_cell2(i, jp)))
+                     / ((wm + wp) * (a + b));
+            eNy[q] = (j < Ny) ? (a * eps_cell2(i - 1, j) + b * eps_cell2(i, j)) / (a + b) : epsN[j];
+        }
 }
 
 /* ------------------------------------------------------------------ setup */
@@ -713,6 +761,19 @@ static void setup(void) {
     kyc = sqrt(W0 * W0 - kt * kt);
     if (wave) amplitudes(ky, Kt, E0v, H0v);
     for (int c = 0; c < 3; c++) Kt_src[c] = Kt[c];
+    if (P.inc == 'p' || P.inc == 'j') { /* stage B: textbook continuous wave (continuous k, omega) */
+        double kc[3] = {kx, kyc, kz}, yh[3] = {0, 1, 0}, s[3], pp[3];
+        cross(kc, yh, s);
+        double ns = norm3(s);
+        for (int c = 0; c < 3; c++) s[c] /= ns;
+        cross(s, kc, pp);
+        double np = norm3(pp);
+        for (int c = 0; c < 3; c++) pp[c] /= np;
+        for (int c = 0; c < 3; c++) E0v[c] = (P.pol == 's') ? s[c] : pp[c];
+        cross(kc, E0v, H0v);
+        for (int c = 0; c < 3; c++) { H0v[c] /= W0; Kt_src[c] = kc[c]; }
+        ky = kyc;
+    }
     if (P.inc == 'n' && P.ky_cont) { /* control C1: continuous ky everywhere in the source */
         amplitudes(kyc, Kt_src, E0v, H0v);
         ky = kyc;
@@ -723,6 +784,8 @@ static void setup(void) {
     if (P.inc != '0' && (j0 - NPlo < 2 || Ny - NPhi - j0 < 2)) die("sf and tf must be >= 2 cells");
     if (j1 >= Ny - NPhi) die("interface must lie in the physical TF region");
     if (P.auxref && P.inc != 'a') die("auxref=1 needs inc=a");
+    if (P.inc == 'j' && P.jsrc < 0) P.jsrc = j0;
+    if (P.inc == 'j' && (P.jsrc <= NPlo || P.jsrc >= Ny - NPhi)) die("jsrc must lie outside the PML");
     SZ = Nz + 2;
     NTOT = (size_t)(Nx + 2) * SY * SZ;
     Ex = xcalloc(NTOT, sizeof(double)); Ey = xcalloc(NTOT, sizeof(double)); Ez = xcalloc(NTOT, sizeof(double));
@@ -738,6 +801,17 @@ static void setup(void) {
         cEyn[j] = dt / (epsN[j] * dzv[0]);
     }
     for (int k = 0; k < Nz; k++) { cHz[k] = dt / hzv[k]; zfac[k] = dzv[0] / dzv[k]; }
+    build_materials();
+    ayx = xcalloc((size_t)Nx * SY, sizeof(double)); ayz = xcalloc((size_t)Nx * SY, sizeof(double));
+    cEy2 = xcalloc((size_t)Nx * SY, sizeof(double));
+    for (int i = 0; i < Nx; i++)
+        for (int j = 0; j <= Ny; j++) {
+            size_t q = (size_t)i * SY + j;
+            ayx[q] = (eTx[q] == epsT[j]) ? ay[j] : dt / (eTx[q] * dyv[j]);
+            ayz[q] = (eTz[q] == epsT[j]) ? ay[j] : dt / (eTz[q] * dyv[j]);
+            cEy2[q] = (eNy[q] == epsN[j]) ? cEyn[j] : dt / (eNy[q] * dzv[0]);
+        }
+    if (grating && P.auxref) die("auxref=1 needs a layered (x-independent) structure");
     rExz = xcalloc((size_t)SY * Nz, sizeof(double)); rHxz = xcalloc((size_t)SY * Nz, sizeof(double));
     rEzx = xcalloc((size_t)Nx * SY, sizeof(double)); rHzx = xcalloc((size_t)Nx * SY, sizeof(double));
     rEyk = xcalloc((size_t)Nx * Nz, sizeof(double)); rHyk = xcalloc((size_t)Nx * Nz, sizeof(double));
@@ -896,7 +970,7 @@ static void update_H(int doW) {
                     wEz += hzv[k] * ez[k] * ez[k];
                 }
             }
-            if (doW) wsum += hxv[i] * dyv[j] * wHy + epsT[j] * dyv[j] * (hxv[i] * wEx + dxv[i] * wEz);
+            if (doW) wsum += hxv[i] * dyv[j] * wHy + dyv[j] * (eTx[(size_t)i * SY + j] * hxv[i] * wEx + eTz[(size_t)i * SY + j] * dxv[i] * wEz);
             if (j == Ny) continue;
             double *hx = Hx + b, *hz = Hz + b;
             const double *rHx_j = rHxz + (size_t)j * Nz;
@@ -930,7 +1004,7 @@ static void update_H(int doW) {
                     }
                 }
             }
-            if (doW) wsum += hyv[j] * (dxv[i] * wHx + hxv[i] * wHz + epsN[j] * dxv[i] * wEy);
+            if (doW) wsum += hyv[j] * (dxv[i] * wHx + hxv[i] * wHz + eNy[(size_t)i * SY + j] * dxv[i] * wEy);
         }
     }
     if (doW) Wmod_acc = 0.5 * wsum;
@@ -952,7 +1026,7 @@ static void update_E(int doW) {
             const double *hx = Hx + b, *hy = Hy + b, *hz = Hz + b;
             double wI = 0.0, wH = 0.0; /* integer-y nodes, half-y nodes */
             if (j < Ny) {
-                double *ey = Ey + b, c = cEyn[j];
+                double *ey = Ey + b, c = cEy2[(size_t)i * SY + j];
                 double sx = 0.0, sz = 0.0, sE = 0.0;
                 for (int k = 0; k < Nz; k++) {
                     double old = ey[k];
@@ -963,7 +1037,7 @@ static void update_E(int doW) {
                         sz += dzv[k] * hz[k] * hz[k];
                     }
                 }
-                if (doW) wH = hyv[j] * (epsN[j] * dxv[i] * sE + dxv[i] * sx + hxv[i] * sz);
+                if (doW) wH = hyv[j] * (eNy[(size_t)i * SY + j] * dxv[i] * sE + dxv[i] * sx + hxv[i] * sz);
             }
             if (doW) {
                 double sy = 0.0;
@@ -971,7 +1045,7 @@ static void update_E(int doW) {
                 wI += hxv[i] * dyv[j] * sy;
             }
             if (j > 0 && j < Ny) { /* j = 0, Ny: PEC, tangential E fixed (Dirichlet in debug mode) */
-                double *ex = Ex + b, *ez = Ez + b, a = ay[j], rzx = rEz_i[j];
+                double *ex = Ex + b, *ez = Ez + b, a = ayx[(size_t)i * SY + j], a2 = ayz[(size_t)i * SY + j], rzx = rEz_i[j];
                 const double *rxz = rExz + (size_t)j * Nz;
                 double sx = 0.0, sz = 0.0;
                 int s = pmlE[j];
@@ -979,7 +1053,7 @@ static void update_E(int doW) {
                     for (int k = 0; k < Nz; k++) {
                         double ox = ex[k], oz = ez[k];
                         ex[k] += a * ((hz[k] - hz[k - sJ]) - rxz[k] * (hy[k] - hy[k - 1]));
-                        ez[k] += a * (rzx * (hy[k] - hy[k - sI]) - (hx[k] - hx[k - sJ]));
+                        ez[k] += a2 * (rzx * (hy[k] - hy[k - sI]) - (hx[k] - hx[k - sJ]));
                         if (doW) { sx += dzv[k] * ox * ex[k]; sz += hzv[k] * oz * ez[k]; }
                     }
                 } else {
@@ -991,11 +1065,11 @@ static void update_E(int doW) {
                         px[k] = bb * px[k] + cc * dHz;
                         pz[k] = bb * pz[k] + cc * dHx;
                         ex[k] += a * ((ik * dHz + px[k]) - rxz[k] * (hy[k] - hy[k - 1]));
-                        ez[k] += a * (rzx * (hy[k] - hy[k - sI]) - (ik * dHx + pz[k]));
+                        ez[k] += a2 * (rzx * (hy[k] - hy[k - sI]) - (ik * dHx + pz[k]));
                         if (doW) { sx += dzv[k] * ox * ex[k]; sz += hzv[k] * oz * ez[k]; }
                     }
                 }
-                if (doW) wI += epsT[j] * dyv[j] * (hxv[i] * sx + dxv[i] * sz);
+                if (doW) wI += dyv[j] * (eTx[(size_t)i * SY + j] * hxv[i] * sx + eTz[(size_t)i * SY + j] * dxv[i] * sz);
             } else if (doW && P.init == 'a') {
                 double *ex = Ex + b, *ez = Ez + b;
                 double sx = 0.0, sz = 0.0;
@@ -1040,6 +1114,21 @@ static void incident_H(long n) { /* Hx, Hz at j0 - 1/2, time n + 1/2 */
     }
 }
 
+/* inc=j: electric surface current J_s = Re[J0 e^{i(kx x + kz z)} g(t) e^{-i w t}] (J0 = tangential E0) on the
+   primal plane jsrc, applied as a volume current J_s / d_j in the E update at t = (n + 1/2) dt */
+static void source_J(long n) {
+    double t = (n + 0.5) * dt;
+    double complex g = envelope(t) * cexp(-I * W0 * t);
+    double complex jx = g * E0v[0], jz = g * E0v[2];
+    int j = P.jsrc;
+    for (int i = 0; i < Nx; i++)
+        for (int k = 0; k < Nz; k++) {
+            size_t q = (size_t)i * Nz + k, m = (size_t)i * SY + j;
+            Ex[ID(i, j, k)] -= ayx[m] * (creal(jx) * cosP1[q] - cimag(jx) * sinP1[q]);
+            Ez[ID(i, j, k)] -= ayz[m] * (creal(jz) * cosP2[q] - cimag(jz) * sinP2[q]);
+        }
+}
+
 /* TF/SF corrections, derivation.md §3 (a)-(d); coefficients at the local spacing (derivation_nonuniform §4) */
 static void tfsf_H(void) {
     for (int i = 0; i < Nx; i++)
@@ -1052,8 +1141,8 @@ static void tfsf_H(void) {
 static void tfsf_E(void) {
     for (int i = 0; i < Nx; i++)
         for (int k = 0; k < Nz; k++) {
-            Ex[ID(i, j0, k)] -= ay[j0] * HzI[i * Nz + k];
-            Ez[ID(i, j0, k)] += ay[j0] * HxI[i * Nz + k];
+            Ex[ID(i, j0, k)] -= ayx[(size_t)i * SY + j0] * HzI[i * Nz + k];
+            Ez[ID(i, j0, k)] += ayz[(size_t)i * SY + j0] * HxI[i * Nz + k];
         }
 }
 
@@ -1147,17 +1236,20 @@ static void dft_accumulate(int first, int last, double tsec) {
         for (int c = first; c <= last; c++)
             for (int j = 0; j <= Ny; j++) refdft[c][j] += arr[c][j] * e;
     }
-    if (P.proj) { /* reduced phasor a_c(j): F = Re[a e^{i(phi_c - w t)}], a = 2/(Nx Nz Nt) sum_t sum_xz F e^{-i phi_c} e^{iwt} */
+    if (P.proj) { /* reduced phasor a_c(j): F = Re[a e^{i(phi_c - w t)}]; x-z Floquet projection with the quadrature
+                     weights of the component's sample positions (primal: dual spacing, dual: primal spacing):
+                     a = 2/(Lx Lz Nt) sum_t sum_xz w F e^{-i phi_c} e^{iwt} (uniform grid: w = Delta^2) */
         const double *cp[6] = {cosP1, cosP3, cosP2, cosP2, cosP4, cosP1}, *sp[6] = {sinP1, sinP3, sinP2, sinP2, sinP4, sinP1};
         for (int c = first; c <= last; c++) {
             double *F = comp_ptr(c);
+            const double *wx = (OFF[c][0] == 0.0) ? dxv : hxv, *wz = (OFF[c][2] == 0.0) ? dzv : hzv;
 #pragma omp parallel for schedule(static)
             for (int j = 0; j <= Ny; j++) {
                 double sr = 0.0, si = 0.0;
                 for (int i = 0; i < Nx; i++)
                     for (int k = 0; k < Nz; k++) {
                         size_t q = (size_t)i * Nz + k;
-                        double f = F[ID(i, j, k)];
+                        double f = F[ID(i, j, k)] * wx[i] * wz[k];
                         sr += f * cp[c][q];
                         si -= f * sp[c][q];
                     }
@@ -1301,7 +1393,7 @@ static void write_dft(void) {
     }
     if (P.proj) {
         FILE *f = xfopen("dft_proj.bin", "wb");
-        double pc = 2.0 / ((double)Nx * Nz * (double)N);
+        double pc = 2.0 / (P.Lx * P.Lz * (double)N);
         for (int c = 0; c < 6; c++)
             for (int j = 0; j <= Ny; j++) {
                 double complex z = projdft[c][j] * pc;
@@ -1416,7 +1508,8 @@ static void write_meta(double runtime, long nsnap) {
         fprintf(f, "\"%s\": [%g, %g, %g, %g]%s", CNAME[c], OFF[c][0], OFF[c][1], OFF[c][2], OFF[c][3], c < 5 ? ", " : "},\n");
     fprintf(f, "  \"pml\": {\"m\": %g, \"sig_fac\": %g, \"kappa_max\": %g, \"alpha_max\": %.17g},\n",
             P.pml_m, P.sig_fac, P.kappa_max, P.alpha_max);
-    fprintf(f, "  \"eps2\": %.17g, \"y1\": %d, \"ifmode\": \"%c\",\n", P.eps2, P.y1, P.ifmode);
+    fprintf(f, "  \"eps2\": %.17g, \"y1\": %d, \"ifmode\": \"%c\", \"grating\": %d, \"jsrc\": %d,\n", P.eps2, P.y1, P.ifmode,
+            grating, P.jsrc);
     fprintf(f, "  \"inc\": \"%c\", \"ky_mode\": \"%s\", \"ramp\": \"%c\", \"ramp_T\": %g, \"erf_t0\": %g, \"erf_tau\": %g, \"off_t\": %g, \"na\": %d,\n",
             P.inc, P.ky_cont ? "continuous" : "discrete", P.ramp, P.ramp_T, P.erf_t0, P.erf_tau, P.off_t, j0 - JA);
     fprintf(f, "  \"init\": \"%c\", \"nsteps\": %ld, \"dft0\": %ld, \"dft1\": %ld,\n", P.init, P.nsteps, P.dft0, P.dft1);
@@ -1461,8 +1554,9 @@ static double enorm2(const double *X, const double *Y, const double *Z, const do
         for (int j = 0; j <= Ny; j++)
             for (int k = 0; k < Nz; k++) {
                 size_t q = ID(i, j, k);
-                s += epsT[j] * dyv[j] * (hxv[i] * dzv[k] * X[q] * X2[q] + dxv[i] * hzv[k] * Z[q] * Z2[q]);
-                if (j < Ny) s += epsN[j] * dxv[i] * hyv[j] * dzv[k] * Y[q] * Y2[q];
+                size_t m = (size_t)i * SY + j;
+                s += dyv[j] * (eTx[m] * hxv[i] * dzv[k] * X[q] * X2[q] + eTz[m] * dxv[i] * hzv[k] * Z[q] * Z2[q]);
+                if (j < Ny) s += eNy[m] * dxv[i] * hyv[j] * dzv[k] * Y[q] * Y2[q];
             }
     return s;
 }
@@ -1578,17 +1672,19 @@ int main(int argc, char **argv) {
     for (long n = 0; n < P.nsteps; n++) {
         int doW = (P.energy_every > 0 && (n + 1) % P.energy_every == 0);
         /* H: n-1/2 -> n+1/2 */
-        if (P.inc != '0') incident_E(n);
+        int tfsf = (P.inc == 'a' || P.inc == 'n' || P.inc == 'p');
+        if (tfsf) incident_E(n);
         update_H(doW);
         double Wm = doW ? Wmod_acc : NAN;     /* energy at t = n dt */
-        if (P.inc != '0') tfsf_H();
+        if (tfsf) tfsf_H();
         if (P.auxref) auxref_update_H();
         if (P.inc == 'a') aux_update_H(n);
         if (n >= P.dft0 && n < P.dft1) dft_accumulate(3, 5, (n + 0.5) * dt);
         /* E: n -> n+1 */
-        if (P.inc != '0') incident_H(n);
+        if (tfsf) incident_H(n);
         update_E(doW);
-        if (P.inc != '0') tfsf_E();
+        if (tfsf) tfsf_E();
+        if (P.inc == 'j') source_J(n);
         if (P.auxref) auxref_update_E();
         if (P.inc == 'a') aux_update_E(n);
         if (P.init == 'a') dirichlet_y((double)(n + 1));

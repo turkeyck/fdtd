@@ -8878,6 +8878,258 @@
    "grid": null,
    "grid_hash": null,
    "created_utc": "2026-09-25T16:33:35Z"
+  },
+  {
+   "id": "v2/L1/L1_taper_r1.1_base40_P3/dt",
+   "quantity": "time step dt [T0]",
+   "value": 0.005319148936170213,
+   "formula_ref": "SPEC §7.5",
+   "grid": "L1_taper_r1.1_base40_P3",
+   "grid_hash": "24134f0abdde437bdbb32db2dde185fc1853077787c56fa33a111498af1a7a8e",
+   "created_utc": "2026-09-25T21:18:16Z"
+  },
+  {
+   "id": "v2/L1/L1_taper_r1.1_base40_P3/Kt",
+   "quantity": "|K~t| [1/λ0]",
+   "value": 3.7725072868413583,
+   "formula_ref": "derivation §5",
+   "grid": "L1_taper_r1.1_base40_P3",
+   "grid_hash": "24134f0abdde437bdbb32db2dde185fc1853077787c56fa33a111498af1a7a8e",
+   "created_utc": "2026-09-25T21:18:16Z"
+  },
+  {
+   "id": "v2/L1/L1_taper_r1.1_base40_P3/s/R_disc",
+   "quantity": "exact discrete reflectance R_disc",
+   "value": 7.375637015827154e-07,
+   "formula_ref": "derivation §5, tmm_discrete",
+   "grid": "L1_taper_r1.1_base40_P3",
+   "grid_hash": "24134f0abdde437bdbb32db2dde185fc1853077787c56fa33a111498af1a7a8e",
+   "created_utc": "2026-09-25T21:18:16Z"
+  },
+  {
+   "id": "v2/L1/L1_taper_r1.1_base40_P3/s/T_disc",
+   "quantity": "exact discrete transmittance",
+   "value": 0.9999992624362951,
+   "formula_ref": "derivation §5, tmm_discrete",
+   "grid": "L1_taper_r1.1_base40_P3",
+   "grid_hash": "24134f0abdde437bdbb32db2dde185fc1853077787c56fa33a111498af1a7a8e",
+   "created_utc": "2026-09-25T21:18:16Z"
+  },
+  {
+   "id": "v2/L1/L1_taper_r1.1_base40_P3/p/R_disc",
+   "quantity": "exact discrete reflectance R_disc",
+   "value": 7.37563701573758e-07,
+   "formula_ref": "derivation §5, tmm_discrete",
+   "grid": "L1_taper_r1.1_base40_P3",
+   "grid_hash": "24134f0abdde437bdbb32db2dde185fc1853077787c56fa33a111498af1a7a8e",
+   "created_utc": "2026-09-25T21:18:16Z"
+  },
+  {
+   "id": "v2/L1/L1_taper_r1.1_base40_P3/p/T_disc",
+   "quantity": "exact discrete transmittance",
+   "value": 0.9999992624362966,
+   "formula_ref": "derivation §5, tmm_discrete",
+   "grid": "L1_taper_r1.1_base40_P3",
+   "grid_hash": "24134f0abdde437bdbb32db2dde185fc1853077787c56fa33a111498af1a7a8e",
+   "created_utc": "2026-09-25T21:18:16Z"
+  },
+  {
+   "id": "v2/L1/L1_taper_r1.1_base40_P3/ky/tf_a",
+   "quantity": "discrete ky in sub-region tf_a (h=0.025)",
+   "value": 5.0275430966915735,
+   "formula_ref": "derivation §5",
+   "grid": "L1_taper_r1.1_base40_P3",
+   "grid_hash": "24134f0abdde437bdbb32db2dde185fc1853077787c56fa33a111498af1a7a8e",
+   "created_utc": "2026-09-25T21:18:16Z"
+  },
+  {
+   "id": "v2/L1/L1_taper_r1.1_base40_P3/ky/hold",
+   "quantity": "discrete ky in sub-region hold (h=0.00625)",
+   "value": 5.024440895884953,
+   "formula_ref": "derivation §5",
+   "grid": "L1_taper_r1.1_base40_P3",
+   "grid_hash": "24134f0abdde437bdbb32db2dde185fc1853077787c56fa33a111498af1a7a8e",
+   "created_utc": "2026-09-25T21:18:16Z"
+  },
+  {
+   "id": "v2/L1/L1_taper_r1.1_base40_P3/ky/tf_b",
+   "quantity": "discrete ky in sub-region tf_b (h=0.025)",
+   "value": 5.0275430966915735,
+   "formula_ref": "derivation §5",
+   "grid": "L1_taper_r1.1_base40_P3",
+   "grid_hash": "24134f0abdde437bdbb32db2dde185fc1853077787c56fa33a111498af1a7a8e",
+   "created_utc": "2026-09-25T21:18:16Z"
+  },
+  {
+   "id": "v2/L1/L1_taper_r1.1_base40_P3/s/R_fresnel_est",
+   "quantity": "numerical-index Fresnel estimate of the fine slab (INFO)",
+   "value": 1.320054641096141e-07,
+   "formula_ref": "derivation §5 (n_num)",
+   "grid": "L1_taper_r1.1_base40_P3",
+   "grid_hash": "24134f0abdde437bdbb32db2dde185fc1853077787c56fa33a111498af1a7a8e",
+   "created_utc": "2026-09-25T21:18:16Z"
+  },
+  {
+   "id": "v2/L1/L1_taper_r1.1_base40_P3/s/R_fresnel_single",
+   "quantity": "single-junction numerical Fresnel estimate (INFO)",
+   "value": 9.52436951336338e-08,
+   "formula_ref": "derivation §5",
+   "grid": "L1_taper_r1.1_base40_P3",
+   "grid_hash": "24134f0abdde437bdbb32db2dde185fc1853077787c56fa33a111498af1a7a8e",
+   "created_utc": "2026-09-25T21:18:16Z"
+  },
+  {
+   "id": "v2/L1/L1_taper_r1.1_base40_P3/p/R_fresnel_est",
+   "quantity": "numerical-index Fresnel estimate of the fine slab (INFO)",
+   "value": 1.0236966065821946e-08,
+   "formula_ref": "derivation §5 (n_num)",
+   "grid": "L1_taper_r1.1_base40_P3",
+   "grid_hash": "24134f0abdde437bdbb32db2dde185fc1853077787c56fa33a111498af1a7a8e",
+   "created_utc": "2026-09-25T21:18:16Z"
+  },
+  {
+   "id": "v2/L1/L1_taper_r1.1_base40_P3/p/R_fresnel_single",
+   "quantity": "single-junction numerical Fresnel estimate (INFO)",
+   "value": 9.52436951336338e-08,
+   "formula_ref": "derivation §5",
+   "grid": "L1_taper_r1.1_base40_P3",
+   "grid_hash": "24134f0abdde437bdbb32db2dde185fc1853077787c56fa33a111498af1a7a8e",
+   "created_utc": "2026-09-25T21:18:16Z"
+  },
+  {
+   "id": "v2/L1/L1_taper_r1.1_base40_P3/theta_cont",
+   "quantity": "continuous angle θ_cont [rad]",
+   "value": 0.6446581267820259,
+   "formula_ref": "derivation §5",
+   "grid": "L1_taper_r1.1_base40_P3",
+   "grid_hash": "24134f0abdde437bdbb32db2dde185fc1853077787c56fa33a111498af1a7a8e",
+   "created_utc": "2026-09-25T21:18:16Z"
+  },
+  {
+   "id": "v2/L1/L1_taper_r1.1_base80_P3/dt",
+   "quantity": "time step dt [T0]",
+   "value": 0.0026954177897574125,
+   "formula_ref": "SPEC §7.5",
+   "grid": "L1_taper_r1.1_base80_P3",
+   "grid_hash": "02a7ecfd2950ae873f46be19905b8ca6a69750d48070d6e51d35c7b23c2c21bd",
+   "created_utc": "2026-09-25T21:18:16Z"
+  },
+  {
+   "id": "v2/L1/L1_taper_r1.1_base80_P3/Kt",
+   "quantity": "|K~t| [1/λ0]",
+   "value": 3.7725072868413583,
+   "formula_ref": "derivation §5",
+   "grid": "L1_taper_r1.1_base80_P3",
+   "grid_hash": "02a7ecfd2950ae873f46be19905b8ca6a69750d48070d6e51d35c7b23c2c21bd",
+   "created_utc": "2026-09-25T21:18:16Z"
+  },
+  {
+   "id": "v2/L1/L1_taper_r1.1_base80_P3/s/R_disc",
+   "quantity": "exact discrete reflectance R_disc",
+   "value": 2.302950004056348e-10,
+   "formula_ref": "derivation §5, tmm_discrete",
+   "grid": "L1_taper_r1.1_base80_P3",
+   "grid_hash": "02a7ecfd2950ae873f46be19905b8ca6a69750d48070d6e51d35c7b23c2c21bd",
+   "created_utc": "2026-09-25T21:18:16Z"
+  },
+  {
+   "id": "v2/L1/L1_taper_r1.1_base80_P3/s/T_disc",
+   "quantity": "exact discrete transmittance",
+   "value": 0.99999999976971,
+   "formula_ref": "derivation §5, tmm_discrete",
+   "grid": "L1_taper_r1.1_base80_P3",
+   "grid_hash": "02a7ecfd2950ae873f46be19905b8ca6a69750d48070d6e51d35c7b23c2c21bd",
+   "created_utc": "2026-09-25T21:18:16Z"
+  },
+  {
+   "id": "v2/L1/L1_taper_r1.1_base80_P3/p/R_disc",
+   "quantity": "exact discrete reflectance R_disc",
+   "value": 2.3029499796083914e-10,
+   "formula_ref": "derivation §5, tmm_discrete",
+   "grid": "L1_taper_r1.1_base80_P3",
+   "grid_hash": "02a7ecfd2950ae873f46be19905b8ca6a69750d48070d6e51d35c7b23c2c21bd",
+   "created_utc": "2026-09-25T21:18:16Z"
+  },
+  {
+   "id": "v2/L1/L1_taper_r1.1_base80_P3/p/T_disc",
+   "quantity": "exact discrete transmittance",
+   "value": 0.9999999997697063,
+   "formula_ref": "derivation §5, tmm_discrete",
+   "grid": "L1_taper_r1.1_base80_P3",
+   "grid_hash": "02a7ecfd2950ae873f46be19905b8ca6a69750d48070d6e51d35c7b23c2c21bd",
+   "created_utc": "2026-09-25T21:18:16Z"
+  },
+  {
+   "id": "v2/L1/L1_taper_r1.1_base80_P3/ky/tf_a",
+   "quantity": "discrete ky in sub-region tf_a (h=0.0125)",
+   "value": 5.02533241582886,
+   "formula_ref": "derivation §5",
+   "grid": "L1_taper_r1.1_base80_P3",
+   "grid_hash": "02a7ecfd2950ae873f46be19905b8ca6a69750d48070d6e51d35c7b23c2c21bd",
+   "created_utc": "2026-09-25T21:18:16Z"
+  },
+  {
+   "id": "v2/L1/L1_taper_r1.1_base80_P3/ky/hold",
+   "quantity": "discrete ky in sub-region hold (h=0.003125)",
+   "value": 5.024557837983154,
+   "formula_ref": "derivation §5",
+   "grid": "L1_taper_r1.1_base80_P3",
+   "grid_hash": "02a7ecfd2950ae873f46be19905b8ca6a69750d48070d6e51d35c7b23c2c21bd",
+   "created_utc": "2026-09-25T21:18:16Z"
+  },
+  {
+   "id": "v2/L1/L1_taper_r1.1_base80_P3/ky/tf_b",
+   "quantity": "discrete ky in sub-region tf_b (h=0.0125)",
+   "value": 5.02533241582886,
+   "formula_ref": "derivation §5",
+   "grid": "L1_taper_r1.1_base80_P3",
+   "grid_hash": "02a7ecfd2950ae873f46be19905b8ca6a69750d48070d6e51d35c7b23c2c21bd",
+   "created_utc": "2026-09-25T21:18:16Z"
+  },
+  {
+   "id": "v2/L1/L1_taper_r1.1_base80_P3/s/R_fresnel_est",
+   "quantity": "numerical-index Fresnel estimate of the fine slab (INFO)",
+   "value": 8.231773269382842e-09,
+   "formula_ref": "derivation §5 (n_num)",
+   "grid": "L1_taper_r1.1_base80_P3",
+   "grid_hash": "02a7ecfd2950ae873f46be19905b8ca6a69750d48070d6e51d35c7b23c2c21bd",
+   "created_utc": "2026-09-25T21:18:16Z"
+  },
+  {
+   "id": "v2/L1/L1_taper_r1.1_base80_P3/s/R_fresnel_single",
+   "quantity": "single-junction numerical Fresnel estimate (INFO)",
+   "value": 5.940288039000072e-09,
+   "formula_ref": "derivation §5",
+   "grid": "L1_taper_r1.1_base80_P3",
+   "grid_hash": "02a7ecfd2950ae873f46be19905b8ca6a69750d48070d6e51d35c7b23c2c21bd",
+   "created_utc": "2026-09-25T21:18:16Z"
+  },
+  {
+   "id": "v2/L1/L1_taper_r1.1_base80_P3/p/R_fresnel_est",
+   "quantity": "numerical-index Fresnel estimate of the fine slab (INFO)",
+   "value": 6.374899021285094e-10,
+   "formula_ref": "derivation §5 (n_num)",
+   "grid": "L1_taper_r1.1_base80_P3",
+   "grid_hash": "02a7ecfd2950ae873f46be19905b8ca6a69750d48070d6e51d35c7b23c2c21bd",
+   "created_utc": "2026-09-25T21:18:16Z"
+  },
+  {
+   "id": "v2/L1/L1_taper_r1.1_base80_P3/p/R_fresnel_single",
+   "quantity": "single-junction numerical Fresnel estimate (INFO)",
+   "value": 5.940288039000072e-09,
+   "formula_ref": "derivation §5",
+   "grid": "L1_taper_r1.1_base80_P3",
+   "grid_hash": "02a7ecfd2950ae873f46be19905b8ca6a69750d48070d6e51d35c7b23c2c21bd",
+   "created_utc": "2026-09-25T21:18:16Z"
+  },
+  {
+   "id": "v2/L1/L1_taper_r1.1_base80_P3/theta_cont",
+   "quantity": "continuous angle θ_cont [rad]",
+   "value": 0.6446581267820259,
+   "formula_ref": "derivation §5",
+   "grid": "L1_taper_r1.1_base80_P3",
+   "grid_hash": "02a7ecfd2950ae873f46be19905b8ca6a69750d48070d6e51d35c7b23c2c21bd",
+   "created_utc": "2026-09-25T21:18:16Z"
   }
  ]
 }
