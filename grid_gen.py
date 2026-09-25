@@ -120,7 +120,7 @@ def uniform_axis(L, delta):
 
 # ----------------------------------------------------------------------------- grid dict
 def canonical_hash(g):
-    core = {k: g[k] for k in ("x", "y", "z", "eps_y", "zones") if k in g}
+    core = {k: g[k] for k in ("x", "y", "z", "eps_y", "zones", "grating") if k in g}
     for k in ("eps_t", "eps_n"):
         if k in g:
             core[k] = g[k]
@@ -154,6 +154,86 @@ def finish(name, h, eps, x, z, r_max, npml_lo, npml_hi, j0, na, ppw, mode, extra
         g["eps_n"] = [float(v) for v in eps_n]
     g["hash"] = canonical_hash(g)
     return g
+
+
+def periodic_axis_layers(layers, r_max=1.1):
+    """Periodic axis from layers [(L, hmax), ...]; each layer grades from finer neighbours (wrapping around).
+    Returns (axis dict, first cell index of every layer)."""
+    nom = [L / math.ceil(L / hm - 1e-12) for L, hm in layers]
+    cells, starts = [], []
+    n = len(layers)
+    for q, (L, hm) in enumerate(layers):
+        hl, hr = nom[(q - 1) % n], nom[(q + 1) % n]
+        starts.append(len(cells))
+        cells += _layer_cells(L, hm, hl, hr, r_max)
+    Ltot = sum(L for L, _ in layers)
+    h = np.array(cells)
+    uni = bool(np.all(np.abs(h / h[0] - 1) < REL))
+    return {"uniform": uni, "h": [float(v) for v in cells], "L": Ltot}, starts
+
+
+def stageB_family(k=1, film=True, npml=30, name=None):
+    """Amendment D16: stage-B injection/order families. Classical incidence (m = 1, n = 0, Lx = 2): x graded
+    (layer [0,1) at λ0/(28.6k), layer [1,2) at λ0/(20k)), z thin uniform (Lz = 0.1, 4k cells), y uniform aligned
+    h = 0.02/k: PML | SF 0.5 | TF 1.0 | film 0.08 (n = 2) | substrate 1.0 (n = 1.46) | PML (vacuum if film=False)."""
+    x, _ = periodic_axis_layers([(1.0, 0.035 / k), (1.0, 0.05 / k)])
+    z = uniform_axis(0.1, 0.025 / k)
+    h = 0.02 / k
+    nf = int(round(D_FILM / h))
+    blocks = [dict(kind="uniform", n=npml * k, h=h, eps=1.0, tag="pml_lo"),
+              dict(kind="uniform", n=int(round(0.5 / h)), h=h, eps=1.0, tag="sf"),
+              dict(kind="uniform", n=int(round(1.0 / h)), h=h, eps=1.0, tag="tf_vac"),
+              dict(kind="uniform", n=nf, h=h, eps=N_FILM ** 2 if film else 1.0, tag="film"),
+              dict(kind="uniform", n=int(round(1.0 / h)), h=h, eps=N_SUB ** 2 if film else 1.0, tag="sub"),
+              dict(kind="uniform", n=npml * k, h=h, eps=N_SUB ** 2 if film else 1.0, tag="pml_hi")]
+    j0 = npml * k + int(round(0.5 / h))
+    nm = name or f"B_{'film' if film else 'vac'}_k{k}"
+    return make_grid(nm, blocks, x, z, 1.1, npml * k, npml * k, j0, ppw=None, mode="stageB", extra=dict(k=k, m=1, n=0))
+
+
+def stageB_ops_grid():
+    """B0-2: x AND z graded (periodic), y = the gate-1 taper grid with PEC walls (source-free operator tests)."""
+    x, _ = periodic_axis_layers([(0.5, 0.035), (0.5, 0.05)])
+    z, _ = periodic_axis_layers([(0.6, 0.03), (0.6, 0.05)])
+    g = level1(20, 1.1)
+    return finish("B_ops_xz_graded_pec", g["y"]["h"], g["eps_y"], x, z, 1.1, 0, 0, g["zones"]["j0"], 40, None,
+                  "stageB_ops", dict(parent=g["name"]), {})
+
+
+def stageB_grating(ppw=40, npml=20, name=None):
+    """B3: lamellar grating along x (period Λ = Lx = 2), ridge n = 2 on x ∈ [0, 1) (x nodes on both edges),
+    groove vacuum, thickness 0.3, conical incidence (A2: m = n = 1, Lz = 3). x: ridge λ0/(2 ppw), groove
+    λ0/ppw graded (r_max 1.1); z uniform λ0/ppw; y as the gate-2 layout (vacuum | grating | substrate)."""
+    x, starts = periodic_axis_layers([(1.0, hmax_for(N_FILM ** 2, ppw)), (1.0, hmax_for(1.0, ppw))])
+    z = uniform_axis(3.0, 1.0 / ppw)
+    hv = hmax_for(1.0, ppw)
+    hs = hmax_for(N_SUB ** 2, ppw)
+    blocks = [dict(kind="uniform", n=npml, h=hv, eps=1.0, tag="pml_lo"),
+              dict(kind="uniform", n=int(round(1.0 / hv)), h=hv, eps=1.0, tag="sf"),
+              dict(kind="uniform", n=int(round(2.0 / hv)), h=hv, eps=1.0, tag="tf_vac"),
+              dict(kind="grade", eps=1.0, tag="grade_vac"),
+              dict(kind="layer", L=0.3, eps=1.0, hmax=hmax_for(N_FILM ** 2, ppw), tag="grating"),
+              dict(kind="grade", eps=N_SUB ** 2, tag="grade_sub"),
+              dict(kind="uniform", n=int(round(2.0 / hs)), h=hs, eps=N_SUB ** 2, tag="sub"),
+              dict(kind="uniform", n=npml, h=hs, eps=N_SUB ** 2, tag="pml_hi")]
+    j0 = npml + int(round(1.0 / hv))
+    h, eps, marks = build_y(blocks, 1.1)
+    c0, n = marks["grating"]
+    g = finish(name or f"B_grating_ppw{ppw}", h, eps, x, z, 1.1, npml, npml, j0, 40, ppw, "grating",
+               dict(period=2.0, duty=0.5, ridge_x=[0.0, 1.0]), marks)
+    g["grating"] = {"j_lo": c0, "j_hi": c0 + n, "i_lo": starts[0], "i_hi": starts[1], "eps_ridge": N_FILM ** 2,
+                    "eps_groove": 1.0, "thickness": 0.3}
+    g["hash"] = canonical_hash(g)
+    return g
+
+
+def stageB_grating_vac(ppw=40):
+    """Normalization grid for B3: identical spacings, vacuum everywhere, no grating."""
+    g = stageB_grating(ppw)
+    z = g["zones"]
+    return finish(f"B_grating_ppw{ppw}_vac", g["y"]["h"], [1.0] * len(g["eps_y"]), g["x"], g["z"], 1.1, z["npml_lo"],
+                  z["npml_hi"], z["j0"], z["j0"] - z["ja"], ppw, "grating_norm", dict(parent=g["name"]),
+                  {k: tuple(v) for k, v in g["marks"].items()})
 
 
 def nodes(h, y0=0.0):
@@ -330,6 +410,17 @@ def level2_bisect(struct="F1", k=1, npml=20):
                   20 * k, "bisect", dict(struct=struct, k=k, parent=g0["name"], dt_rule="dt(parent)/k"), {})
 
 
+def level2_bisect_xz(struct="F1", k=1, npml=20):
+    """Amendment D14 (gate 3A-3): bisection of the PPW=20 grid in y AND x/z spacing λ0/(20k): every spacing
+    halves with k (dt = dt(bis1)/k), so the 2-level Richardson limit approximates the continuous answer."""
+    g = level2_bisect(struct, k, npml)
+    g2 = finish(f"L2_{struct}_bisxz{k}", g["y"]["h"], g["eps_y"], uniform_axis(2.0, DXZ / k),
+                uniform_axis(3.0, DXZ / k), 1.1, g["zones"]["npml_lo"], g["zones"]["npml_hi"], g["zones"]["j0"],
+                g["zones"]["j0"] - g["zones"]["ja"], g["generator"]["ppw"], "bisect_xz",
+                dict(struct=struct, k=k, dt_rule="dt(L2_*_bis1)/k"), {})
+    return g2
+
+
 def level2_control(mh=4.5, npml=20, name=None):
     """Amendment D11 (control 2-4): uniform grid, Delta = 0.08/mh (mh = M + 1/2), film interfaces NOT on nodes
     but at fixed cell fractions 0.25 (start) and 0.75 (end) at every resolution; eps point-sampled (staircase):
@@ -451,6 +542,15 @@ def all_grids():
     for struct in ("F1", "F5"):                         # amendment D10
         for k in (1, 2, 4, 8):
             gs.append(level2_bisect(struct, k))
+    for struct in ("F1", "F5"):                         # amendment D14
+        for k in (1, 2):
+            gs.append(level2_bisect_xz(struct, k))
+    for k in (1, 2, 4):                                 # amendment D16 (stage B families)
+        gs.append(stageB_family(k, film=True))
+        gs.append(stageB_family(k, film=False))
+    gs.append(stageB_ops_grid())
+    gs.append(stageB_grating(40))
+    gs.append(stageB_grating_vac(40))
     for mh in (4.5, 9.5, 18.5, 37.5):                   # amendment D11
         gs.append(level2_control(mh))
     gs += level3_mapped_grids()

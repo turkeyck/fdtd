@@ -8460,6 +8460,424 @@
    "grid": null,
    "grid_hash": null,
    "created_utc": "2026-09-25T13:30:36Z"
+  },
+  {
+   "id": "v2/L2/L2_F1_bisxz1/dt",
+   "quantity": "time step dt [T0]",
+   "value": 0.014925373134328358,
+   "formula_ref": "SPEC §7.5",
+   "grid": "L2_F1_bisxz1",
+   "grid_hash": "a5dc5532768cc39280cb02d0e485dc7aaba65706e54a0a69cf583395a0f2ec7a",
+   "created_utc": "2026-09-25T16:10:30Z"
+  },
+  {
+   "id": "v2/L2/L2_F1_bisxz1/s/R_disc",
+   "quantity": "exact discrete reflectance",
+   "value": 0.2349615065633213,
+   "formula_ref": "tmm_discrete",
+   "grid": "L2_F1_bisxz1",
+   "grid_hash": "a5dc5532768cc39280cb02d0e485dc7aaba65706e54a0a69cf583395a0f2ec7a",
+   "created_utc": "2026-09-25T16:10:30Z"
+  },
+  {
+   "id": "v2/L2/L2_F1_bisxz1/s/T_disc",
+   "quantity": "exact discrete transmittance",
+   "value": 0.7650384934366797,
+   "formula_ref": "tmm_discrete",
+   "grid": "L2_F1_bisxz1",
+   "grid_hash": "a5dc5532768cc39280cb02d0e485dc7aaba65706e54a0a69cf583395a0f2ec7a",
+   "created_utc": "2026-09-25T16:10:30Z"
+  },
+  {
+   "id": "v2/L2/L2_F1_bisxz1/p/R_disc",
+   "quantity": "exact discrete reflectance",
+   "value": 0.1016090732602887,
+   "formula_ref": "tmm_discrete",
+   "grid": "L2_F1_bisxz1",
+   "grid_hash": "a5dc5532768cc39280cb02d0e485dc7aaba65706e54a0a69cf583395a0f2ec7a",
+   "created_utc": "2026-09-25T16:10:30Z"
+  },
+  {
+   "id": "v2/L2/L2_F1_bisxz1/p/T_disc",
+   "quantity": "exact discrete transmittance",
+   "value": 0.8983909267397111,
+   "formula_ref": "tmm_discrete",
+   "grid": "L2_F1_bisxz1",
+   "grid_hash": "a5dc5532768cc39280cb02d0e485dc7aaba65706e54a0a69cf583395a0f2ec7a",
+   "created_utc": "2026-09-25T16:10:30Z"
+  },
+  {
+   "id": "v2/L2/L2_F1_bisxz2/dt",
+   "quantity": "time step dt [T0]",
+   "value": 0.007462686567164179,
+   "formula_ref": "SPEC §7.5",
+   "grid": "L2_F1_bisxz2",
+   "grid_hash": "c22bd0468113798b029992236f170a4e7de0075482917d58218732a5ae74e21b",
+   "created_utc": "2026-09-25T16:10:30Z"
+  },
+  {
+   "id": "v2/L2/L2_F1_bisxz2/s/R_disc",
+   "quantity": "exact discrete reflectance",
+   "value": 0.23576292212636568,
+   "formula_ref": "tmm_discrete",
+   "grid": "L2_F1_bisxz2",
+   "grid_hash": "c22bd0468113798b029992236f170a4e7de0075482917d58218732a5ae74e21b",
+   "created_utc": "2026-09-25T16:10:30Z"
+  },
+  {
+   "id": "v2/L2/L2_F1_bisxz2/s/T_disc",
+   "quantity": "exact discrete transmittance",
+   "value": 0.7642370778736385,
+   "formula_ref": "tmm_discrete",
+   "grid": "L2_F1_bisxz2",
+   "grid_hash": "c22bd0468113798b029992236f170a4e7de0075482917d58218732a5ae74e21b",
+   "created_utc": "2026-09-25T16:10:30Z"
+  },
+  {
+   "id": "v2/L2/L2_F1_bisxz2/p/R_disc",
+   "quantity": "exact discrete reflectance",
+   "value": 0.10208710616743198,
+   "formula_ref": "tmm_discrete",
+   "grid": "L2_F1_bisxz2",
+   "grid_hash": "c22bd0468113798b029992236f170a4e7de0075482917d58218732a5ae74e21b",
+   "created_utc": "2026-09-25T16:10:30Z"
+  },
+  {
+   "id": "v2/L2/L2_F1_bisxz2/p/T_disc",
+   "quantity": "exact discrete transmittance",
+   "value": 0.8979128938325664,
+   "formula_ref": "tmm_discrete",
+   "grid": "L2_F1_bisxz2",
+   "grid_hash": "c22bd0468113798b029992236f170a4e7de0075482917d58218732a5ae74e21b",
+   "created_utc": "2026-09-25T16:10:30Z"
+  },
+  {
+   "id": "v2/L2/L2_F5_bisxz1/dt",
+   "quantity": "time step dt [T0]",
+   "value": 0.014925373134328358,
+   "formula_ref": "SPEC §7.5",
+   "grid": "L2_F5_bisxz1",
+   "grid_hash": "8c18220a07c5366608b716a18d08d2a34956841a0e776009fba87e83c450cab6",
+   "created_utc": "2026-09-25T16:10:30Z"
+  },
+  {
+   "id": "v2/L2/L2_F5_bisxz1/s/R_disc",
+   "quantity": "exact discrete reflectance",
+   "value": 0.10065752442976773,
+   "formula_ref": "tmm_discrete",
+   "grid": "L2_F5_bisxz1",
+   "grid_hash": "8c18220a07c5366608b716a18d08d2a34956841a0e776009fba87e83c450cab6",
+   "created_utc": "2026-09-25T16:10:30Z"
+  },
+  {
+   "id": "v2/L2/L2_F5_bisxz1/s/T_disc",
+   "quantity": "exact discrete transmittance",
+   "value": 0.8993424755702353,
+   "formula_ref": "tmm_discrete",
+   "grid": "L2_F5_bisxz1",
+   "grid_hash": "8c18220a07c5366608b716a18d08d2a34956841a0e776009fba87e83c450cab6",
+   "created_utc": "2026-09-25T16:10:30Z"
+  },
+  {
+   "id": "v2/L2/L2_F5_bisxz1/p/R_disc",
+   "quantity": "exact discrete reflectance",
+   "value": 0.03642358603142862,
+   "formula_ref": "tmm_discrete",
+   "grid": "L2_F5_bisxz1",
+   "grid_hash": "8c18220a07c5366608b716a18d08d2a34956841a0e776009fba87e83c450cab6",
+   "created_utc": "2026-09-25T16:10:30Z"
+  },
+  {
+   "id": "v2/L2/L2_F5_bisxz1/p/T_disc",
+   "quantity": "exact discrete transmittance",
+   "value": 0.9635764139685705,
+   "formula_ref": "tmm_discrete",
+   "grid": "L2_F5_bisxz1",
+   "grid_hash": "8c18220a07c5366608b716a18d08d2a34956841a0e776009fba87e83c450cab6",
+   "created_utc": "2026-09-25T16:10:30Z"
+  },
+  {
+   "id": "v2/L2/L2_F5_bisxz2/dt",
+   "quantity": "time step dt [T0]",
+   "value": 0.007462686567164179,
+   "formula_ref": "SPEC §7.5",
+   "grid": "L2_F5_bisxz2",
+   "grid_hash": "6473a7539175855d591f800850d9f17b1f41c8c17c716f45fd27f2104e044eae",
+   "created_utc": "2026-09-25T16:10:30Z"
+  },
+  {
+   "id": "v2/L2/L2_F5_bisxz2/s/R_disc",
+   "quantity": "exact discrete reflectance",
+   "value": 0.10290026330787365,
+   "formula_ref": "tmm_discrete",
+   "grid": "L2_F5_bisxz2",
+   "grid_hash": "6473a7539175855d591f800850d9f17b1f41c8c17c716f45fd27f2104e044eae",
+   "created_utc": "2026-09-25T16:10:30Z"
+  },
+  {
+   "id": "v2/L2/L2_F5_bisxz2/s/T_disc",
+   "quantity": "exact discrete transmittance",
+   "value": 0.8970997366921277,
+   "formula_ref": "tmm_discrete",
+   "grid": "L2_F5_bisxz2",
+   "grid_hash": "6473a7539175855d591f800850d9f17b1f41c8c17c716f45fd27f2104e044eae",
+   "created_utc": "2026-09-25T16:10:30Z"
+  },
+  {
+   "id": "v2/L2/L2_F5_bisxz2/p/R_disc",
+   "quantity": "exact discrete reflectance",
+   "value": 0.03768443655245265,
+   "formula_ref": "tmm_discrete",
+   "grid": "L2_F5_bisxz2",
+   "grid_hash": "6473a7539175855d591f800850d9f17b1f41c8c17c716f45fd27f2104e044eae",
+   "created_utc": "2026-09-25T16:10:30Z"
+  },
+  {
+   "id": "v2/L2/L2_F5_bisxz2/p/T_disc",
+   "quantity": "exact discrete transmittance",
+   "value": 0.9623155634475437,
+   "formula_ref": "tmm_discrete",
+   "grid": "L2_F5_bisxz2",
+   "grid_hash": "6473a7539175855d591f800850d9f17b1f41c8c17c716f45fd27f2104e044eae",
+   "created_utc": "2026-09-25T16:10:30Z"
+  },
+  {
+   "id": "v2/L2/Rinf_xz2/F1/s",
+   "quantity": "2-level combined Richardson limit (D14)",
+   "value": 0.23603006064738047,
+   "formula_ref": "tmm_discrete",
+   "grid": null,
+   "grid_hash": null,
+   "created_utc": "2026-09-25T16:10:30Z"
+  },
+  {
+   "id": "v2/L2/Rinf_xz2/F1/p",
+   "quantity": "2-level combined Richardson limit (D14)",
+   "value": 0.10224645046981308,
+   "formula_ref": "tmm_discrete",
+   "grid": null,
+   "grid_hash": null,
+   "created_utc": "2026-09-25T16:10:30Z"
+  },
+  {
+   "id": "v2/L2/Rinf_xz2/F5/s",
+   "quantity": "2-level combined Richardson limit (D14)",
+   "value": 0.10364784293390895,
+   "formula_ref": "tmm_discrete",
+   "grid": null,
+   "grid_hash": null,
+   "created_utc": "2026-09-25T16:10:30Z"
+  },
+  {
+   "id": "v2/L2/Rinf_xz2/F5/p",
+   "quantity": "2-level combined Richardson limit (D14)",
+   "value": 0.03810472005946066,
+   "formula_ref": "tmm_discrete",
+   "grid": null,
+   "grid_hash": null,
+   "created_utc": "2026-09-25T16:10:30Z"
+  },
+  {
+   "id": "v2/B/rcwa/s/maxdiff_81",
+   "quantity": "max efficiency change to 81 orders",
+   "value": 3.7255529891477845e-05,
+   "formula_ref": "rcwa.py",
+   "grid": null,
+   "grid_hash": null,
+   "created_utc": "2026-09-25T16:33:35Z"
+  },
+  {
+   "id": "v2/B/rcwa/s/maxdiff_161",
+   "quantity": "max efficiency change to 161 orders",
+   "value": 8.374179452319552e-06,
+   "formula_ref": "rcwa.py",
+   "grid": null,
+   "grid_hash": null,
+   "created_utc": "2026-09-25T16:33:35Z"
+  },
+  {
+   "id": "v2/B/rcwa/s/maxdiff_321",
+   "quantity": "max efficiency change to 321 orders",
+   "value": 2.4716977821137576e-06,
+   "formula_ref": "rcwa.py",
+   "grid": null,
+   "grid_hash": null,
+   "created_utc": "2026-09-25T16:33:35Z"
+  },
+  {
+   "id": "v2/B/rcwa/s/orders_R",
+   "quantity": "propagating reflected orders",
+   "value": [
+    -2,
+    -1,
+    0
+   ],
+   "formula_ref": "rcwa.py",
+   "grid": null,
+   "grid_hash": null,
+   "created_utc": "2026-09-25T16:33:35Z"
+  },
+  {
+   "id": "v2/B/rcwa/s/orders_T",
+   "quantity": "propagating transmitted orders",
+   "value": [
+    -3,
+    -2,
+    -1,
+    0,
+    1
+   ],
+   "formula_ref": "rcwa.py",
+   "grid": null,
+   "grid_hash": null,
+   "created_utc": "2026-09-25T16:33:35Z"
+  },
+  {
+   "id": "v2/B/rcwa/s/R_p",
+   "quantity": "RCWA reflected efficiencies (321 orders)",
+   "value": [
+    0.015907006072675135,
+    0.03317679709033072,
+    0.04067646681175486
+   ],
+   "formula_ref": "rcwa.py",
+   "grid": null,
+   "grid_hash": null,
+   "created_utc": "2026-09-25T16:33:35Z"
+  },
+  {
+   "id": "v2/B/rcwa/s/T_p",
+   "quantity": "RCWA transmitted efficiencies (321 orders)",
+   "value": [
+    0.013275713589146683,
+    0.046584856420835895,
+    0.28151493153971435,
+    0.4043657396583686,
+    0.16449848881891468
+   ],
+   "formula_ref": "rcwa.py",
+   "grid": null,
+   "grid_hash": null,
+   "created_utc": "2026-09-25T16:33:35Z"
+  },
+  {
+   "id": "v2/B/rcwa/p/maxdiff_81",
+   "quantity": "max efficiency change to 81 orders",
+   "value": 2.729368922117087e-05,
+   "formula_ref": "rcwa.py",
+   "grid": null,
+   "grid_hash": null,
+   "created_utc": "2026-09-25T16:33:35Z"
+  },
+  {
+   "id": "v2/B/rcwa/p/maxdiff_161",
+   "quantity": "max efficiency change to 161 orders",
+   "value": 7.761533659333963e-06,
+   "formula_ref": "rcwa.py",
+   "grid": null,
+   "grid_hash": null,
+   "created_utc": "2026-09-25T16:33:35Z"
+  },
+  {
+   "id": "v2/B/rcwa/p/maxdiff_321",
+   "quantity": "max efficiency change to 321 orders",
+   "value": 2.684524207097194e-06,
+   "formula_ref": "rcwa.py",
+   "grid": null,
+   "grid_hash": null,
+   "created_utc": "2026-09-25T16:33:35Z"
+  },
+  {
+   "id": "v2/B/rcwa/p/orders_R",
+   "quantity": "propagating reflected orders",
+   "value": [
+    -2,
+    -1,
+    0
+   ],
+   "formula_ref": "rcwa.py",
+   "grid": null,
+   "grid_hash": null,
+   "created_utc": "2026-09-25T16:33:35Z"
+  },
+  {
+   "id": "v2/B/rcwa/p/orders_T",
+   "quantity": "propagating transmitted orders",
+   "value": [
+    -3,
+    -2,
+    -1,
+    0,
+    1
+   ],
+   "formula_ref": "rcwa.py",
+   "grid": null,
+   "grid_hash": null,
+   "created_utc": "2026-09-25T16:33:35Z"
+  },
+  {
+   "id": "v2/B/rcwa/p/R_p",
+   "quantity": "RCWA reflected efficiencies (321 orders)",
+   "value": [
+    0.004253239467121519,
+    0.018507647006508584,
+    0.005317677646017253
+   ],
+   "formula_ref": "rcwa.py",
+   "grid": null,
+   "grid_hash": null,
+   "created_utc": "2026-09-25T16:33:35Z"
+  },
+  {
+   "id": "v2/B/rcwa/p/T_p",
+   "quantity": "RCWA transmitted efficiencies (321 orders)",
+   "value": [
+    0.010478828263634065,
+    0.03055898327723749,
+    0.273756228341621,
+    0.4446502746370092,
+    0.21247712135872776
+   ],
+   "formula_ref": "rcwa.py",
+   "grid": null,
+   "grid_hash": null,
+   "created_utc": "2026-09-25T16:33:35Z"
+  },
+  {
+   "id": "v2/B/film/s/R_TMM",
+   "quantity": "TMM R, film on substrate, θ = 30° (D16 families)",
+   "value": 0.21188323941450388,
+   "formula_ref": "tmm_continuous",
+   "grid": null,
+   "grid_hash": null,
+   "created_utc": "2026-09-25T16:33:35Z"
+  },
+  {
+   "id": "v2/B/film/s/T_TMM",
+   "quantity": "TMM T, film on substrate, θ = 30°",
+   "value": 0.7881167605854962,
+   "formula_ref": "tmm_continuous",
+   "grid": null,
+   "grid_hash": null,
+   "created_utc": "2026-09-25T16:33:35Z"
+  },
+  {
+   "id": "v2/B/film/p/R_TMM",
+   "quantity": "TMM R, film on substrate, θ = 30° (D16 families)",
+   "value": 0.125466255728077,
+   "formula_ref": "tmm_continuous",
+   "grid": null,
+   "grid_hash": null,
+   "created_utc": "2026-09-25T16:33:35Z"
+  },
+  {
+   "id": "v2/B/film/p/T_TMM",
+   "quantity": "TMM T, film on substrate, θ = 30°",
+   "value": 0.8745337442719232,
+   "formula_ref": "tmm_continuous",
+   "grid": null,
+   "grid_hash": null,
+   "created_utc": "2026-09-25T16:33:35Z"
   }
  ]
 }

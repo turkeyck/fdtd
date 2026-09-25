@@ -1,0 +1,147 @@
+{
+ "gate": "gate0_adjoint",
+ "created_utc": "2026-09-25T15:57:07Z",
+ "table": [
+  {
+   "item": "0-2",
+   "quantity": "|<E,C_H H>_WE - <C_E E,H>_WH| / (|E| |C_H H|), seed 1",
+   "theory": "0",
+   "measured": "2.73e-18",
+   "threshold": "< 1e-13",
+   "passed": true,
+   "grid": "Δy_min=λ0/80, Δy_max=λ0/20, r_max=1.0968, Δx=λ0/20",
+   "note": ""
+  },
+  {
+   "item": "0-2",
+   "quantity": "control: unit weights, seed 1",
+   "theory": "≠ 0",
+   "measured": "9.83e-03",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "L1_taper_r1.1_base20_pec_thin",
+   "note": "shows the weights are what makes C_E, C_H adjoint"
+  },
+  {
+   "item": "0-2",
+   "quantity": "|<E,C_H H>_WE - <C_E E,H>_WH| / (|E| |C_H H|), seed 2",
+   "theory": "0",
+   "measured": "9.16e-19",
+   "threshold": "< 1e-13",
+   "passed": true,
+   "grid": "Δy_min=λ0/80, Δy_max=λ0/20, r_max=1.0968, Δx=λ0/20",
+   "note": ""
+  },
+  {
+   "item": "0-2",
+   "quantity": "control: unit weights, seed 2",
+   "theory": "≠ 0",
+   "measured": "2.13e-02",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "L1_taper_r1.1_base20_pec_thin",
+   "note": "shows the weights are what makes C_E, C_H adjoint"
+  },
+  {
+   "item": "0-2",
+   "quantity": "|<E,C_H H>_WE - <C_E E,H>_WH| / (|E| |C_H H|), seed 3",
+   "theory": "0",
+   "measured": "9.04e-19",
+   "threshold": "< 1e-13",
+   "passed": true,
+   "grid": "Δy_min=λ0/80, Δy_max=λ0/20, r_max=1.0968, Δx=λ0/20",
+   "note": ""
+  },
+  {
+   "item": "0-2",
+   "quantity": "control: unit weights, seed 3",
+   "theory": "≠ 0",
+   "measured": "9.67e-03",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "L1_taper_r1.1_base20_pec_thin",
+   "note": "shows the weights are what makes C_E, C_H adjoint"
+  },
+  {
+   "item": "0-2",
+   "quantity": "C kernel vs Python operator (one H and one E update)",
+   "theory": "0",
+   "measured": "H 3.5e-16, E 2.9e-16",
+   "threshold": "< 1e-13",
+   "passed": true,
+   "grid": "L1_taper_r1.1_base20_pec_thin",
+   "note": "ties the tested operator to the solver"
+  },
+  {
+   "item": "0-2",
+   "quantity": "|<E,C_H H>_WE - <C_E E,H>_WH| / (|E| |C_H H|), seed 1",
+   "theory": "0",
+   "measured": "3.98e-18",
+   "threshold": "< 1e-13",
+   "passed": true,
+   "grid": "Δy_min=λ0/80, Δy_max=λ0/20, r_max=4.0000, Δx=λ0/20",
+   "note": ""
+  },
+  {
+   "item": "0-2",
+   "quantity": "control: unit weights, seed 1",
+   "theory": "≠ 0",
+   "measured": "2.96e-03",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "L1_abrupt_r4_base20_pec_thin",
+   "note": "shows the weights are what makes C_E, C_H adjoint"
+  },
+  {
+   "item": "0-2",
+   "quantity": "|<E,C_H H>_WE - <C_E E,H>_WH| / (|E| |C_H H|), seed 2",
+   "theory": "0",
+   "measured": "1.99e-18",
+   "threshold": "< 1e-13",
+   "passed": true,
+   "grid": "Δy_min=λ0/80, Δy_max=λ0/20, r_max=4.0000, Δx=λ0/20",
+   "note": ""
+  },
+  {
+   "item": "0-2",
+   "quantity": "control: unit weights, seed 2",
+   "theory": "≠ 0",
+   "measured": "4.85e-02",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "L1_abrupt_r4_base20_pec_thin",
+   "note": "shows the weights are what makes C_E, C_H adjoint"
+  },
+  {
+   "item": "0-2",
+   "quantity": "|<E,C_H H>_WE - <C_E E,H>_WH| / (|E| |C_H H|), seed 3",
+   "theory": "0",
+   "measured": "0.00e+00",
+   "threshold": "< 1e-13",
+   "passed": true,
+   "grid": "Δy_min=λ0/80, Δy_max=λ0/20, r_max=4.0000, Δx=λ0/20",
+   "note": ""
+  },
+  {
+   "item": "0-2",
+   "quantity": "control: unit weights, seed 3",
+   "theory": "≠ 0",
+   "measured": "3.85e+00",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "L1_abrupt_r4_base20_pec_thin",
+   "note": "shows the weights are what makes C_E, C_H adjoint"
+  },
+  {
+   "item": "0-2",
+   "quantity": "C kernel vs Python operator (one H and one E update)",
+   "theory": "0",
+   "measured": "H 3.7e-16, E 1.6e-16",
+   "threshold": "< 1e-13",
+   "passed": true,
+   "grid": "L1_abrupt_r4_base20_pec_thin",
+   "note": "ties the tested operator to the solver"
+  }
+ ],
+ "passed": true
+}

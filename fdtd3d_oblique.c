@@ -1,13 +1,17 @@
 /*
- * fdtd3d_oblique.c -- 3D Yee FDTD, oblique plane wave, PBC in x/z, CPML in y, TF/SF at y = y0.
+ * fdtd3d_oblique.c -- 3D Yee FDTD, oblique plane wave, PBC in x/z, CPML in y, TF/SF at y = y0,
+ * on a tensor-product (possibly nonuniform) grid.
  *
  * Normalized units: c = eps0 = mu0 = 1, lambda0 = 1 (omega0 = 2*pi).
- * Equations, index conventions and sign derivations: derivation.md (section numbers cited below).
+ * Uniform-grid equations: derivation.md; nonuniform generalization: docs/derivation_nonuniform.md (§ cited below).
+ * mesh=uniform (default) builds the legacy equally spaced grid internally; mesh=file reads a grid_gen.py JSON.
+ * Both paths use the same update code: the uniform grid is the special case h = d = Delta.
  *
  * Build: make            (gcc, C99, optional OpenMP)
  * Usage: ./fdtd3d_oblique key=value ...   (see parse_args for the list and defaults)
  */
 #include <complex.h>
+#include <ctype.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,50 +30,78 @@
 
 #define PI 3.14159265358979323846
 #define MAXPLANES 64
+#define MAXDUMP 64
 
 /* ------------------------------------------------------------------ parameters */
 typedef struct {
-    int nl;                 /* cells per lambda0 */
+    int nl;                 /* cells per lambda0 (mesh=uniform) */
     double S, Lx, Lz;
     int m, n;
     char pol;               /* 's' or 'p' */
-    int npml, sf, tf;       /* near PML, SF length, TF length (cells); Ny = 2*npml + sf + tf */
+    int npml, sf, tf;       /* near PML, SF length, TF length (cells); Ny = 2*npml + sf + tf (mesh=uniform) */
     double pml_m, sig_fac, kappa_max, alpha_max;
-    double eps2;            /* relative permittivity of the half space y >= y1 */
+    double eps2;            /* relative permittivity of the half space y >= y1 (mesh=uniform) */
     int y1;                 /* interface offset from j0 in cells (<0: no medium) */
-    char ifmode;            /* 'a': arithmetic mean for tangential E on the interface plane */
+    char ifmode;            /* 'a': arithmetic mean for tangential E on the interface plane, 's': staircase */
     char inc;               /* 'a': aux modal line, 'n': analytic*g(t), '0': none */
     int ky_cont;            /* analytic mode only: 1 -> continuous ky (control) */
     char ramp;              /* 'r': raised cosine, 'e': erf */
     double ramp_T;          /* raised-cosine duration (periods) */
     double erf_t0, erf_tau; /* erf ramp centre and width (periods) */
     double off_t;           /* start of the turn-off ramp (periods); <0: never */
-    int na;                 /* aux injection point j_a = j0 - na */
+    int na;                 /* aux injection point j_a = j0 - na (mesh=uniform) */
     long nsteps, dft0, dft1;
     int nyplanes, yplanes[MAXPLANES];
     int zk, xi;             /* x-y slice at k = zk, y-z slice at i = xi (<0: none) */
-    char init;              /* '0': zero, 'a': analytic fill + Dirichlet y (debug), 'b': gaussian blob */
+    char init;              /* '0': zero, 'a': analytic + Dirichlet y (debug), 'b': gaussian blob, 'r': random */
     int energy_every, snap_every;
     char snapcomp[4];
     int dump;               /* dump full final fields */
     int auxspan;            /* aux-line DFT recorded up to j0 + auxspan (0: up to Ny) */
     int div_every;          /* log max |div E|, |div H| over the TF interior every N steps (0: off) */
     char out[512];
+    /* nonuniform-grid additions (SPEC_nonuniform §17.1) */
+    char mesh;              /* 'u': uniform (legacy layout), 'f': grid file */
+    char grid[512];
+    double dtfac;           /* dt = dtfac * Courant-formula dt */
+    double dt_set;          /* >0: dt given explicitly */
+    int auxref;             /* 1: exact 1D reduction of the whole main grid (aux_ref line) */
+    int ref_every;          /* full-domain main vs aux_ref deviation every N steps (0: off) */
+    unsigned long seed;     /* init=r */
+    char divop;             /* 'n': nonuniform divergence operator, 'u': (wrong) uniform operator, control only */
+    int ndump;
+    long dump_at[MAXDUMP];
+    char mode;              /* 't': time stepping (default), 'e': power iteration for lambda_max (gate 0-4) */
+    int proj;               /* 1: DFT of every y row projected on the transverse Floquet phase (dft_proj.bin) */
+    int planar;             /* 1: full-volume DFT kept in memory; per (component, y plane) RMS phase residual
+                               against kx x + kz z + const written to dft_planar.bin (gate 1-2) */
+    long eig_maxit;
+    double eig_tol;
 } Params;
 
 /* ------------------------------------------------------------------ globals */
 static Params P;
-static int Nx, Ny, Nz, SY, SZ, j0, j1;
-static double D, dt, W0, kx, ky, kz, kyc;
+static int Nx, Ny, Nz, SY, SZ, j0, j1, NPlo, NPhi, JA;
+static double D, dt, dt_cour, W0, kx, ky, kz, kyc, Da;
 static double Kt[3], wt, E0v[3], H0v[3], Kt_src[3];
 static size_t NTOT;
 static double *Ex, *Ey, *Ez, *Hx, *Hy, *Hz;
-static double *ceEx, *ceEy, *ceEz, ch;
+/* geometry (docs/derivation_nonuniform.md §0): primal nodes, dual (midpoint) coordinates, primal spacings h,
+   dual spacings d (x, z periodic; y: d at the two walls = adjacent h) */
+static double *xn, *xd, *hxv, *dxv, *yn, *yd, *hyv, *dyv, *zn, *zd, *hzv, *dzv;
+static double *epsT, *epsN;
+static int xnonuni, znonuni;
+static char grid_hash[80] = "";
+/* update coefficients (derivation_nonuniform §1) */
+static double *cHy, *ay, *cEyn, *cHz, *zfac;
+static double *rExz, *rHxz, *rEzx, *rHzx, *rEyk, *rHyk;
 static int NP, *pmlE, *pmlH;
 static double *bE, *cE, *ikE, *bH, *cH, *ikH, *sigE, *sigH, *kapE, *kapH, *alpE, *alpH;
 static double *psiExy, *psiEzy, *psiHxy, *psiHzy;
-static double *cosP1, *sinP1, *cosP2, *sinP2;  /* P1: x=(i+1/2)D, z=kD (Ex,Hz); P2: x=iD, z=(k+1/2)D (Ez,Hx) */
-static double *ExI, *EzI, *HxI, *HzI;           /* incident samples on the TF/SF plane */
+static double *cosP1, *sinP1, *cosP2, *sinP2, *cosP3, *sinP3, *cosP4, *sinP4;
+/* P1: (x_{i+1/2}, z_k) Ex,Hz; P2: (x_i, z_{k+1/2}) Ez,Hx; P3: (x_i, z_k) Ey; P4: (x_{i+1/2}, z_{k+1/2}) Hy */
+static double *ExI, *EzI, *HxI, *HzI;
+static double complex incEx, incEz, incHx, incHz;
 
 #define ID(i, j, k) ((((size_t)(i) + 1) * (size_t)SY + (size_t)(j)) * (size_t)SZ + (size_t)(k) + 1)
 
@@ -85,7 +117,7 @@ static void die(const char *msg) {
 }
 
 static void *xcalloc(size_t n, size_t s) {
-    void *p = calloc(n, s);
+    void *p = calloc(n ? n : 1, s);
     if (!p) die("out of memory");
     return p;
 }
@@ -99,6 +131,14 @@ static void parse_list(const char *s, int *arr, int *cnt) {
     for (char *t = strtok(buf, ","); t && *cnt < MAXPLANES; t = strtok(NULL, ",")) arr[(*cnt)++] = atoi(t);
 }
 
+static void parse_llist(const char *s, long *arr, int *cnt) {
+    *cnt = 0;
+    char buf[2048];
+    strncpy(buf, s, sizeof buf - 1);
+    buf[sizeof buf - 1] = 0;
+    for (char *t = strtok(buf, ","); t && *cnt < MAXDUMP; t = strtok(NULL, ",")) arr[(*cnt)++] = atol(t);
+}
+
 static void parse_args(int argc, char **argv) {
     Params p = {0};
     p.nl = 20; p.S = 0.5; p.Lx = 2.0; p.Lz = 3.0; p.m = 1; p.n = 1; p.pol = 's';
@@ -109,6 +149,9 @@ static void parse_args(int argc, char **argv) {
     p.na = 40; p.nsteps = 1000; p.dft0 = -1; p.dft1 = -1; p.nyplanes = 0; p.zk = -1; p.xi = -1;
     p.init = '0'; p.energy_every = 10; p.snap_every = 0; strcpy(p.snapcomp, "Ez"); p.dump = 0;
     strcpy(p.out, "out");
+    p.mode = 't'; p.eig_maxit = 200000; p.eig_tol = 1e-10;
+    p.mesh = 'u'; p.dtfac = 1.0; p.dt_set = 0.0; p.auxref = 0; p.ref_every = 0; p.seed = 12345; p.divop = 'n';
+    int got_eps = 0;
     for (int a = 1; a < argc; a++) {
         char *eq = strchr(argv[a], '=');
         if (!eq) { fprintf(stderr, "bad arg %s\n", argv[a]); exit(2); }
@@ -128,8 +171,8 @@ static void parse_args(int argc, char **argv) {
         else if (!strcmp(k, "sig_fac")) p.sig_fac = atof(v);
         else if (!strcmp(k, "kappa_max")) p.kappa_max = atof(v);
         else if (!strcmp(k, "alpha_max")) p.alpha_max = atof(v);
-        else if (!strcmp(k, "eps2")) p.eps2 = atof(v);
-        else if (!strcmp(k, "y1")) p.y1 = atoi(v);
+        else if (!strcmp(k, "eps2")) { p.eps2 = atof(v); got_eps = 1; }
+        else if (!strcmp(k, "y1")) { p.y1 = atoi(v); got_eps = 1; }
         else if (!strcmp(k, "ifmode")) p.ifmode = v[0];
         else if (!strcmp(k, "inc")) p.inc = v[0];
         else if (!strcmp(k, "ky")) p.ky_cont = (v[0] == 'c');
@@ -153,19 +196,183 @@ static void parse_args(int argc, char **argv) {
         else if (!strcmp(k, "auxspan")) p.auxspan = atoi(v);
         else if (!strcmp(k, "div_every")) p.div_every = atoi(v);
         else if (!strcmp(k, "out")) { strncpy(p.out, v, sizeof p.out - 1); }
+        else if (!strcmp(k, "mesh")) p.mesh = (v[0] == 'f') ? 'f' : 'u';
+        else if (!strcmp(k, "grid")) { strncpy(p.grid, v, sizeof p.grid - 1); p.mesh = 'f'; }
+        else if (!strcmp(k, "dtfac")) p.dtfac = atof(v);
+        else if (!strcmp(k, "dt")) p.dt_set = atof(v);
+        else if (!strcmp(k, "auxref")) p.auxref = atoi(v);
+        else if (!strcmp(k, "ref_every")) p.ref_every = atoi(v);
+        else if (!strcmp(k, "seed")) p.seed = strtoul(v, NULL, 10);
+        else if (!strcmp(k, "divop")) p.divop = (v[0] == 'u') ? 'u' : 'n';
+        else if (!strcmp(k, "dump_at")) parse_llist(v, p.dump_at, &p.ndump);
+        else if (!strcmp(k, "mode")) p.mode = (v[0] == 'e') ? 'e' : 't';
+        else if (!strcmp(k, "proj")) p.proj = atoi(v);
+        else if (!strcmp(k, "planar")) p.planar = atoi(v);
+        else if (!strcmp(k, "eig_maxit")) p.eig_maxit = atol(v);
+        else if (!strcmp(k, "eig_tol")) p.eig_tol = atof(v);
         else { fprintf(stderr, "unknown key %s\n", k); exit(2); }
     }
+    if (p.planar) p.proj = 1;
+    if (p.mesh == 'f' && !p.grid[0]) die("mesh=file needs grid=<path.json>");
+    if (p.mesh == 'f' && got_eps) die("eps2/y1 cannot be combined with mesh=file (materials come from the grid file)");
     P = p;
 }
 
-/* ------------------------------------------------------------------ theory (derivation.md §2) */
-static double ky_disc(double kxx, double kzz, double nidx) {
-    double q = pow(nidx / P.S * sin(W0 * dt / 2.0), 2) - pow(sin(kxx * D / 2.0), 2) - pow(sin(kzz * D / 2.0), 2);
-    if (!(q > 0.0 && q <= 1.0)) {
-        fprintf(stderr, "sin^2(ky D/2) = %.6g outside (0,1]\n", q);
-        die("no propagating discrete ky for this (m, n, Delta, dt)");
+/* ------------------------------------------------------------------ minimal JSON reader (grid files only) */
+typedef struct {
+    char key[160];
+    double *v;
+    int n;
+} JEnt;
+static JEnt *JE;
+static int NJE, CJE;
+static const char *jpos;
+
+static void jws(void) { while (*jpos && isspace((unsigned char)*jpos)) jpos++; }
+
+static void jadd(const char *key, double *v, int n) {
+    if (NJE == CJE) {
+        CJE = CJE ? 2 * CJE : 64;
+        JE = realloc(JE, (size_t)CJE * sizeof *JE);
+        if (!JE) die("out of memory");
     }
-    return 2.0 / D * asin(sqrt(q));
+    snprintf(JE[NJE].key, sizeof JE[NJE].key, "%s", key);
+    JE[NJE].v = v;
+    JE[NJE].n = n;
+    NJE++;
+}
+
+static void jstring(char *out, size_t cap) {
+    if (*jpos != '"') die("grid file: expected string");
+    jpos++;
+    size_t q = 0;
+    while (*jpos && *jpos != '"') {
+        if (*jpos == '\\' && jpos[1]) jpos++;
+        if (out && q + 1 < cap) out[q++] = *jpos;
+        jpos++;
+    }
+    if (*jpos != '"') die("grid file: unterminated string");
+    jpos++;
+    if (out) out[q] = 0;
+}
+
+static void jvalue(const char *key);
+
+static void jobject(const char *prefix) {
+    jpos++;
+    jws();
+    if (*jpos == '}') { jpos++; return; }
+    for (;;) {
+        char k[128], child[160];
+        jws();
+        jstring(k, sizeof k);
+        jws();
+        if (*jpos != ':') die("grid file: expected ':'");
+        jpos++;
+        if (prefix[0]) snprintf(child, sizeof child, "%s.%s", prefix, k);
+        else snprintf(child, sizeof child, "%s", k);
+        jvalue(child);
+        jws();
+        if (*jpos == ',') { jpos++; continue; }
+        if (*jpos == '}') { jpos++; return; }
+        die("grid file: expected ',' or '}'");
+    }
+}
+
+static void jarray(const char *key) {
+    jpos++;
+    int cap = 64, n = 0, numeric = 1;
+    double *buf = xcalloc((size_t)cap, sizeof(double));
+    jws();
+    if (*jpos == ']') { jpos++; jadd(key, buf, 0); return; }
+    for (;;) {
+        jws();
+        if (*jpos == '-' || *jpos == '+' || isdigit((unsigned char)*jpos) || *jpos == '.') {
+            char *end;
+            double x = strtod(jpos, &end);
+            if (end == jpos) die("grid file: bad number");
+            jpos = end;
+            if (n == cap) {
+                cap *= 2;
+                if (cap > 20000000) die("grid file: array too long");
+                buf = realloc(buf, (size_t)cap * sizeof(double));
+                if (!buf) die("out of memory");
+            }
+            buf[n++] = x;
+        } else {
+            numeric = 0;
+            jvalue("");
+        }
+        jws();
+        if (*jpos == ',') { jpos++; continue; }
+        if (*jpos == ']') { jpos++; break; }
+        die("grid file: expected ',' or ']'");
+    }
+    if (numeric && key[0]) jadd(key, buf, n);
+    else free(buf);
+}
+
+static void jvalue(const char *key) {
+    jws();
+    if (*jpos == '{') jobject(key);
+    else if (*jpos == '[') jarray(key);
+    else if (*jpos == '"') {
+        if (!strcmp(key, "hash")) jstring(grid_hash, sizeof grid_hash);
+        else jstring(NULL, 0);
+    } else if (!strncmp(jpos, "true", 4)) { jpos += 4; double *v = xcalloc(1, sizeof(double)); *v = 1; if (key[0]) jadd(key, v, 1); }
+    else if (!strncmp(jpos, "false", 5)) { jpos += 5; double *v = xcalloc(1, sizeof(double)); if (key[0]) jadd(key, v, 1); }
+    else if (!strncmp(jpos, "null", 4)) { jpos += 4; }
+    else {
+        char *end;
+        double x = strtod(jpos, &end);
+        if (end == jpos) die("grid file: unexpected character");
+        jpos = end;
+        double *v = xcalloc(1, sizeof(double));
+        *v = x;
+        if (key[0]) jadd(key, v, 1);
+    }
+}
+
+static double *jget(const char *key, int *n, int required) {
+    for (int q = 0; q < NJE; q++)
+        if (!strcmp(JE[q].key, key)) { if (n) *n = JE[q].n; return JE[q].v; }
+    if (required) {
+        fprintf(stderr, "ERROR: grid file: missing key \"%s\"\n", key);
+        exit(2);
+    }
+    if (n) *n = 0;
+    return NULL;
+}
+
+static void read_grid_file(const char *path) {
+    FILE *f = fopen(path, "rb");
+    if (!f) die("grid file: cannot open");
+    fseek(f, 0, SEEK_END);
+    long sz = ftell(f);
+    fseek(f, 0, SEEK_SET);
+    if (sz <= 0 || sz > 400000000L) die("grid file: bad size");
+    char *txt = xcalloc((size_t)sz + 1, 1);
+    if (fread(txt, 1, (size_t)sz, f) != (size_t)sz) die("grid file: read error");
+    fclose(f);
+    jpos = txt;
+    jws();
+    if (*jpos != '{') die("grid file: not a JSON object");
+    jobject("");
+    free(txt);
+}
+
+/* ------------------------------------------------------------------ theory (derivation_nonuniform §5) */
+/* discrete ky in a uniform sub-region of spacing h and index nidx: sin^2(ky h/2) = (h/2)^2 (n^2 w~^2 - Kx~^2 - Kz~^2) */
+static double ky_local(double h, double nidx) {
+    double dx = hxv[0], dz = hzv[0];
+    double a = (P.mesh == 'u' && P.dt_set <= 0.0 && P.dtfac == 1.0) ? nidx / P.S * sin(W0 * dt / 2.0)
+                                                                     : nidx * (h / dt) * sin(W0 * dt / 2.0);
+    double q = pow(a, 2) - pow(sin(kx * dx / 2.0) * (h / dx), 2) - pow(sin(kz * dz / 2.0) * (h / dz), 2);
+    if (!(q > 0.0 && q <= 1.0)) {
+        fprintf(stderr, "sin^2(ky h/2) = %.6g outside (0,1] for h = %.6g\n", q, h);
+        die("no propagating discrete ky for this (m, n, h, dt)");
+    }
+    return 2.0 / h * asin(sqrt(q));
 }
 
 static void cross(const double *a, const double *b, double *c) {
@@ -176,12 +383,12 @@ static void cross(const double *a, const double *b, double *c) {
 
 static double norm3(const double *a) { return sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2]); }
 
-/* E0, H0 for the wave vector whose y component is kyy (s_hat ∝ K~ x y_hat, p_hat ∝ s_hat x K~). */
+/* E0, H0 for the wave vector whose y component is kyy on the aux-source spacing Da */
 static void amplitudes(double kyy, double *K, double *E, double *H) {
     double yh[3] = {0, 1, 0}, s[3], p[3];
-    K[0] = 2.0 / D * sin(kx * D / 2.0);
-    K[1] = 2.0 / D * sin(kyy * D / 2.0);
-    K[2] = 2.0 / D * sin(kz * D / 2.0);
+    K[0] = 2.0 / hxv[0] * sin(kx * hxv[0] / 2.0);
+    K[1] = 2.0 / Da * sin(kyy * Da / 2.0);
+    K[2] = 2.0 / hzv[0] * sin(kz * hzv[0] / 2.0);
     cross(K, yh, s);
     double ns = norm3(s);
     if (ns == 0.0) die("normal incidence (m = n = 0) is not supported: s/p basis degenerate");
@@ -210,21 +417,39 @@ static double envelope(double t) {
     return g;
 }
 
+/* global y geometry, extended uniformly beyond [0, Ny] with the end spacings (aux line, §7.2) */
+static double gh(long j) { return j < 0 ? hyv[0] : (j >= Ny ? hyv[Ny - 1] : hyv[j]); }
+static double gy(long j) {
+    if (j < 0) return yn[0] + (double)j * hyv[0];
+    if (j > Ny) return yn[Ny] + (double)(j - Ny) * hyv[Ny - 1];
+    return yn[j];
+}
+static double gyd(long j) {
+    if (j < 0) return yn[0] + ((double)j + 0.5) * hyv[0];
+    if (j >= Ny) return yn[Ny] + ((double)(j - Ny) + 0.5) * hyv[Ny - 1];
+    return yd[j];
+}
+static double gd(long j) {
+    double a = gh(j - 1), b = gh(j);
+    return a == b ? a : 0.5 * (a + b);
+}
+
 /* complex amplitude of component c at global y-index j (its own y offset) and time step tn (own offset) */
 static double complex inc_amp(int c, long j, double tn, const double *E, const double *H, double kyy) {
-    double y = ((double)j + OFF[c][1]) * D;
+    double y = (OFF[c][1] == 0.0) ? gy(j) : gyd(j);
     double t = (tn + OFF[c][3]) * dt;
     double a = (c < 3) ? E[c] : H[c - 3];
     return envelope(t) * a * cexp(I * (kyy * y - W0 * t));
 }
 
-/* ------------------------------------------------------------------ aux modal line (derivation.md §6) */
+/* ------------------------------------------------------------------ aux modal line (derivation_nonuniform §3) */
 static long AL, Ajlo, Aua;
 static double complex *aEx, *aEy, *aEz, *aHx, *aHy, *aHz;
-static double complex ikxD, ikzD;
+static double *acH, *acE;                       /* dt/h (H side, per dual u), dt/d (E side, per primal u) */
+static double complex *ikxH, *ikzH, *ikxE, *ikzE; /* i K~ h and i K~ d: acH*ikH = dt i K~ (y and phasor terms split) */
 
 static void aux_init(void) {
-    long ja = j0 - P.na;
+    long ja = JA;
     long half = P.nsteps / 2 + 20;
     Ajlo = ja - half;
     long jhi = j0 + half + (P.auxspan > 0 ? P.auxspan : Ny - j0); /* no end reflection reaches a recorded node */
@@ -232,81 +457,147 @@ static void aux_init(void) {
     Aua = ja - Ajlo;
     aEx = xcalloc(AL + 1, sizeof *aEx); aEz = xcalloc(AL + 1, sizeof *aEz); aHy = xcalloc(AL + 1, sizeof *aHy);
     aEy = xcalloc(AL, sizeof *aEy); aHx = xcalloc(AL, sizeof *aHx); aHz = xcalloc(AL, sizeof *aHz);
-    ikxD = I * Kt[0] * D;
-    ikzD = I * Kt[2] * D;
+    acH = xcalloc(AL + 1, sizeof(double)); acE = xcalloc(AL + 1, sizeof(double));
+    ikxH = xcalloc(AL + 1, sizeof *ikxH); ikzH = xcalloc(AL + 1, sizeof *ikzH);
+    ikxE = xcalloc(AL + 1, sizeof *ikxE); ikzE = xcalloc(AL + 1, sizeof *ikzE);
+    for (long u = 0; u <= AL; u++) {
+        long j = Ajlo + u;
+        double h = gh(j), d = gd(j);
+        acH[u] = dt / h;
+        acE[u] = dt / d;
+        ikxH[u] = I * Kt[0] * h; ikzH[u] = I * Kt[2] * h;
+        ikxE[u] = I * Kt[0] * d; ikzE[u] = I * Kt[2] * d;
+    }
 }
 
 static void aux_update_H(long n) {
     long lo = Aua - n - 3, hi = Aua + n + 3;
     if (lo < 0) lo = 0;
     if (hi > AL - 1) hi = AL - 1;
-    double c = dt / D; /* mu0 = 1 */
     for (long u = lo; u <= hi; u++) {
-        aHx[u] -= c * ((aEz[u + 1] - aEz[u]) - ikzD * aEy[u]);
-        aHz[u] -= c * (ikxD * aEy[u] - (aEx[u + 1] - aEx[u]));
+        aHx[u] -= acH[u] * ((aEz[u + 1] - aEz[u]) - ikzH[u] * aEy[u]);
+        aHz[u] -= acH[u] * (ikxH[u] * aEy[u] - (aEx[u + 1] - aEx[u]));
     }
-    for (long u = lo; u <= hi + 1 && u <= AL; u++) aHy[u] -= c * (ikzD * aEx[u] - ikxD * aEz[u]);
-    /* 1D TF/SF at j_a: same signs as derivation.md §3 (a), (b) */
+    for (long u = lo; u <= hi + 1 && u <= AL; u++) aHy[u] -= acE[u] * (ikzE[u] * aEx[u] - ikxE[u] * aEz[u]);
+    /* 1D TF/SF at j_a (derivation.md §3 (a), (b)); the source region is uniform, spacing Da */
     long ja = Ajlo + Aua;
-    aHx[Aua - 1] += c * inc_amp(2, ja, (double)n, E0v, H0v, ky);
-    aHz[Aua - 1] -= c * inc_amp(0, ja, (double)n, E0v, H0v, ky);
+    aHx[Aua - 1] += acH[Aua - 1] * inc_amp(2, ja, (double)n, E0v, H0v, ky);
+    aHz[Aua - 1] -= acH[Aua - 1] * inc_amp(0, ja, (double)n, E0v, H0v, ky);
 }
 
 static void aux_update_E(long n) {
     long lo = Aua - n - 3, hi = Aua + n + 3;
     if (lo < 1) lo = 1;
     if (hi > AL - 1) hi = AL - 1;
-    double c = dt / D; /* eps0 = 1; the aux line is vacuum */
-    for (long u = lo; u <= hi; u++) {
-        aEx[u] += c * ((aHz[u] - aHz[u - 1]) - ikzD * aHy[u]);
-        aEz[u] += c * (ikxD * aHy[u] - (aHx[u] - aHx[u - 1]));
+    for (long u = lo; u <= hi; u++) { /* eps0 = 1; the aux line is vacuum */
+        aEx[u] += acE[u] * ((aHz[u] - aHz[u - 1]) - ikzE[u] * aHy[u]);
+        aEz[u] += acE[u] * (ikxE[u] * aHy[u] - (aHx[u] - aHx[u - 1]));
     }
-    for (long u = lo - 1; u <= hi && u < AL; u++) aEy[u] += c * (ikzD * aHx[u] - ikxD * aHz[u]);
+    for (long u = lo - 1; u <= hi && u < AL; u++) aEy[u] += acH[u] * (ikzH[u] * aHx[u] - ikxH[u] * aHz[u]);
     long ja = Ajlo + Aua;
-    aEx[Aua] -= c * inc_amp(5, ja - 1, (double)n, E0v, H0v, ky);
-    aEz[Aua] += c * inc_amp(3, ja - 1, (double)n, E0v, H0v, ky);
+    aEx[Aua] -= acE[Aua] * inc_amp(5, ja - 1, (double)n, E0v, H0v, ky);
+    aEz[Aua] += acE[Aua] * inc_amp(3, ja - 1, (double)n, E0v, H0v, ky);
 }
 
-/* ------------------------------------------------------------------ setup */
-static void setup(void) {
+/* ------------------------------------------------------------------ aux_ref: exact 1D reduction of the main grid
+   (same y nodes, eps, CPML; TF/SF at j0 fed by the aux line). Main field = Re[aux_ref * exp(i(kx x + kz z))]. */
+static double complex *rEx, *rEy, *rEz, *rHx, *rHy, *rHz, *rpEx, *rpEz, *rpHx, *rpHz;
+
+static void auxref_init(void) {
+    rEx = xcalloc(SY, sizeof *rEx); rEy = xcalloc(SY, sizeof *rEy); rEz = xcalloc(SY, sizeof *rEz);
+    rHx = xcalloc(SY, sizeof *rHx); rHy = xcalloc(SY, sizeof *rHy); rHz = xcalloc(SY, sizeof *rHz);
+    rpEx = xcalloc(NP, sizeof *rpEx); rpEz = xcalloc(NP, sizeof *rpEz);
+    rpHx = xcalloc(NP, sizeof *rpHx); rpHz = xcalloc(NP, sizeof *rpHz);
+}
+
+static void auxref_update_H(void) {
+    const double complex iKx = I * Kt[0], iKz = I * Kt[2];
+    for (int j = 0; j <= Ny; j++) rHy[j] -= dt * (iKz * rEx[j] - iKx * rEz[j]);
+    for (int j = 0; j < Ny; j++) {
+        double complex dEz = rEz[j + 1] - rEz[j], dEx = rEx[j + 1] - rEx[j];
+        int s = pmlH[j];
+        if (s >= 0) {
+            rpHx[s] = bH[j] * rpHx[s] + cH[j] * dEz;
+            rpHz[s] = bH[j] * rpHz[s] + cH[j] * dEx;
+            dEz = ikH[j] * dEz + rpHx[s];
+            dEx = ikH[j] * dEx + rpHz[s];
+        }
+        rHx[j] -= cHy[j] * (dEz - iKz * hyv[j] * rEy[j]);
+        rHz[j] -= cHy[j] * (iKx * hyv[j] * rEy[j] - dEx);
+    }
+    rHx[j0 - 1] += cHy[j0 - 1] * incEz;
+    rHz[j0 - 1] -= cHy[j0 - 1] * incEx;
+}
+
+static void auxref_update_E(void) {
+    const double complex iKx = I * Kt[0], iKz = I * Kt[2];
+    for (int j = 0; j < Ny; j++) rEy[j] += (dt / epsN[j]) * (iKz * rHx[j] - iKx * rHz[j]);
+    for (int j = 1; j < Ny; j++) {
+        double complex dHz = rHz[j] - rHz[j - 1], dHx = rHx[j] - rHx[j - 1];
+        int s = pmlE[j];
+        if (s >= 0) {
+            rpEx[s] = bE[j] * rpEx[s] + cE[j] * dHz;
+            rpEz[s] = bE[j] * rpEz[s] + cE[j] * dHx;
+            dHz = ikE[j] * dHz + rpEx[s];
+            dHx = ikE[j] * dHx + rpEz[s];
+        }
+        rEx[j] += ay[j] * (dHz - iKz * dyv[j] * rHy[j]);
+        rEz[j] += ay[j] * (iKx * dyv[j] * rHy[j] - dHx);
+    }
+    rEx[j0] -= ay[j0] * incHz;
+    rEz[j0] += ay[j0] * incHx;
+}
+
+/* ------------------------------------------------------------------ geometry */
+static double maxreldiff(const double *h, int lo, int hi, double ref) {
+    double m = 0.0;
+    for (int q = lo; q < hi; q++) m = fmax(m, fabs(h[q] / ref - 1.0));
+    return m;
+}
+
+static void periodic_axis(int N, const double *h, double **node, double **dual, double **dd) {
+    *node = xcalloc(N + 1, sizeof(double)); *dual = xcalloc(N, sizeof(double)); *dd = xcalloc(N, sizeof(double));
+    double s = 0.0, c = 0.0; /* Kahan summation */
+    (*node)[0] = 0.0;
+    for (int q = 0; q < N; q++) {
+        double yv = h[q] - c, t = s + yv;
+        c = (t - s) - yv;
+        s = t;
+        (*node)[q + 1] = s;
+    }
+    for (int q = 0; q < N; q++) {
+        (*dual)[q] = 0.5 * ((*node)[q] + (*node)[q + 1]);
+        double a = h[(q + N - 1) % N], b = h[q];
+        (*dd)[q] = a == b ? a : 0.5 * (a + b);
+    }
+}
+
+static void build_uniform_mesh(void) {
     D = 1.0 / P.nl;
-    dt = P.S * D;
-    W0 = 2.0 * PI;
-    if (P.S >= 1.0 / sqrt(3.0)) die("Courant number S must be < 1/sqrt(3)");
     Nx = (int)lround(P.Lx * P.nl);
     Nz = (int)lround(P.Lz * P.nl);
     if (fabs(Nx * D - P.Lx) > 1e-12 * P.Lx || fabs(Nz * D - P.Lz) > 1e-12 * P.Lz)
         die("Lx and Lz must be integer multiples of Delta");
-    kx = 2.0 * PI * P.m / P.Lx;
-    kz = 2.0 * PI * P.n / P.Lz;
-    double kt = hypot(kx, kz);
-    if (kt >= 0.95 * W0) die("|k_t| >= 0.95 k0: insufficient propagation margin");
-    wt = 2.0 / dt * sin(W0 * dt / 2.0);
-    ky = ky_disc(kx, kz, 1.0);
-    kyc = sqrt(W0 * W0 - kt * kt);
-    amplitudes(ky, Kt, E0v, H0v);
-    for (int c = 0; c < 3; c++) Kt_src[c] = Kt[c];
-    if (P.inc == 'n' && P.ky_cont) { /* control C1: continuous ky everywhere in the source */
-        amplitudes(kyc, Kt_src, E0v, H0v);
-        ky = kyc;
-    }
-    if (P.pol != 's' && P.pol != 'p') die("pol must be s or p");
-    if (P.tf < 10 * P.nl) fprintf(stderr, "WARNING: TF length %d cells < 10 lambda0\n", P.tf);
-
     Ny = 2 * P.npml + P.sf + P.tf;
     j0 = P.npml + P.sf;
+    NPlo = NPhi = P.npml;
+    JA = j0 - P.na;
     j1 = (P.y1 >= 0) ? j0 + P.y1 : -1;
-    if (P.inc != '0' && P.init == 'a') die("init=analytic is a debug mode without a source");
-    if (P.inc != '0' && (P.sf < 2 || P.tf < 2)) die("sf and tf must be >= 2 cells");
-    if (j1 >= Ny - P.npml) die("interface must lie in the physical TF region");
     SY = Ny + 1;
-    SZ = Nz + 2;
-    NTOT = (size_t)(Nx + 2) * SY * SZ;
-    Ex = xcalloc(NTOT, sizeof(double)); Ey = xcalloc(NTOT, sizeof(double)); Ez = xcalloc(NTOT, sizeof(double));
-    Hx = xcalloc(NTOT, sizeof(double)); Hy = xcalloc(NTOT, sizeof(double)); Hz = xcalloc(NTOT, sizeof(double));
-
+    hxv = xcalloc(Nx, sizeof(double)); dxv = xcalloc(Nx, sizeof(double));
+    xn = xcalloc(Nx + 1, sizeof(double)); xd = xcalloc(Nx, sizeof(double));
+    hzv = xcalloc(Nz, sizeof(double)); dzv = xcalloc(Nz, sizeof(double));
+    zn = xcalloc(Nz + 1, sizeof(double)); zd = xcalloc(Nz, sizeof(double));
+    hyv = xcalloc(SY, sizeof(double)); dyv = xcalloc(SY, sizeof(double));
+    yn = xcalloc(SY, sizeof(double)); yd = xcalloc(SY, sizeof(double));
+    for (int i = 0; i <= Nx; i++) xn[i] = i * D;
+    for (int i = 0; i < Nx; i++) { xd[i] = (i + 0.5) * D; hxv[i] = D; dxv[i] = D; }
+    for (int k = 0; k <= Nz; k++) zn[k] = k * D;
+    for (int k = 0; k < Nz; k++) { zd[k] = (k + 0.5) * D; hzv[k] = D; dzv[k] = D; }
+    for (int j = 0; j <= Ny; j++) { yn[j] = j * D; dyv[j] = D; }
+    for (int j = 0; j < Ny; j++) { yd[j] = (j + 0.5) * D; hyv[j] = D; }
     /* material (derivation.md §8): Ex,Ez at integer j; Ey at j+1/2 never lies on an integer-y interface */
-    ceEx = xcalloc(SY, sizeof(double)); ceEy = xcalloc(SY, sizeof(double)); ceEz = xcalloc(SY, sizeof(double));
+    epsT = xcalloc(SY, sizeof(double)); epsN = xcalloc(SY, sizeof(double));
     for (int j = 0; j <= Ny; j++) {
         double et = 1.0, en = 1.0;
         if (j1 >= 0) {
@@ -314,31 +605,182 @@ static void setup(void) {
             else if (j == j1) et = (P.ifmode == 'a') ? 0.5 * (1.0 + P.eps2) : P.eps2;
             if (j >= j1) en = P.eps2; /* Ey at (j+1/2) >= j1 */
         }
-        ceEx[j] = ceEz[j] = dt / (et * D);
-        ceEy[j] = dt / (en * D);
+        epsT[j] = et;
+        epsN[j] = en;
     }
-    ch = dt / D;
+}
 
-    /* CPML (derivation.md §7) */
+static void build_file_mesh(void) {
+    read_grid_file(P.grid);
+    int nx, ny, nz, ne, nt, nn;
+    double *hx = jget("x.h", &nx, 1), *hy = jget("y.h", &ny, 1), *hz = jget("z.h", &nz, 1);
+    double *ey = jget("eps_y", &ne, 1);
+    double *et = jget("eps_t", &nt, 0), *en = jget("eps_n", &nn, 0);
+    if (ne != ny) die("grid file: len(eps_y) != len(y.h)");
+    Nx = nx; Ny = ny; Nz = nz; SY = Ny + 1;
+    NPlo = (int)lround(*jget("zones.npml_lo", NULL, 1));
+    NPhi = (int)lround(*jget("zones.npml_hi", NULL, 1));
+    j0 = (int)lround(*jget("zones.j0", NULL, 1));
+    JA = (int)lround(*jget("zones.ja", NULL, 1));
+    j1 = -1;
+    hxv = xcalloc(Nx, sizeof(double)); hzv = xcalloc(Nz, sizeof(double)); hyv = xcalloc(SY, sizeof(double));
+    memcpy(hxv, hx, Nx * sizeof(double)); memcpy(hzv, hz, Nz * sizeof(double)); memcpy(hyv, hy, Ny * sizeof(double));
+    periodic_axis(Nx, hxv, &xn, &xd, &dxv);
+    periodic_axis(Nz, hzv, &zn, &zd, &dzv);
+    yn = xcalloc(SY, sizeof(double)); yd = xcalloc(SY, sizeof(double)); dyv = xcalloc(SY, sizeof(double));
+    double s = 0.0, c = 0.0;
+    for (int j = 0; j < Ny; j++) {
+        double v = hyv[j] - c, t = s + v;
+        c = (t - s) - v;
+        s = t;
+        yn[j + 1] = s;
+    }
+    for (int j = 0; j < Ny; j++) yd[j] = 0.5 * (yn[j] + yn[j + 1]);
+    dyv[0] = hyv[0];
+    dyv[Ny] = hyv[Ny - 1];
+    for (int j = 1; j < Ny; j++) dyv[j] = hyv[j - 1] == hyv[j] ? hyv[j] : 0.5 * (hyv[j - 1] + hyv[j]);
+    P.Lx = xn[Nx];
+    P.Lz = zn[Nz];
+    D = hxv[0];
+    for (int i = 1; i < Nx; i++) if (fabs(hxv[i] / hxv[0] - 1.0) > 1e-14) xnonuni = 1;
+    for (int k = 1; k < Nz; k++) if (fabs(hzv[k] / hzv[0] - 1.0) > 1e-14) znonuni = 1;
+    /* materials: eps_n per dual node (cell), eps_t per primal node (h-weighted average, derivation_nonuniform §1) */
+    epsT = xcalloc(SY, sizeof(double)); epsN = xcalloc(SY, sizeof(double));
+    for (int j = 0; j < Ny; j++) epsN[j] = (en && nn == Ny) ? en[j] : ey[j];
+    epsN[Ny] = epsN[Ny - 1];
+    if (et) {
+        if (nt != Ny + 1) die("grid file: len(eps_t) != Ny+1");
+        for (int j = 0; j <= Ny; j++) epsT[j] = et[j];
+    } else {
+        epsT[0] = epsN[0];
+        epsT[Ny] = epsN[Ny - 1];
+        for (int j = 1; j < Ny; j++) {
+            double e1 = epsN[j - 1], e2 = epsN[j], h1 = hyv[j - 1], h2 = hyv[j];
+            epsT[j] = (e1 == e2) ? e1 : (h1 == h2 ? 0.5 * (e1 + e2) : (h1 * e1 + h2 * e2) / (h1 + h2));
+        }
+    }
+    /* structural checks (the sha256 is verified by grid_gen.check / fdtd_io before a run) */
+    int u = 5;
+    if (NPlo < 0 || NPhi < 0 || j0 - u < NPlo || j0 + u > Ny - NPhi) die("grid file: zones inconsistent");
+    if (maxreldiff(hyv, 0, NPlo + u, hyv[0]) > 1e-12) die("grid file: near PML (+5 cells) not uniform");
+    if (maxreldiff(hyv, Ny - NPhi - u, Ny, hyv[Ny - 1]) > 1e-12) die("grid file: far PML (+5 cells) not uniform");
+    if (maxreldiff(hyv, j0 - u, j0 + u, hyv[j0]) > 1e-12) {
+        fprintf(stderr, "ERROR: j0+-5 not uniform (max rel diff %.1e)\n", maxreldiff(hyv, j0 - u, j0 + u, hyv[j0]));
+        exit(2);
+    }
+    {
+        int lo = JA - u < 0 ? 0 : JA - u, hi = JA + u > Ny ? Ny : JA + u;
+        double ref = JA - u < 0 ? hyv[0] : hyv[lo];
+        if (hi > lo && maxreldiff(hyv, lo, hi, ref) > 1e-12) die("grid file: aux source j_a+-5 not uniform");
+    }
+    for (int j = 1; j < Ny; j++) if (hyv[j] <= 0.0) die("grid file: non-positive spacing");
+}
+
+/* ------------------------------------------------------------------ setup */
+static void setup(void) {
+    W0 = 2.0 * PI;
+    if (P.mesh == 'u') build_uniform_mesh();
+    else build_file_mesh();
+    if ((xnonuni || znonuni) && (P.inc == 'a' || P.auxref)) {
+        fprintf(stderr, "ERROR: phasor aux line requires uniform x and z (x nonuniform=%d, z nonuniform=%d); "
+                        "use inc=p|j|m\n", xnonuni, znonuni);
+        exit(2);
+    }
+    if (P.S >= 1.0 / sqrt(3.0)) die("Courant number S must be < 1/sqrt(3)");
+    /* time step (SPEC_nonuniform §7.5): exactly S*Delta when the three minimum spacings coincide */
+    {
+        double mx = hxv[0], my = hyv[0], mz = hzv[0];
+        for (int i = 0; i < Nx; i++) mx = fmin(mx, hxv[i]);
+        for (int j = 0; j < Ny; j++) my = fmin(my, hyv[j]);
+        for (int k = 0; k < Nz; k++) mz = fmin(mz, hzv[k]);
+        if (P.mesh == 'u') dt_cour = P.S * D;
+        else if (mx == my && my == mz) dt_cour = P.S * mx;
+        else dt_cour = P.S * sqrt(3.0) / sqrt(1.0 / (mx * mx) + 1.0 / (my * my) + 1.0 / (mz * mz));
+        dt = (P.dt_set > 0.0) ? P.dt_set : dt_cour * P.dtfac;
+        if (dt > dt_cour / P.S / sqrt(3.0) * (1.0 + 1e-12))
+            fprintf(stderr, "WARNING: dt exceeds the minimum-spacing Courant bound by %.2f%%\n",
+                    100.0 * (dt / (dt_cour / P.S / sqrt(3.0)) - 1.0));
+    }
+    /* source-free runs (energy / stability / eigen tests) need no plane wave: kx = kz = 0, no amplitudes */
+    int wave = !(P.mesh == 'f' && P.inc == '0' && P.init != 'a');   /* legacy mesh=uniform runs unchanged */
+    kx = wave ? 2.0 * PI * P.m / P.Lx : 0.0;
+    kz = wave ? 2.0 * PI * P.n / P.Lz : 0.0;
+    double kt = hypot(kx, kz);
+    if (wave && kt >= 0.95 * W0) die("|k_t| >= 0.95 k0: insufficient propagation margin");
+    wt = 2.0 / dt * sin(W0 * dt / 2.0);
+    Da = gh(JA);
+    ky = ky_local(Da, 1.0);
+    kyc = sqrt(W0 * W0 - kt * kt);
+    if (wave) amplitudes(ky, Kt, E0v, H0v);
+    for (int c = 0; c < 3; c++) Kt_src[c] = Kt[c];
+    if (P.inc == 'n' && P.ky_cont) { /* control C1: continuous ky everywhere in the source */
+        amplitudes(kyc, Kt_src, E0v, H0v);
+        ky = kyc;
+    }
+    if (P.pol != 's' && P.pol != 'p') die("pol must be s or p");
+    if (P.mesh == 'u' && P.tf < 10 * P.nl) fprintf(stderr, "WARNING: TF length %d cells < 10 lambda0\n", P.tf);
+    if (P.inc != '0' && P.init == 'a') die("init=analytic is a debug mode without a source");
+    if (P.inc != '0' && (j0 - NPlo < 2 || Ny - NPhi - j0 < 2)) die("sf and tf must be >= 2 cells");
+    if (j1 >= Ny - NPhi) die("interface must lie in the physical TF region");
+    if (P.auxref && P.inc != 'a') die("auxref=1 needs inc=a");
+    SZ = Nz + 2;
+    NTOT = (size_t)(Nx + 2) * SY * SZ;
+    Ex = xcalloc(NTOT, sizeof(double)); Ey = xcalloc(NTOT, sizeof(double)); Ez = xcalloc(NTOT, sizeof(double));
+    Hx = xcalloc(NTOT, sizeof(double)); Hy = xcalloc(NTOT, sizeof(double)); Hz = xcalloc(NTOT, sizeof(double));
+
+    /* coefficients (derivation_nonuniform §1): y coefficient factored out, the other term scaled by an exact
+       spacing ratio (== 1.0 on a uniform grid, so the legacy arithmetic is reproduced) */
+    cHy = xcalloc(SY, sizeof(double)); ay = xcalloc(SY, sizeof(double)); cEyn = xcalloc(SY, sizeof(double));
+    cHz = xcalloc(Nz, sizeof(double)); zfac = xcalloc(Nz, sizeof(double));
+    for (int j = 0; j < Ny; j++) cHy[j] = dt / hyv[j];
+    for (int j = 0; j <= Ny; j++) {
+        ay[j] = dt / (epsT[j] * dyv[j]);
+        cEyn[j] = dt / (epsN[j] * dzv[0]);
+    }
+    for (int k = 0; k < Nz; k++) { cHz[k] = dt / hzv[k]; zfac[k] = dzv[0] / dzv[k]; }
+    rExz = xcalloc((size_t)SY * Nz, sizeof(double)); rHxz = xcalloc((size_t)SY * Nz, sizeof(double));
+    rEzx = xcalloc((size_t)Nx * SY, sizeof(double)); rHzx = xcalloc((size_t)Nx * SY, sizeof(double));
+    rEyk = xcalloc((size_t)Nx * Nz, sizeof(double)); rHyk = xcalloc((size_t)Nx * Nz, sizeof(double));
+    for (int j = 0; j <= Ny; j++)
+        for (int k = 0; k < Nz; k++) {
+            rExz[(size_t)j * Nz + k] = dyv[j] / dzv[k];
+            rHxz[(size_t)j * Nz + k] = (j < Ny) ? hyv[j] / hzv[k] : 0.0;
+        }
+    for (int i = 0; i < Nx; i++) {
+        for (int j = 0; j <= Ny; j++) {
+            rEzx[(size_t)i * SY + j] = dyv[j] / dxv[i];
+            rHzx[(size_t)i * SY + j] = (j < Ny) ? hyv[j] / hxv[i] : 0.0;
+        }
+        for (int k = 0; k < Nz; k++) {
+            rEyk[(size_t)i * Nz + k] = dzv[k] / dxv[i];
+            rHyk[(size_t)i * Nz + k] = hzv[k] / hxv[i];
+        }
+    }
+
+    /* CPML (derivation.md §7): profiles by physical distance from the PML inner face (SPEC_nonuniform §7.4) */
     pmlE = xcalloc(SY, sizeof(int)); pmlH = xcalloc(SY, sizeof(int));
     bE = xcalloc(SY, sizeof(double)); cE = xcalloc(SY, sizeof(double)); ikE = xcalloc(SY, sizeof(double));
     bH = xcalloc(SY, sizeof(double)); cH = xcalloc(SY, sizeof(double)); ikH = xcalloc(SY, sizeof(double));
     sigE = xcalloc(SY, sizeof(double)); sigH = xcalloc(SY, sizeof(double));
     kapE = xcalloc(SY, sizeof(double)); kapH = xcalloc(SY, sizeof(double));
     alpE = xcalloc(SY, sizeof(double)); alpH = xcalloc(SY, sizeof(double));
-    NP = 2 * (P.npml + 1);
-    double d = P.npml * D;
-    double n_far = (j1 >= 0) ? sqrt(P.eps2) : 1.0;
+    NP = (NPlo + 1) + (NPhi + 1);
+    double ylo = yn[NPlo], yhi = yn[Ny - NPhi];
+    double dlo = (P.mesh == 'u') ? P.npml * D : ylo - yn[0];
+    double dhi = (P.mesh == 'u') ? P.npml * D : yn[Ny] - yhi;
+    double nlo = sqrt(epsN[0]), nhi = sqrt(epsN[Ny - 1]);
+    double Dlo = hyv[0], Dhi = hyv[Ny - 1];
+    if (P.mesh == 'u') { nlo = 1.0; nhi = (j1 >= 0) ? sqrt(P.eps2) : 1.0; }
     for (int j = 0; j <= Ny; j++) {
         for (int h = 0; h < 2; h++) {
-            double y = (j + 0.5 * h) * D;
-            double rho = 0.0, nloc = 1.0;
+            double y = (h == 0) ? yn[j] : (j < Ny ? yd[j] : yn[Ny]);
+            double rho = 0.0, nloc = 1.0, dd = 1.0, Dl = D;
             int slot = -1;
-            if (P.npml > 0 && y < P.npml * D) { rho = P.npml * D - y; slot = j; }
-            else if (P.npml > 0 && y > (Ny - P.npml) * D) { rho = y - (Ny - P.npml) * D; slot = j - (Ny - P.npml) + P.npml + 1; nloc = n_far; }
+            if (NPlo > 0 && y < ylo) { rho = ylo - y; slot = j; nloc = nlo; dd = dlo; Dl = Dlo; }
+            else if (NPhi > 0 && y > yhi) { rho = y - yhi; slot = j - (Ny - NPhi) + NPlo + 1; nloc = nhi; dd = dhi; Dl = Dhi; }
             if (h == 1 && j == Ny) slot = -1;
-            double r = (slot >= 0) ? rho / d : 0.0;
-            double smax = P.sig_fac * (P.pml_m + 1.0) / (D * nloc); /* eta0 = 1, eta = 1/n */
+            double r = (slot >= 0) ? rho / dd : 0.0;
+            double smax = P.sig_fac * (P.pml_m + 1.0) / (Dl * nloc); /* eta0 = 1, eta = 1/n */
             double sg = smax * pow(r, P.pml_m);
             double kp = 1.0 + (P.kappa_max - 1.0) * pow(r, P.pml_m);
             double al = P.alpha_max * (1.0 - r);
@@ -353,22 +795,39 @@ static void setup(void) {
     psiHxy = xcalloc(np, sizeof(double)); psiHzy = xcalloc(np, sizeof(double));
 
     /* incident-plane phase tables */
-    cosP1 = xcalloc((size_t)Nx * Nz, sizeof(double)); sinP1 = xcalloc((size_t)Nx * Nz, sizeof(double));
-    cosP2 = xcalloc((size_t)Nx * Nz, sizeof(double)); sinP2 = xcalloc((size_t)Nx * Nz, sizeof(double));
+    size_t nq = (size_t)Nx * Nz;
+    cosP1 = xcalloc(nq, sizeof(double)); sinP1 = xcalloc(nq, sizeof(double));
+    cosP2 = xcalloc(nq, sizeof(double)); sinP2 = xcalloc(nq, sizeof(double));
+    cosP3 = xcalloc(nq, sizeof(double)); sinP3 = xcalloc(nq, sizeof(double));
+    cosP4 = xcalloc(nq, sizeof(double)); sinP4 = xcalloc(nq, sizeof(double));
     for (int i = 0; i < Nx; i++)
         for (int k = 0; k < Nz; k++) {
-            double p1 = kx * (i + 0.5) * D + kz * k * D, p2 = kx * i * D + kz * (k + 0.5) * D;
-            cosP1[i * Nz + k] = cos(p1); sinP1[i * Nz + k] = sin(p1);
-            cosP2[i * Nz + k] = cos(p2); sinP2[i * Nz + k] = sin(p2);
+            double p1, p2;
+            if (P.mesh == 'u') { p1 = kx * (i + 0.5) * D + kz * k * D; p2 = kx * i * D + kz * (k + 0.5) * D; }
+            else { p1 = kx * xd[i] + kz * zn[k]; p2 = kx * xn[i] + kz * zd[k]; }
+            double p3 = kx * xn[i] + kz * zn[k], p4 = kx * xd[i] + kz * zd[k];
+            size_t q = (size_t)i * Nz + k;
+            cosP1[q] = cos(p1); sinP1[q] = sin(p1);
+            cosP2[q] = cos(p2); sinP2[q] = sin(p2);
+            cosP3[q] = cos(p3); sinP3[q] = sin(p3);
+            cosP4[q] = cos(p4); sinP4[q] = sin(p4);
         }
-    ExI = xcalloc((size_t)Nx * Nz, sizeof(double)); EzI = xcalloc((size_t)Nx * Nz, sizeof(double));
-    HxI = xcalloc((size_t)Nx * Nz, sizeof(double)); HzI = xcalloc((size_t)Nx * Nz, sizeof(double));
+    ExI = xcalloc(nq, sizeof(double)); EzI = xcalloc(nq, sizeof(double));
+    HxI = xcalloc(nq, sizeof(double)); HzI = xcalloc(nq, sizeof(double));
     if (P.inc == 'a') aux_init();
+    if (P.auxref) auxref_init();
 }
 
 /* ------------------------------------------------------------------ analytic fill (debug, Stage 1) */
+static double comp_x(int c, int i) { return OFF[c][0] == 0.0 ? xn[i] : xd[i]; }
+static double comp_y(int c, int j) { return OFF[c][1] == 0.0 ? yn[j] : yd[j]; }
+static double comp_z(int c, int k) { return OFF[c][2] == 0.0 ? zn[k] : zd[k]; }
+
 static double analytic_val(int c, int i, int j, int k, double tn) {
-    double x = (i + OFF[c][0]) * D, y = (j + OFF[c][1]) * D, z = (k + OFF[c][2]) * D, t = (tn + OFF[c][3]) * dt;
+    double x, y, z;
+    if (P.mesh == 'u') { x = (i + OFF[c][0]) * D; y = (j + OFF[c][1]) * D; z = (k + OFF[c][2]) * D; }
+    else { x = comp_x(c, i); y = comp_y(c, j); z = comp_z(c, k); }
+    double t = (tn + OFF[c][3]) * dt;
     double a = (c < 3) ? E0v[c] : H0v[c - 3];
     return a * cos(kx * x + ky * y + kz * z - W0 * t);
 }
@@ -412,42 +871,73 @@ static void ghost_bwd(double *F) { /* F[-1] <- F[Nx-1], F[.][.][-1] <- F[.][.][N
         for (int j = 0; j <= Ny; j++) F[ID(i, j, -1)] = F[ID(i, j, Nz - 1)];
 }
 
-/* ------------------------------------------------------------------ updates */
-static void update_H(void) {
+/* ------------------------------------------------------------------ updates (derivation_nonuniform §1)
+   If doW, update_H also accumulates the conserved energy of derivation_nonuniform §2 at t = n dt:
+   W_mod = 1/2 sum( eps W_E |E^n|^2 + mu W_H H^{n+1/2}.H^{n-1/2} ). */
+static double Wmod_acc;
+static void update_H(int doW) {
     const size_t sI = (size_t)SY * SZ, sJ = SZ;
     ghost_fwd(Ex); ghost_fwd(Ey); ghost_fwd(Ez);
-#pragma omp parallel for schedule(static)
+    double wsum = 0.0;
+#pragma omp parallel for schedule(static) reduction(+ : wsum)
     for (int i = 0; i < Nx; i++) {
+        const double *rHy_i = rHyk + (size_t)i * Nz, *rHz_i = rHzx + (size_t)i * SY;
         for (int j = 0; j <= Ny; j++) {
             size_t b = ID(i, j, 0);
             double *hy = Hy + b;
             const double *ex = Ex + b, *ez = Ez + b, *ey = Ey + b;
-            for (int k = 0; k < Nz; k++) hy[k] -= ch * ((ex[k + 1] - ex[k]) - (ez[k + sI] - ez[k]));
+            double wHy = 0.0, wEx = 0.0, wEz = 0.0, wEy = 0.0, wHx = 0.0, wHz = 0.0;
+            for (int k = 0; k < Nz; k++) {
+                double o = hy[k];
+                hy[k] -= cHz[k] * ((ex[k + 1] - ex[k]) - rHy_i[k] * (ez[k + sI] - ez[k]));
+                if (doW) {
+                    wHy += hzv[k] * o * hy[k];
+                    wEx += dzv[k] * ex[k] * ex[k];
+                    wEz += hzv[k] * ez[k] * ez[k];
+                }
+            }
+            if (doW) wsum += hxv[i] * dyv[j] * wHy + epsT[j] * dyv[j] * (hxv[i] * wEx + dxv[i] * wEz);
             if (j == Ny) continue;
             double *hx = Hx + b, *hz = Hz + b;
+            const double *rHx_j = rHxz + (size_t)j * Nz;
+            double chy = cHy[j], rz = rHz_i[j];
             int s = pmlH[j];
             if (s < 0) {
                 for (int k = 0; k < Nz; k++) {
-                    hx[k] -= ch * ((ez[k + sJ] - ez[k]) - (ey[k + 1] - ey[k]));
-                    hz[k] -= ch * ((ey[k + sI] - ey[k]) - (ex[k + sJ] - ex[k]));
+                    double ox = hx[k], oz = hz[k];
+                    hx[k] -= chy * ((ez[k + sJ] - ez[k]) - rHx_j[k] * (ey[k + 1] - ey[k]));
+                    hz[k] -= chy * (rz * (ey[k + sI] - ey[k]) - (ex[k + sJ] - ex[k]));
+                    if (doW) {
+                        wHx += hzv[k] * ox * hx[k];
+                        wHz += dzv[k] * oz * hz[k];
+                        wEy += dzv[k] * ey[k] * ey[k];
+                    }
                 }
             } else {
                 double bb = bH[j], cc = cH[j], ik = ikH[j];
                 double *px = psiHxy + ((size_t)i * NP + s) * Nz, *pz = psiHzy + ((size_t)i * NP + s) * Nz;
                 for (int k = 0; k < Nz; k++) {
+                    double ox = hx[k], oz = hz[k];
                     double dEz = ez[k + sJ] - ez[k], dEx = ex[k + sJ] - ex[k];
                     px[k] = bb * px[k] + cc * dEz;
                     pz[k] = bb * pz[k] + cc * dEx;
-                    hx[k] -= ch * ((ik * dEz + px[k]) - (ey[k + 1] - ey[k]));
-                    hz[k] -= ch * ((ey[k + sI] - ey[k]) - (ik * dEx + pz[k]));
+                    hx[k] -= chy * ((ik * dEz + px[k]) - rHx_j[k] * (ey[k + 1] - ey[k]));
+                    hz[k] -= chy * (rz * (ey[k + sI] - ey[k]) - (ik * dEx + pz[k]));
+                    if (doW) {
+                        wHx += hzv[k] * ox * hx[k];
+                        wHz += dzv[k] * oz * hz[k];
+                        wEy += dzv[k] * ey[k] * ey[k];
+                    }
                 }
             }
+            if (doW) wsum += hyv[j] * (dxv[i] * wHx + hxv[i] * wHz + epsN[j] * dxv[i] * wEy);
         }
     }
+    if (doW) Wmod_acc = 0.5 * wsum;
 }
 
 /* E update. If doW, also accumulates the Yee-conserved energy
-   W^{n+1/2} = 1/2 sum( eps E^n . E^{n+1} + mu H^{n+1/2} . H^{n+1/2} ) Delta^3
+   W^{n+1/2} = 1/2 sum( eps W_E E^n . E^{n+1} + mu W_H H^{n+1/2} . H^{n+1/2} )
    (exactly constant in a lossless PEC/PBC cavity), per i into partT/partP (total / outside PML). */
 static double *partT, *partP;
 static void update_E(int doW) {
@@ -456,30 +946,41 @@ static void update_E(int doW) {
 #pragma omp parallel for schedule(static)
     for (int i = 0; i < Nx; i++) {
         double wT = 0.0, wP = 0.0;
+        const double *rEy_i = rEyk + (size_t)i * Nz, *rEz_i = rEzx + (size_t)i * SY;
         for (int j = 0; j <= Ny; j++) {
             size_t b = ID(i, j, 0);
             const double *hx = Hx + b, *hy = Hy + b, *hz = Hz + b;
             double wI = 0.0, wH = 0.0; /* integer-y nodes, half-y nodes */
             if (j < Ny) {
-                double *ey = Ey + b, c = ceEy[j], epsy = dt / (c * D);
+                double *ey = Ey + b, c = cEyn[j];
+                double sx = 0.0, sz = 0.0, sE = 0.0;
                 for (int k = 0; k < Nz; k++) {
                     double old = ey[k];
-                    ey[k] += c * ((hx[k] - hx[k - 1]) - (hz[k] - hz[k - sI]));
-                    if (doW) wH += epsy * old * ey[k] + hx[k] * hx[k] + hz[k] * hz[k];
+                    ey[k] += c * zfac[k] * ((hx[k] - hx[k - 1]) - rEy_i[k] * (hz[k] - hz[k - sI]));
+                    if (doW) {
+                        sE += dzv[k] * old * ey[k];
+                        sx += hzv[k] * hx[k] * hx[k];
+                        sz += dzv[k] * hz[k] * hz[k];
+                    }
                 }
+                if (doW) wH = hyv[j] * (epsN[j] * dxv[i] * sE + dxv[i] * sx + hxv[i] * sz);
             }
-            if (doW)
-                for (int k = 0; k < Nz; k++) wI += hy[k] * hy[k];
+            if (doW) {
+                double sy = 0.0;
+                for (int k = 0; k < Nz; k++) sy += hzv[k] * hy[k] * hy[k];
+                wI += hxv[i] * dyv[j] * sy;
+            }
             if (j > 0 && j < Ny) { /* j = 0, Ny: PEC, tangential E fixed (Dirichlet in debug mode) */
-                double *ex = Ex + b, *ez = Ez + b, cx = ceEx[j], cz = ceEz[j];
-                double epsx = dt / (cx * D), epsz = dt / (cz * D);
+                double *ex = Ex + b, *ez = Ez + b, a = ay[j], rzx = rEz_i[j];
+                const double *rxz = rExz + (size_t)j * Nz;
+                double sx = 0.0, sz = 0.0;
                 int s = pmlE[j];
                 if (s < 0) {
                     for (int k = 0; k < Nz; k++) {
                         double ox = ex[k], oz = ez[k];
-                        ex[k] += cx * ((hz[k] - hz[k - sJ]) - (hy[k] - hy[k - 1]));
-                        ez[k] += cz * ((hy[k] - hy[k - sI]) - (hx[k] - hx[k - sJ]));
-                        if (doW) wI += epsx * ox * ex[k] + epsz * oz * ez[k];
+                        ex[k] += a * ((hz[k] - hz[k - sJ]) - rxz[k] * (hy[k] - hy[k - 1]));
+                        ez[k] += a * (rzx * (hy[k] - hy[k - sI]) - (hx[k] - hx[k - sJ]));
+                        if (doW) { sx += dzv[k] * ox * ex[k]; sz += hzv[k] * oz * ez[k]; }
                     }
                 } else {
                     double bb = bE[j], cc = cE[j], ik = ikE[j];
@@ -489,18 +990,21 @@ static void update_E(int doW) {
                         double dHz = hz[k] - hz[k - sJ], dHx = hx[k] - hx[k - sJ];
                         px[k] = bb * px[k] + cc * dHz;
                         pz[k] = bb * pz[k] + cc * dHx;
-                        ex[k] += cx * ((ik * dHz + px[k]) - (hy[k] - hy[k - 1]));
-                        ez[k] += cz * ((hy[k] - hy[k - sI]) - (ik * dHx + pz[k]));
-                        if (doW) wI += epsx * ox * ex[k] + epsz * oz * ez[k];
+                        ex[k] += a * ((ik * dHz + px[k]) - rxz[k] * (hy[k] - hy[k - 1]));
+                        ez[k] += a * (rzx * (hy[k] - hy[k - sI]) - (ik * dHx + pz[k]));
+                        if (doW) { sx += dzv[k] * ox * ex[k]; sz += hzv[k] * oz * ez[k]; }
                     }
                 }
+                if (doW) wI += epsT[j] * dyv[j] * (hxv[i] * sx + dxv[i] * sz);
             } else if (doW && P.init == 'a') {
                 double *ex = Ex + b, *ez = Ez + b;
-                for (int k = 0; k < Nz; k++) wI += ex[k] * ex[k] + ez[k] * ez[k];
+                double sx = 0.0, sz = 0.0;
+                for (int k = 0; k < Nz; k++) { sx += dzv[k] * ex[k] * ex[k]; sz += hzv[k] * ez[k] * ez[k]; }
+                wI += dyv[j] * (hxv[i] * sx + dxv[i] * sz);
             }
             wT += wI + wH;
-            if (j >= P.npml && j <= Ny - P.npml) wP += wI;
-            if (j >= P.npml && j <= Ny - P.npml - 1) wP += wH;
+            if (j >= NPlo && j <= Ny - NPhi) wP += wI;
+            if (j >= NPlo && j <= Ny - NPhi - 1) wP += wH;
         }
         if (doW) { partT[i] = wT; partP[i] = wP; }
     }
@@ -509,8 +1013,8 @@ static void update_E(int doW) {
 static void energy_sum(double *Wt, double *Wp) {
     double a = 0.0, b = 0.0;
     for (int i = 0; i < Nx; i++) { a += partT[i]; b += partP[i]; }
-    *Wt = 0.5 * a * D * D * D;
-    *Wp = 0.5 * b * D * D * D;
+    *Wt = 0.5 * a;
+    *Wp = 0.5 * b;
 }
 
 /* incident field on the TF/SF plane from complex amplitudes (derivation.md §6.2) */
@@ -518,6 +1022,7 @@ static void incident_E(long n) { /* Ex, Ez at j0, time n */
     double complex ax, az;
     if (P.inc == 'a') { ax = aEx[j0 - Ajlo]; az = aEz[j0 - Ajlo]; }
     else { ax = inc_amp(0, j0, (double)n, E0v, H0v, ky); az = inc_amp(2, j0, (double)n, E0v, H0v, ky); }
+    incEx = ax; incEz = az;
     for (int q = 0; q < Nx * Nz; q++) {
         ExI[q] = creal(ax) * cosP1[q] - cimag(ax) * sinP1[q];
         EzI[q] = creal(az) * cosP2[q] - cimag(az) * sinP2[q];
@@ -528,26 +1033,27 @@ static void incident_H(long n) { /* Hx, Hz at j0 - 1/2, time n + 1/2 */
     double complex ax, az;
     if (P.inc == 'a') { ax = aHx[j0 - 1 - Ajlo]; az = aHz[j0 - 1 - Ajlo]; }
     else { ax = inc_amp(3, j0 - 1, (double)n, E0v, H0v, ky); az = inc_amp(5, j0 - 1, (double)n, E0v, H0v, ky); }
+    incHx = ax; incHz = az;
     for (int q = 0; q < Nx * Nz; q++) {
         HxI[q] = creal(ax) * cosP2[q] - cimag(ax) * sinP2[q];
         HzI[q] = creal(az) * cosP1[q] - cimag(az) * sinP1[q];
     }
 }
 
-/* TF/SF corrections, derivation.md §3 (a)-(d) */
+/* TF/SF corrections, derivation.md §3 (a)-(d); coefficients at the local spacing (derivation_nonuniform §4) */
 static void tfsf_H(void) {
     for (int i = 0; i < Nx; i++)
         for (int k = 0; k < Nz; k++) {
-            Hx[ID(i, j0 - 1, k)] += ch * EzI[i * Nz + k];
-            Hz[ID(i, j0 - 1, k)] -= ch * ExI[i * Nz + k];
+            Hx[ID(i, j0 - 1, k)] += cHy[j0 - 1] * EzI[i * Nz + k];
+            Hz[ID(i, j0 - 1, k)] -= cHy[j0 - 1] * ExI[i * Nz + k];
         }
 }
 
 static void tfsf_E(void) {
     for (int i = 0; i < Nx; i++)
         for (int k = 0; k < Nz; k++) {
-            Ex[ID(i, j0, k)] -= ceEx[j0] * HzI[i * Nz + k];
-            Ez[ID(i, j0, k)] += ceEz[j0] * HxI[i * Nz + k];
+            Ex[ID(i, j0, k)] -= ay[j0] * HzI[i * Nz + k];
+            Ez[ID(i, j0, k)] += ay[j0] * HxI[i * Nz + k];
         }
 }
 
@@ -571,7 +1077,8 @@ static void add_slice(const char *name, int type, int idx) {
     for (int c = 0; c < 6; c++) { s->re[c] = xcalloc(s->cnt, sizeof(double)); s->im[c] = xcalloc(s->cnt, sizeof(double)); }
 }
 
-static double complex *auxdft[6];
+static double complex *auxdft[6], *refdft[6], *projdft[6];
+static double *vre[6], *vim[6];
 static long aux_dft_lo, aux_dft_hi;
 
 static void dft_setup(void) {
@@ -592,6 +1099,15 @@ static void dft_setup(void) {
         if (aux_dft_hi > AL - 1) aux_dft_hi = AL - 1;
         for (int c = 0; c < 6; c++) auxdft[c] = xcalloc(aux_dft_hi - aux_dft_lo + 1, sizeof(double complex));
     }
+    if (P.auxref)
+        for (int c = 0; c < 6; c++) refdft[c] = xcalloc(SY, sizeof(double complex));
+    if (P.proj)
+        for (int c = 0; c < 6; c++) projdft[c] = xcalloc(SY, sizeof(double complex));
+    if (P.planar)
+        for (int c = 0; c < 6; c++) {
+            vre[c] = xcalloc((size_t)Nx * SY * Nz, sizeof(double));
+            vim[c] = xcalloc((size_t)Nx * SY * Nz, sizeof(double));
+        }
 }
 
 static void dft_accumulate(int first, int last, double tsec) {
@@ -600,33 +1116,76 @@ static void dft_accumulate(int first, int last, double tsec) {
         Slice *sl = &SL[s];
         for (int c = first; c <= last; c++) {
             double *F = comp_ptr(c);
+            int jmax = (OFF[c][1] == 0.0) ? Ny : Ny - 1; /* half-y components have no sample at j = Ny */
             size_t q = 0;
             if (sl->type == 0) {
                 for (int i = 0; i < Nx; i++)
                     for (int k = 0; k < Nz; k++, q++) { double f = F[ID(i, sl->idx, k)]; sl->re[c][q] += f * cr; sl->im[c][q] += f * ci; }
             } else if (sl->type == 1) {
                 for (int i = 0; i < Nx; i++)
-                    for (int j = 0; j <= Ny; j++, q++) { double f = F[ID(i, j, sl->idx)]; sl->re[c][q] += f * cr; sl->im[c][q] += f * ci; }
+                    for (int j = 0; j <= Ny; j++, q++) {
+                        if (j > jmax) continue;
+                        double f = F[ID(i, j, sl->idx)]; sl->re[c][q] += f * cr; sl->im[c][q] += f * ci;
+                    }
             } else {
                 for (int j = 0; j <= Ny; j++)
-                    for (int k = 0; k < Nz; k++, q++) { double f = F[ID(sl->idx, j, k)]; sl->re[c][q] += f * cr; sl->im[c][q] += f * ci; }
+                    for (int k = 0; k < Nz; k++, q++) {
+                        if (j > jmax) continue;
+                        double f = F[ID(sl->idx, j, k)]; sl->re[c][q] += f * cr; sl->im[c][q] += f * ci;
+                    }
             }
         }
     }
+    double complex e = cexp(I * W0 * tsec);
     if (P.inc == 'a') {
-        double complex e = cexp(I * W0 * tsec);
         double complex *arr[6] = {aEx, aEy, aEz, aHx, aHy, aHz};
         for (int c = first; c <= last; c++)
             for (long u = aux_dft_lo; u <= aux_dft_hi; u++) auxdft[c][u - aux_dft_lo] += arr[c][u] * e;
     }
+    if (P.auxref) {
+        double complex *arr[6] = {rEx, rEy, rEz, rHx, rHy, rHz};
+        for (int c = first; c <= last; c++)
+            for (int j = 0; j <= Ny; j++) refdft[c][j] += arr[c][j] * e;
+    }
+    if (P.proj) { /* reduced phasor a_c(j): F = Re[a e^{i(phi_c - w t)}], a = 2/(Nx Nz Nt) sum_t sum_xz F e^{-i phi_c} e^{iwt} */
+        const double *cp[6] = {cosP1, cosP3, cosP2, cosP2, cosP4, cosP1}, *sp[6] = {sinP1, sinP3, sinP2, sinP2, sinP4, sinP1};
+        for (int c = first; c <= last; c++) {
+            double *F = comp_ptr(c);
+#pragma omp parallel for schedule(static)
+            for (int j = 0; j <= Ny; j++) {
+                double sr = 0.0, si = 0.0;
+                for (int i = 0; i < Nx; i++)
+                    for (int k = 0; k < Nz; k++) {
+                        size_t q = (size_t)i * Nz + k;
+                        double f = F[ID(i, j, k)];
+                        sr += f * cp[c][q];
+                        si -= f * sp[c][q];
+                    }
+                projdft[c][j] += (sr + I * si) * e;
+            }
+        }
+    }
+    if (P.planar)
+        for (int c = first; c <= last; c++) {
+            double *F = comp_ptr(c), *R = vre[c], *M = vim[c];
+#pragma omp parallel for schedule(static)
+            for (int i = 0; i < Nx; i++)
+                for (int j = 0; j <= Ny; j++)
+                    for (int k = 0; k < Nz; k++) {
+                        size_t q = ((size_t)i * SY + j) * Nz + k;
+                        double f = F[ID(i, j, k)];
+                        R[q] += f * cr;
+                        M[q] += f * ci;
+                    }
+        }
 }
 
 /* ------------------------------------------------------------------ diagnostics */
 static void sf_max(double *mE, double *mH) {
     double me = 0.0, mh = 0.0;
-    int jlo = P.npml + 1;           /* integer-y nodes strictly outside the near PML */
+    int jlo = NPlo + 1;           /* integer-y nodes strictly outside the near PML */
     for (int i = 0; i < Nx; i++)
-        for (int j = P.npml; j < j0; j++)
+        for (int j = NPlo; j < j0; j++)
             for (int k = 0; k < Nz; k++) {
                 size_t q = ID(i, j, k);
                 double a;
@@ -643,28 +1202,63 @@ static void sf_max(double *mE, double *mH) {
     *mH = mh;
 }
 
+/* max |F_main - Re[aux_ref e^{i phi}]| over y-index range [jlo, jhi] (E and H separately) */
+static void ref_dev(int jlo, int jhi, double *dE, double *dH) {
+    double me = 0.0, mh = 0.0;
+    const double *cp[6] = {cosP1, cosP3, cosP2, cosP2, cosP4, cosP1}, *sp[6] = {sinP1, sinP3, sinP2, sinP2, sinP4, sinP1};
+    double complex *ar[6] = {rEx, rEy, rEz, rHx, rHy, rHz};
+    for (int c = 0; c < 6; c++) {
+        double *F = comp_ptr(c);
+        int top = (OFF[c][1] == 0.0) ? jhi : (jhi < Ny ? jhi : Ny - 1);
+        double m = 0.0; /* serial: small region every step; a parallel region per component costs more */
+        for (int i = 0; i < Nx; i++)
+            for (int j = jlo; j <= top; j++) {
+                double ar_ = creal(ar[c][j]), ai_ = cimag(ar[c][j]);
+                for (int k = 0; k < Nz; k++) {
+                    size_t q = (size_t)i * Nz + k;
+                    double v = fabs(F[ID(i, j, k)] - (ar_ * cp[c][q] - ai_ * sp[c][q]));
+                    if (v > m) m = v;
+                }
+            }
+        if (c < 3) me = fmax(me, m); else mh = fmax(mh, m);
+    }
+    *dE = me;
+    *dH = mh;
+}
+
 /* max |div E| at nodes (i,j,k) and max |div H| at cell centres over the TF interior
-   j in [j0+2, Ny-npml-2] (excludes the TF/SF plane +-1 cell and the PML); explicit PBC wrap. */
+   j in [j0+2, Ny-npml_hi-2] (excludes the TF/SF plane +-1 cell and the PML); explicit PBC wrap.
+   divop=n: nonuniform operator (derivation_nonuniform §2); divop=u: uniform operator with Delta = hx[0] (control). */
 static void div_max(double *dE, double *dH) {
     double me = 0.0, mh = 0.0;
-    int jlo = j0 + 2, jhi = Ny - P.npml - 2;
+    int jlo = j0 + 2, jhi = Ny - NPhi - 2;
     if (j1 >= 0 && j1 - 1 < jhi) jhi = j1 - 1; /* stay on the vacuum side of an interface */
+    for (int j = j0 + 1; j < Ny; j++) if (epsN[j] != epsN[j - 1]) { if (j - 1 < jhi) jhi = j - 1; break; }
+    int nu = (P.divop == 'n');
 #pragma omp parallel for schedule(static) reduction(max : me, mh)
     for (int i = 0; i < Nx; i++) {
         int im = (i + Nx - 1) % Nx, ip = (i + 1) % Nx;
         for (int j = jlo; j <= jhi; j++)
             for (int k = 0; k < Nz; k++) {
                 int km = (k + Nz - 1) % Nz, kp = (k + 1) % Nz;
-                double de = (Ex[ID(i, j, k)] - Ex[ID(im, j, k)]) + (Ey[ID(i, j, k)] - Ey[ID(i, j - 1, k)]) +
-                            (Ez[ID(i, j, k)] - Ez[ID(i, j, km)]);
-                double dh = (Hx[ID(ip, j, k)] - Hx[ID(i, j, k)]) + (Hy[ID(i, j + 1, k)] - Hy[ID(i, j, k)]) +
-                            (Hz[ID(i, j, kp)] - Hz[ID(i, j, k)]);
+                double a1 = Ex[ID(i, j, k)] - Ex[ID(im, j, k)], a2 = Ey[ID(i, j, k)] - Ey[ID(i, j - 1, k)],
+                       a3 = Ez[ID(i, j, k)] - Ez[ID(i, j, km)];
+                double b1 = Hx[ID(ip, j, k)] - Hx[ID(i, j, k)], b2 = Hy[ID(i, j + 1, k)] - Hy[ID(i, j, k)],
+                       b3 = Hz[ID(i, j, kp)] - Hz[ID(i, j, k)];
+                double de, dh;
+                if (nu) {
+                    de = a1 / dxv[i] + a2 / dyv[j] + a3 / dzv[k];
+                    dh = b1 / hxv[i] + b2 / hyv[j] + b3 / hzv[k];
+                } else {
+                    de = (a1 + a2 + a3) / D;
+                    dh = (b1 + b2 + b3) / D;
+                }
                 if (fabs(de) > me) me = fabs(de);
                 if (fabs(dh) > mh) mh = fabs(dh);
             }
     }
-    *dE = me / D;
-    *dH = mh / D;
+    *dE = me;
+    *dH = mh;
 }
 
 /* ------------------------------------------------------------------ output */
@@ -684,11 +1278,15 @@ static void write_dft(void) {
         char fn[64];
         snprintf(fn, sizeof fn, "dft_%s.bin", SL[s].name);
         FILE *f = xfopen(fn, "wb");
-        for (int c = 0; c < 6; c++)
+        for (int c = 0; c < 6; c++) {
+            int half = (OFF[c][1] != 0.0);
             for (size_t q = 0; q < SL[s].cnt; q++) {
                 double v[2] = {SL[s].re[c][q] * sc, SL[s].im[c][q] * sc};
+                if (half && SL[s].type == 1 && (q % SY) == (size_t)Ny) v[0] = v[1] = NAN;
+                if (half && SL[s].type == 2 && (q / Nz) == (size_t)Ny) v[0] = v[1] = NAN;
                 fwrite(v, sizeof(double), 2, f);
             }
+        }
         fclose(f);
     }
     if (P.inc == 'a') {
@@ -701,10 +1299,52 @@ static void write_dft(void) {
             }
         fclose(f);
     }
+    if (P.proj) {
+        FILE *f = xfopen("dft_proj.bin", "wb");
+        double pc = 2.0 / ((double)Nx * Nz * (double)N);
+        for (int c = 0; c < 6; c++)
+            for (int j = 0; j <= Ny; j++) {
+                double complex z = projdft[c][j] * pc;
+                double v[2] = {creal(z), cimag(z)};
+                if (OFF[c][1] != 0.0 && j == Ny) v[0] = v[1] = NAN;
+                fwrite(v, sizeof(double), 2, f);
+            }
+        fclose(f);
+    }
+    if (P.planar) { /* RMS over (x, z) of arg(F_dft e^{-i phi_c} / a_c(j)) for every component and y plane */
+        FILE *f = xfopen("dft_planar.bin", "wb");
+        const double *cp[6] = {cosP1, cosP3, cosP2, cosP2, cosP4, cosP1}, *sp[6] = {sinP1, sinP3, sinP2, sinP2, sinP4, sinP1};
+        for (int c = 0; c < 6; c++)
+            for (int j = 0; j <= Ny; j++) {
+                double complex a = projdft[c][j];
+                double s2 = 0.0;
+                for (int i = 0; i < Nx; i++)
+                    for (int k = 0; k < Nz; k++) {
+                        size_t q = ((size_t)i * SY + j) * Nz + k, t = (size_t)i * Nz + k;
+                        double complex z = (vre[c][q] + I * vim[c][q]) * (cp[c][t] - I * sp[c][t]);
+                        double ph = carg(z * conj(a));
+                        s2 += ph * ph;
+                    }
+                double v = (cabs(a) > 0.0 && !(OFF[c][1] != 0.0 && j == Ny)) ? sqrt(s2 / ((double)Nx * Nz)) : NAN;
+                fwrite(&v, sizeof(double), 1, f);
+            }
+        fclose(f);
+    }
+    if (P.auxref) {
+        FILE *f = xfopen("dft_auxref.bin", "wb");
+        for (int c = 0; c < 6; c++)
+            for (int j = 0; j <= Ny; j++) {
+                double complex z = refdft[c][j] / (double)N;
+                double v[2] = {creal(z), cimag(z)};
+                if (OFF[c][1] != 0.0 && j == Ny) v[0] = v[1] = NAN;
+                fwrite(v, sizeof(double), 2, f);
+            }
+        fclose(f);
+    }
 }
 
-static void dump_fields(void) {
-    FILE *f = xfopen("fields_final.bin", "wb");
+static void dump_fields(const char *name) {
+    FILE *f = xfopen(name, "wb");
     for (int c = 0; c < 6; c++) {
         double *F = comp_ptr(c);
         for (int i = 0; i < Nx; i++)
@@ -713,16 +1353,60 @@ static void dump_fields(void) {
     fclose(f);
 }
 
+static void dump_auxref(long step) {
+    char fn[64];
+    snprintf(fn, sizeof fn, "auxref_n%ld.bin", step);
+    FILE *f = xfopen(fn, "wb");
+    double complex *arr[6] = {rEx, rEy, rEz, rHx, rHy, rHz};
+    for (int c = 0; c < 6; c++)
+        for (int j = 0; j <= Ny; j++) {
+            double v[2] = {creal(arr[c][j]), cimag(arr[c][j])};
+            fwrite(v, sizeof(double), 2, f);
+        }
+    fclose(f);
+}
+
+static void jarr(FILE *f, const char *name, const double *a, int n, int last) {
+    fprintf(f, "  \"%s\": [", name);
+    for (int q = 0; q < n; q++) fprintf(f, "%.17g%s", a[q], q < n - 1 ? ", " : "");
+    fprintf(f, "]%s\n", last ? "" : ",");
+}
+
+static void write_grid_used(void) {
+    FILE *f = xfopen("grid_used.json", "w");
+    fprintf(f, "{\n  \"mesh\": \"%s\", \"grid_file\": \"%s\", \"grid_hash\": \"%s\",\n", P.mesh == 'u' ? "uniform" : "file",
+            P.grid, grid_hash);
+    fprintf(f, "  \"Nx\": %d, \"Ny\": %d, \"Nz\": %d, \"j0\": %d, \"ja\": %d, \"npml_lo\": %d, \"npml_hi\": %d,\n",
+            Nx, Ny, Nz, j0, JA, NPlo, NPhi);
+    fprintf(f, "  \"valid_j\": {\"Ex\": [0, %d], \"Ey\": [0, %d], \"Ez\": [0, %d], \"Hx\": [0, %d], \"Hy\": [0, %d], \"Hz\": [0, %d]},\n",
+            Ny, Ny - 1, Ny, Ny - 1, Ny, Ny - 1);
+    jarr(f, "x", xn, Nx + 1, 0); jarr(f, "x_dual", xd, Nx, 0); jarr(f, "hx", hxv, Nx, 0); jarr(f, "dx", dxv, Nx, 0);
+    jarr(f, "y", yn, Ny + 1, 0); jarr(f, "y_dual", yd, Ny, 0); jarr(f, "hy", hyv, Ny, 0); jarr(f, "dy", dyv, Ny + 1, 0);
+    jarr(f, "z", zn, Nz + 1, 0); jarr(f, "z_dual", zd, Nz, 0); jarr(f, "hz", hzv, Nz, 0); jarr(f, "dz", dzv, Nz, 0);
+    jarr(f, "eps_t", epsT, Ny + 1, 0); jarr(f, "eps_n", epsN, Ny, 1);
+    fprintf(f, "}\n");
+    fclose(f);
+}
+
 static void write_meta(double runtime, long nsnap) {
     FILE *f = xfopen("meta.json", "w");
+    double hymin = hyv[0], hymax = hyv[0], rmax = 1.0;
+    for (int j = 0; j < Ny; j++) { hymin = fmin(hymin, hyv[j]); hymax = fmax(hymax, hyv[j]); }
+    for (int j = 1; j < Ny; j++) rmax = fmax(rmax, fmax(hyv[j] / hyv[j - 1], hyv[j - 1] / hyv[j]));
     fprintf(f, "{\n");
     fprintf(f, "  \"units\": \"c = eps0 = mu0 = 1, lambda0 = 1\",\n");
     fprintf(f, "  \"nl\": %d, \"Delta\": %.17g, \"dt\": %.17g, \"S\": %.17g, \"omega0\": %.17g,\n", P.nl, D, dt, P.S, W0);
+    fprintf(f, "  \"mesh\": \"%s\", \"grid_file\": \"%s\", \"grid_hash\": \"%s\", \"Delta_is_reference\": %s,\n",
+            P.mesh == 'u' ? "uniform" : "file", P.grid, grid_hash, P.mesh == 'u' ? "false" : "true");
+    fprintf(f, "  \"dt_courant\": %.17g, \"dt_penalty\": %.17g, \"Delta_y_min\": %.17g, \"Delta_y_max\": %.17g, "
+               "\"r_max_y\": %.17g, \"x_nonuniform\": %d, \"z_nonuniform\": %d, \"auxref\": %d, \"divop\": \"%c\",\n",
+            dt_cour, (P.S * hymax) / dt, hymin, hymax, rmax, xnonuni, znonuni, P.auxref, P.divop);
     fprintf(f, "  \"Lx\": %.17g, \"Lz\": %.17g, \"m\": %d, \"n\": %d, \"pol\": \"%c\",\n", P.Lx, P.Lz, P.m, P.n, P.pol);
-    fprintf(f, "  \"Nx\": %d, \"Ny\": %d, \"Nz\": %d, \"j0\": %d, \"j1\": %d, \"npml\": %d, \"sf\": %d, \"tf\": %d,\n",
-            Nx, Ny, Nz, j0, j1, P.npml, P.sf, P.tf);
-    fprintf(f, "  \"kx\": %.17g, \"ky\": %.17g, \"kz\": %.17g, \"ky_disc\": %.17g, \"ky_cont\": %.17g,\n",
-            kx, ky, kz, ky_disc(kx, kz, 1.0), kyc);
+    fprintf(f, "  \"Nx\": %d, \"Ny\": %d, \"Nz\": %d, \"j0\": %d, \"j1\": %d, \"npml\": %d, \"npml_lo\": %d, \"npml_hi\": %d, "
+               "\"sf\": %d, \"tf\": %d, \"ja\": %d,\n",
+            Nx, Ny, Nz, j0, j1, NPlo, NPlo, NPhi, j0 - NPlo, Ny - NPhi - j0, JA);
+    fprintf(f, "  \"kx\": %.17g, \"ky\": %.17g, \"kz\": %.17g, \"ky_disc\": %.17g, \"ky_cont\": %.17g, \"Delta_a\": %.17g,\n",
+            kx, ky, kz, ky_local(Da, 1.0), kyc, Da);
     fprintf(f, "  \"Ktilde\": [%.17g, %.17g, %.17g], \"Ktilde_src\": [%.17g, %.17g, %.17g], \"omega_tilde\": %.17g,\n",
             Kt[0], Kt[1], Kt[2], Kt_src[0], Kt_src[1], Kt_src[2], wt);
     fprintf(f, "  \"E0\": [%.17g, %.17g, %.17g], \"H0\": [%.17g, %.17g, %.17g],\n",
@@ -734,7 +1418,7 @@ static void write_meta(double runtime, long nsnap) {
             P.pml_m, P.sig_fac, P.kappa_max, P.alpha_max);
     fprintf(f, "  \"eps2\": %.17g, \"y1\": %d, \"ifmode\": \"%c\",\n", P.eps2, P.y1, P.ifmode);
     fprintf(f, "  \"inc\": \"%c\", \"ky_mode\": \"%s\", \"ramp\": \"%c\", \"ramp_T\": %g, \"erf_t0\": %g, \"erf_tau\": %g, \"off_t\": %g, \"na\": %d,\n",
-            P.inc, P.ky_cont ? "continuous" : "discrete", P.ramp, P.ramp_T, P.erf_t0, P.erf_tau, P.off_t, P.na);
+            P.inc, P.ky_cont ? "continuous" : "discrete", P.ramp, P.ramp_T, P.erf_t0, P.erf_tau, P.off_t, j0 - JA);
     fprintf(f, "  \"init\": \"%c\", \"nsteps\": %ld, \"dft0\": %ld, \"dft1\": %ld,\n", P.init, P.nsteps, P.dft0, P.dft1);
     fprintf(f, "  \"aux\": {\"jlo\": %ld, \"L\": %ld, \"ja\": %ld, \"dft_jlo\": %ld, \"dft_jhi\": %ld},\n",
             P.inc == 'a' ? Ajlo : 0, P.inc == 'a' ? AL : 0, P.inc == 'a' ? Ajlo + Aua : 0,
@@ -746,6 +1430,9 @@ static void write_meta(double runtime, long nsnap) {
                 s < NSL - 1 ? ", " : "");
     }
     fprintf(f, "],\n");
+    fprintf(f, "  \"dump_at\": [");
+    for (int q = 0; q < P.ndump; q++) fprintf(f, "%ld%s", P.dump_at[q], q < P.ndump - 1 ? ", " : "");
+    fprintf(f, "],\n");
     fprintf(f, "  \"snap_every\": %d, \"snapcomp\": \"%s\", \"nsnap\": %ld, \"zk\": %d, \"xi\": %d, \"dump\": %d,\n",
             P.snap_every, P.snapcomp, nsnap, P.zk, P.xi, P.dump);
     int nth = 1;
@@ -756,35 +1443,127 @@ static void write_meta(double runtime, long nsnap) {
     fclose(f);
 }
 
+static double urand(unsigned long long *s) { /* xorshift64*, uniform in [-1, 1) */
+    *s ^= *s >> 12; *s ^= *s << 25; *s ^= *s >> 27;
+    return (double)((*s * 2685821657736338717ULL) >> 11) * (2.0 / 9007199254740992.0) - 1.0;
+}
+
+/* ------------------------------------------------------------------ power iteration (gate 0-4)
+   M = eps^-1 C_H mu^-1 C_E is self-adjoint and positive semi-definite in <.,.>_{eps W_E} (derivation_nonuniform §2).
+   One application uses the solver's own update kernels: H = 0, H -= dt C_E v; E = 0, E += dt eps^-1 C_H H,
+   so M v = -E / dt^2. CPML is switched off (PEC walls at j = 0, Ny; x, z periodic); the leapfrog is stable iff
+   dt < dt_max = 2 / sqrt(lambda_max). Writes eig.json. */
+static double enorm2(const double *X, const double *Y, const double *Z, const double *X2, const double *Y2,
+                     const double *Z2) { /* <E, E2>_{eps W_E} */
+    double s = 0.0;
+#pragma omp parallel for schedule(static) reduction(+ : s)
+    for (int i = 0; i < Nx; i++)
+        for (int j = 0; j <= Ny; j++)
+            for (int k = 0; k < Nz; k++) {
+                size_t q = ID(i, j, k);
+                s += epsT[j] * dyv[j] * (hxv[i] * dzv[k] * X[q] * X2[q] + dxv[i] * hzv[k] * Z[q] * Z2[q]);
+                if (j < Ny) s += epsN[j] * dxv[i] * hyv[j] * dzv[k] * Y[q] * Y2[q];
+            }
+    return s;
+}
+
+static void power_iteration(void) {
+    for (int j = 0; j <= Ny; j++) pmlE[j] = pmlH[j] = -1;
+    double *vx = xcalloc(NTOT, sizeof(double)), *vy = xcalloc(NTOT, sizeof(double)), *vz = xcalloc(NTOT, sizeof(double));
+    unsigned long long s = 0x9E3779B97F4A7C15ULL ^ (unsigned long long)P.seed;
+    for (int i = 0; i < Nx; i++)
+        for (int j = 0; j <= Ny; j++)
+            for (int k = 0; k < Nz; k++) {
+                size_t q = ID(i, j, k);
+                double a = urand(&s), b = urand(&s), c = urand(&s);
+                vx[q] = (j == 0 || j == Ny) ? 0.0 : a;
+                vz[q] = (j == 0 || j == Ny) ? 0.0 : c;
+                vy[q] = (j == Ny) ? 0.0 : b;
+            }
+    double nv = sqrt(enorm2(vx, vy, vz, vx, vy, vz));
+    for (size_t q = 0; q < NTOT; q++) { vx[q] /= nv; vy[q] /= nv; vz[q] /= nv; }
+    double lam = 0.0, lam_old = 0.0;
+    long it;
+    FILE *lg = xfopen("eig_log.csv", "w");
+    fprintf(lg, "it,rayleigh\n");
+    for (it = 1; it <= P.eig_maxit; it++) {
+        memset(Hx, 0, NTOT * sizeof(double)); memset(Hy, 0, NTOT * sizeof(double)); memset(Hz, 0, NTOT * sizeof(double));
+        memcpy(Ex, vx, NTOT * sizeof(double)); memcpy(Ey, vy, NTOT * sizeof(double)); memcpy(Ez, vz, NTOT * sizeof(double));
+        update_H(0);
+        memset(Ex, 0, NTOT * sizeof(double)); memset(Ey, 0, NTOT * sizeof(double)); memset(Ez, 0, NTOT * sizeof(double));
+        update_E(0);
+        double sc = -1.0 / (dt * dt);
+        for (size_t q = 0; q < NTOT; q++) { Ex[q] *= sc; Ey[q] *= sc; Ez[q] *= sc; } /* M v */
+        lam = enorm2(vx, vy, vz, Ex, Ey, Ez);                                         /* <v, Mv>, |v| = 1 */
+        double nm = sqrt(enorm2(Ex, Ey, Ez, Ex, Ey, Ez));
+        for (size_t q = 0; q < NTOT; q++) { vx[q] = Ex[q] / nm; vy[q] = Ey[q] / nm; vz[q] = Ez[q] / nm; }
+        if (it % 100 == 0) fprintf(lg, "%ld,%.17e\n", it, lam);
+        if (it > 10 && fabs(lam - lam_old) < P.eig_tol * lam) break;
+        lam_old = lam;
+    }
+    fclose(lg);
+    double dtmax = 2.0 / sqrt(lam);
+    FILE *f = xfopen("eig.json", "w");
+    fprintf(f, "{\n  \"lambda_max\": %.17g, \"dt_max\": %.17g, \"dt_courant\": %.17g, \"S\": %.17g,\n"
+               "  \"iterations\": %ld, \"last_rel_change\": %.3e, \"grid_hash\": \"%s\", \"Nx\": %d, \"Ny\": %d, \"Nz\": %d\n}\n",
+            lam, dtmax, dt_cour / P.S / sqrt(3.0), P.S, it, fabs(lam - lam_old) / lam, grid_hash, Nx, Ny, Nz);
+    fclose(f);
+    fprintf(stderr, "power iteration: lambda_max = %.15g, dt_max = %.15g (Courant bound %.15g), %ld iterations\n",
+            lam, dtmax, dt_cour / P.S / sqrt(3.0), it);
+}
+
 /* ------------------------------------------------------------------ main */
+
 int main(int argc, char **argv) {
     parse_args(argc, argv);
     setup();
     MKDIR(P.out);
+    if (P.mode == 'e') {
+        power_iteration();
+        write_grid_used();
+        write_meta(0.0, 0);
+        return 0;
+    }
     if (P.dft0 < 0 || P.dft1 < 0) { P.dft0 = 0; P.dft1 = 0; }
     dft_setup();
 
     if (P.init == 'a') {
-        if (P.npml != 0) die("init=analytic requires npml=0");
+        if (NPlo != 0 || NPhi != 0) die("init=analytic requires npml=0");
         fill_analytic(0.0, -1.0); /* E^0, H^{-1/2} */
     } else if (P.init == 'b') {
         /* Divergence-free packet: Ez depends only on (x, y), Ex only on (y, z), so div E = 0 exactly
            and no static charge is left behind. Carrier ky0 = 5 under a Gaussian of width 1.2, so the
            near-grazing (ky ~ 0) content is ~exp(-(ky0 w)^2/4) ~ 1e-4 in amplitude. */
-        double yc = 0.5 * Ny * D, w = 1.2, ky0 = 5.0;
+        double yc = 0.5 * (yn[0] + yn[Ny]), w = 1.2, ky0 = 5.0;
+        if (P.mesh == 'u') yc = 0.5 * Ny * D;
         for (int i = 0; i < Nx; i++)
             for (int j = 1; j < Ny; j++)
                 for (int k = 0; k < Nz; k++) {
-                    double y = j * D, g = cos(ky0 * (y - yc)) * exp(-(y - yc) * (y - yc) / (w * w));
-                    Ez[ID(i, j, k)] = cos(2.0 * PI * i * D / P.Lx) * g;
-                    Ex[ID(i, j, k)] = cos(2.0 * PI * k * D / P.Lz) * g;
+                    double y = yn[j], g = cos(ky0 * (y - yc)) * exp(-(y - yc) * (y - yc) / (w * w));
+                    Ez[ID(i, j, k)] = cos(2.0 * PI * xn[i] / P.Lx) * g;
+                    Ex[ID(i, j, k)] = cos(2.0 * PI * zn[k] / P.Lz) * g;
                 }
+    } else if (P.init == 'r') {
+        /* random E^0, H^{-1/2} (PEC walls: tangential E = 0 at j = 0, Ny) -- energy / stability tests */
+        unsigned long long s = 0x9E3779B97F4A7C15ULL ^ (unsigned long long)P.seed;
+        for (int c = 0; c < 6; c++) {
+            double *F = comp_ptr(c);
+            int half = (OFF[c][1] != 0.0);
+            for (int i = 0; i < Nx; i++)
+                for (int j = 0; j <= Ny; j++)
+                    for (int k = 0; k < Nz; k++) {
+                        double v = urand(&s);
+                        if (half && j == Ny) v = 0.0;
+                        if ((c == 0 || c == 2) && (j == 0 || j == Ny)) v = 0.0;
+                        F[ID(i, j, k)] = v;
+                    }
+        }
     }
 
     partT = xcalloc(Nx, sizeof(double));
     partP = xcalloc(Nx, sizeof(double));
     FILE *lg = xfopen("log.csv", "w");
-    fprintf(lg, "n,t,maxE_SF,maxH_SF,W_total,W_phys,divE_TF,divH_TF\n");
+    fprintf(lg, "n,t,maxE_SF,maxH_SF,W_total,W_phys,divE_TF,divH_TF,W_mod,leakE_ref,leakH_ref,devE_ref,devH_ref\n");
     FILE *sn = NULL;
     int snapc = 2;
     for (int c = 0; c < 6; c++) if (!strcmp(P.snapcomp, CNAME[c])) snapc = c;
@@ -793,31 +1572,40 @@ int main(int argc, char **argv) {
         sn = xfopen("snapshots.bin", "wb");
     }
     long nsnap = 0;
+    write_grid_used();
 
-    clock_t c0 = clock();
     time_t w0 = time(NULL);
     for (long n = 0; n < P.nsteps; n++) {
+        int doW = (P.energy_every > 0 && (n + 1) % P.energy_every == 0);
         /* H: n-1/2 -> n+1/2 */
         if (P.inc != '0') incident_E(n);
-        update_H();
+        update_H(doW);
+        double Wm = doW ? Wmod_acc : NAN;     /* energy at t = n dt */
         if (P.inc != '0') tfsf_H();
+        if (P.auxref) auxref_update_H();
         if (P.inc == 'a') aux_update_H(n);
         if (n >= P.dft0 && n < P.dft1) dft_accumulate(3, 5, (n + 0.5) * dt);
         /* E: n -> n+1 */
         if (P.inc != '0') incident_H(n);
-        int doW = (P.energy_every > 0 && (n + 1) % P.energy_every == 0);
         update_E(doW);
         if (P.inc != '0') tfsf_E();
+        if (P.auxref) auxref_update_E();
         if (P.inc == 'a') aux_update_E(n);
         if (P.init == 'a') dirichlet_y((double)(n + 1));
         if (n + 1 >= P.dft0 && n + 1 < P.dft1) dft_accumulate(0, 2, (n + 1) * dt);
 
-        double mE, mH, Wt = NAN, Wp = NAN, dvE = NAN, dvH = NAN;
+        double mE, mH, Wt = NAN, Wp = NAN, dvE = NAN, dvH = NAN, lE = NAN, lH = NAN, gE = NAN, gH = NAN;
         sf_max(&mE, &mH);
         if (doW) energy_sum(&Wt, &Wp); /* W at t = (n + 1/2) dt */
         if (P.div_every > 0 && (n + 1) % P.div_every == 0) div_max(&dvE, &dvH);
-        fprintf(lg, "%ld,%.10g,%.9e,%.9e,%.17e,%.17e,%.6e,%.6e\n", n + 1, (n + 1) * dt, mE, mH, Wt, Wp, dvE, dvH);
-        if (!isfinite(mE) || !isfinite(mH)) {
+        if (P.auxref) {
+            ref_dev(NPlo, j0 - 1, &lE, &lH);   /* scattered-field region (half-y rows up to j0 - 1/2) */
+            if (P.ref_every > 0 && (n + 1) % P.ref_every == 0) ref_dev(0, Ny, &gE, &gH);
+        }
+        fprintf(lg, "%ld,%.10g,%.9e,%.9e,%.17e,%.17e,%.6e,%.6e,%.17e,%.6e,%.6e,%.6e,%.6e\n", n + 1, (n + 1) * dt, mE, mH,
+                Wt, Wp, dvE, dvH, Wm, lE, lH, gE, gH);
+        if (!isfinite(mE) || !isfinite(mH) || (doW && !isfinite(Wm))) {
+            fflush(lg);
             fprintf(stderr, "non-finite field at step %ld\n", n + 1);
             die("instability detected");
         }
@@ -827,6 +1615,13 @@ int main(int argc, char **argv) {
                 for (int j = 0; j <= Ny; j++) fwrite(&F[ID(i, j, P.zk)], sizeof(double), 1, sn);
             nsnap++;
         }
+        for (int q = 0; q < P.ndump; q++)
+            if (P.dump_at[q] == n + 1) {
+                char fn[64];
+                snprintf(fn, sizeof fn, "fields_n%ld.bin", n + 1);
+                dump_fields(fn);
+                if (P.auxref) dump_auxref(n + 1);
+            }
         if (P.nsteps >= 10 && (n + 1) % (P.nsteps / 10) == 0) {
             fprintf(stderr, "  step %ld/%ld (%.0f s)\n", n + 1, P.nsteps, difftime(time(NULL), w0));
         }
@@ -834,9 +1629,8 @@ int main(int argc, char **argv) {
     fclose(lg);
     if (sn) fclose(sn);
     double runtime = difftime(time(NULL), w0);
-    (void)c0;
     write_dft();
-    if (P.dump) dump_fields();
+    if (P.dump) dump_fields("fields_final.bin");
     write_meta(runtime, nsnap);
     fprintf(stderr, "done: %ld steps, grid %d x %d x %d, %.0f s\n", P.nsteps, Nx, Ny + 1, Nz, runtime);
     return 0;

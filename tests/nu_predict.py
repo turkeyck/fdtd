@@ -135,12 +135,13 @@ def level2():
     names += [f"L2_{s}_ppw40_dxz{d}" for s in ("F1", "F5") for d in (40, 80)]
     names += [f"L2_{s}_bis{k}" for s in ("F1", "F5") for k in (1, 2, 4, 8)]      # amendment D10
     names += [f"L2_F1_ctrl_mh{m:g}" for m in (4.5, 9.5, 18.5, 37.5)]              # amendment D11
+    names += [f"L2_{s}_bisxz{k}" for s in ("F1", "F5") for k in (1, 2)]           # amendment D14
     pre = {}
     for name in names:
         geo = nc.Geo(nc.load_grid(name))
         dt = geo.dt_run()
-        if "_bis" in name:                                  # D10: dt scales with h
-            k = int(name.split("_bis")[1])
+        if "_bis" in name:                                  # D10/D14: dt scales with h
+            k = int(name.split("_bis")[1].lstrip("xz"))
             dt = nc.Geo(nc.load_grid(name.split("_bis")[0] + "_bis1")).dt_run() / k
         Kt = nc.Kt_of(geo)
         lo, hi = geo.j0 + 2, geo.Ny - geo.npml_hi - 2
@@ -185,6 +186,44 @@ def unit_tests():
     kym, im = tmm.ky_three_point(u, h)
     print(f"T-A1: three-point ky error = {abs(kym - ky):.2e} (< 1e-13)")
     ok &= abs(kym - ky) < 1e-13
+    return ok
+
+
+def stageB():
+    """RCWA reference for B3 (D15 geometry) and TMM for the D16 families (classical incidence, θ = 30°)."""
+    import rcwa
+    import grid_gen as gg
+    ok = True
+    kx, kz = nc.kvec(1, 1)
+    kt = math.hypot(kx, kz)
+    k = np.array([kx, math.sqrt(nc.K0 ** 2 - kt ** 2), kz])
+    for pol in ("s", "p"):
+        s = np.cross(k, [0, 1, 0]); s /= np.linalg.norm(s)
+        pp = np.cross(s, k); pp /= np.linalg.norm(pp)
+        e = s if pol == "s" else pp
+        prev = None
+        for M in (20, 40, 80, 160):
+            g = rcwa.solve(M, 2.0, 0.3, 1.0, gg.N_SUB ** 2, gg.N_FILM ** 2, 1.0, 0.5, kx, kz, e)
+            pr, pt = rcwa.propagating(g, "R"), rcwa.propagating(g, "T")
+            v = np.concatenate([g["R_orders"][pr], g["T_orders"][pt]])
+            if prev is not None:
+                put(f"B/rcwa/{pol}/maxdiff_{2 * M + 1}", f"max efficiency change to {2 * M + 1} orders",
+                    float(np.max(np.abs(v - prev))), "rcwa.py")
+            prev = v
+        put(f"B/rcwa/{pol}/orders_R", "propagating reflected orders", [int(q) for q in g["orders"][pr]], "rcwa.py")
+        put(f"B/rcwa/{pol}/orders_T", "propagating transmitted orders", [int(q) for q in g["orders"][pt]], "rcwa.py")
+        put(f"B/rcwa/{pol}/R_p", "RCWA reflected efficiencies (321 orders)", g["R_orders"][pr].tolist(), "rcwa.py")
+        put(f"B/rcwa/{pol}/T_p", "RCWA transmitted efficiencies (321 orders)", g["T_orders"][pt].tolist(), "rcwa.py")
+        last = REC_value(f"B/rcwa/{pol}/maxdiff_321")
+        flag = last < 1e-5
+        ok &= flag
+        print(f"  B3-3 RCWA ({pol}): 161->321 orders max change {last:.2e} {'OK' if flag else 'FAIL'}; "
+              f"sum R+T-1 = {g['R'] + g['T'] - 1:+.1e}")
+    kt0 = math.pi                                     # m = 1, n = 0, Lx = 2
+    for pol in ("s", "p"):
+        c = tmm.tmm_continuous([(gg.N_FILM ** 2, gg.D_FILM)], 1.0, gg.N_SUB ** 2, kt0, pol=pol)
+        put(f"B/film/{pol}/R_TMM", "TMM R, film on substrate, θ = 30° (D16 families)", c["R"], "tmm_continuous")
+        put(f"B/film/{pol}/T_TMM", "TMM T, film on substrate, θ = 30°", c["T"], "tmm_continuous")
     return ok
 
 
@@ -250,6 +289,14 @@ def main():
                 flag = 0.8 <= o3 <= 1.2
                 ok &= flag
                 print(f"  predicted 2-4 order (control, 3 levels) {pol}: {o3:.3f} {'OK' if flag else 'FAIL'}")
+    for st in ("F1", "F5"):                     # D14: 2-level combined Richardson (assumed order 2)
+        for pol in ("s", "p"):
+            R1, R2 = (REC_value(f"L2/L2_{st}_bisxz{k}/{pol}/R_disc") for k in (1, 2))
+            ri = R2 + (R2 - R1) / 3.0
+            put(f"L2/Rinf_xz2/{st}/{pol}", "2-level combined Richardson limit (D14)", ri, "tmm_discrete")
+            flag = abs(ri - l2[(st, pol)]["R"]) < 1e-4
+            ok &= flag
+            print(f"  predicted 3A-3 limit {st} {pol}: R_inf - R_TMM = {ri - l2[(st, pol)]['R']:+.2e} {'OK' if flag else 'FAIL'}")
     for pol in ("s", "p"):
         mhs = (4.5, 9.5, 18.5, 37.5)
         hs = [0.08 / m for m in mhs]
@@ -263,6 +310,8 @@ def main():
         o = REC_value(f"L1/theta_order_D9rev/{pol}")
         flag = 1.8 <= o <= 2.2
         ok &= flag
+    print("\nStage B references:")
+    ok &= stageB()
     for r in REC:
         r["created_utc"] = nc.utcnow()
     old = nc.load_predictions()

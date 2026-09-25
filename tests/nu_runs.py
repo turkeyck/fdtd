@@ -62,13 +62,27 @@ def level2(grid, pol, dt=None, tag="", **extra):
     geo = nc.Geo(nc.load_grid(grid))
     if dt is None:
         dt = geo.dt_run()
-        if "_bis" in grid:                           # D10: dt scales with h
-            k = int(grid.split("_bis")[1])
+        if "_bis" in grid:                           # D10 / D14: dt scales with h
+            k = int(grid.split("_bis")[1].lstrip("xz"))
             dt = nc.Geo(nc.load_grid(grid.split("_bis")[0] + "_bis1")).dt_run() / k
     Np = int(round(1.0 / dt))
     out = os.path.join(nc.RUNS, "gate2", f"{grid}_{pol}{tag}")
     kw = dict(pol=pol, inc="a", auxref=1, proj=1, dt=repr(dt), energy_every=0, ref_every=30 * Np,
               nsteps=PERIODS * Np, dft0=(PERIODS - DFT_PERIODS) * Np, dft1=PERIODS * Np)
+    kw.update(extra)
+    meta, _, _ = nc.run(out, grid=grid, **kw)
+    return out, meta, geo
+
+
+def stageB(grid, pol, inc="p", tag="", periods=70, dft_periods=20, m=1, n=0, **extra):
+    """Stage-B run (x and/or z nonuniform): analytic injection inc=p or current sheet inc=j, weighted Floquet
+    projection of every y row, DFT window of the last `dft_periods` periods."""
+    geo = nc.Geo(nc.load_grid(grid))
+    dt = geo.dt_run()
+    Np = int(round(1.0 / dt))
+    out = os.path.join(nc.RUNS, "stageB", f"{grid}_{pol}_{inc}{tag}")
+    kw = dict(pol=pol, inc=inc, m=m, n=n, proj=1, dt=repr(dt), energy_every=0, nsteps=periods * Np,
+              dft0=(periods - dft_periods) * Np, dft1=periods * Np)
     kw.update(extra)
     meta, _, _ = nc.run(out, grid=grid, **kw)
     return out, meta, geo

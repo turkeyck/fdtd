@@ -212,7 +212,10 @@ def run(outdir, grid=None, binary=BIN, expect_fail=False, **kw):
             same = json.load(fh) == key
         if same and os.path.getmtime(metafile) >= os.path.getmtime(binary):
             return load_meta(outdir), 0, ""
-    res = subprocess.run([binary] + argv + [f"out={outdir}"], capture_output=True, text=True)
+    env = dict(os.environ)
+    if grid is not None and len(g["x"]["h"]) * len(g["z"]["h"]) <= 64:
+        env["OMP_NUM_THREADS"] = "1"                 # tiny x-z cell: threading overhead dominates
+    res = subprocess.run([binary] + argv + [f"out={outdir}"], capture_output=True, text=True, env=env)
     if res.returncode != 0 and not expect_fail:
         raise RuntimeError(f"solver failed ({res.returncode}):\n{res.stderr}")
     if res.returncode == 0:

@@ -324,6 +324,26 @@
       "family": "L2_F1_ctrl_mh{4.5,9.5,18.5,37.5}: uniform Δ=0.08/mh, interfaces at cell fractions 0.25/0.75, point-sampled eps; error vs the D10 R_inf",
       "reason": "'interface offset 0.3 cell' with PPW-based spacing changes the offset fraction at every level (predicted order < 0). Same-fraction interfaces only translate the film (order 2). Fractions 0.25/0.75: predicted 0.97.",
       "revision": "2026-09-25, before any run: mh = 4.5, 9.5, 18.5 (mh 37.5 ~4.4 h/run); error vs the D10 3-level R_inf; predicted order 0.96-0.97."
+    },
+    "D13": {
+      "gate": "3A-1",
+      "change": "thin vs full Meep cell compared at resolution 40 (was 80)",
+      "reason": "measured Meep speed ~190 ns/cell-step single-threaded: full 2x3 cell at resolution 80 ~12 h per run; at 40 ~45 min. Threshold |ΔR| < 1e-6 unchanged. Decided before any Meep run."
+    },
+    "D14": {
+      "gate": "3A-3",
+      "change": "own-code limit from L2_{F1,F5}_bisxz{1,2}: y bisection AND x/z spacing λ0/(20k), dt ∝ 1/k; 2-level Richardson R_inf = R2 + (R2-R1)/3 (order 2 established by 2-3 and theory)",
+      "reason": "PPW 20..160 with x/z refined together needs up to ~2e8 cells in 3D; a 3-level combined family needs ~35M cells x 24k steps (~6 h). Predicted |R_inf - R_TMM| <= 6e-6 (threshold vs Meep 1e-4 unchanged). Decided before any run."
+    },
+    "D15": {
+      "gate": "B3-3 / grating definition",
+      "change": "RCWA order list 41, 81, 161, 321 (was 11, 21, 41, 81); 'last two differ < 1e-5' unchanged; reference = 321 orders. Grating: period Λ = Lx = 2 λ0 along x, ridge (n = 2) on x ∈ [0, 1) λ0 (duty 0.5), groove vacuum, thickness 0.3 λ0, vacuum superstrate, n = 1.46 substrate (SPEC left the substrate open; A4-style assumption)",
+      "reason": "measured before any grating FDTD run: max efficiency change 41->81 orders 3.7e-5, 81->161 8.4e-6, 161->321 2.7e-6 (conical lamellar, Li rules)."
+    },
+    "D16": {
+      "gate": "B0-2, B1-1, B1-2, B2-1, B2-2",
+      "change": "test setups: B0-2 on B_ops_xz_graded_pec (x AND z graded, PEC y, source-free); B1/B2 families B_{vac,film}_k{1,2,4}: classical incidence m=1, n=0 (θ=30°) on a thin uniform z cell, x graded (λ0/(28.6k) | λ0/(20k)), y uniform h=0.02/k with the film aligned; s-polarization; 70 periods, DFT 50..70 T0. B3 (grating) keeps the conical A2 angle on B_grating_ppw40.",
+      "reason": "with the A2 angle (Lz = 3) a three-level x/z refinement needs ~25M cells at k=4 per run and 8 runs per level; the injection-order physics is carried by the x nonuniformity. Decided before any stage-B run."
     }
   }
 }

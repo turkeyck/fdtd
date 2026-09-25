@@ -210,3 +210,33 @@ def sy_plane_weighted(D, used, j, comps_E=("Ex", "Ez")):
 def conserved_flux_rows(Ex, Ez, Hx_up, Hz_up):
     """Discrete-conserved flux through the dual plane between E row j and H row j+1/2 (per unit area)."""
     return 0.5 * float(np.real(np.mean(Ez * np.conj(Hx_up) - Ex * np.conj(Hz_up))))
+
+
+# ----------------------------------------------------------------------------- Floquet decomposition (stage B)
+def floquet(F2d, xs, wx, zs, wz, kxs, kz, Lx, Lz):
+    """Coefficients c_p of F(x, z) = sum_p c_p exp(i(kx_p x + kz z)) on nonuniform nodes (quadrature weights wx, wz,
+    i.e. the dual spacing for primal samples and the primal spacing for dual samples)."""
+    ph_z = np.exp(-1j * kz * zs) * wz
+    g = F2d @ ph_z                                     # (Nx,)
+    return np.array([np.sum(g * wx * np.exp(-1j * kx * xs)) for kx in kxs]) / (Lx * Lz)
+
+
+def plane_positions(used, comp):
+    """(x positions, x weights, z positions, z weights) of a component's samples on a y-plane slice."""
+    px = comp in ("Ey", "Ez", "Hx")                    # primal x
+    pz = comp in ("Ex", "Ey", "Hz")                    # primal z
+    xs = used["x"][:-1] if px else used["x_dual"]
+    wx = used["dx"] if px else used["hx"]
+    zs = used["z"][:-1] if pz else used["z_dual"]
+    wz = used["dz"] if pz else used["hz"]
+    return xs, wx, zs, wz
+
+
+def order_fluxes(D, used, kxs, kz):
+    """Per-order z-averaged S_y of a y-plane DFT slice (E at y_j, H at y_{j+1/2}: the discrete-conserved pairing)."""
+    Lx, Lz = used["x"][-1], used["z"][-1]
+    c = {}
+    for comp in ("Ex", "Ez", "Hx", "Hz"):
+        xs, wx, zs, wz = plane_positions(used, comp)
+        c[comp] = floquet(D[comp], xs, wx, zs, wz, kxs, kz, Lx, Lz)
+    return 0.5 * np.real(c["Ez"] * np.conj(c["Hx"]) - c["Ex"] * np.conj(c["Hz"])), c

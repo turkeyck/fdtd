@@ -26,13 +26,18 @@ CASES = {
 
 
 def rel_diff(A, B):
+    """max|ΔF_c| / (field scale): E components are normalized by max over Ex, Ey, Ez of the reference, H by max
+    over Hx, Hy, Hz (a component that is identically zero for the polarization, e.g. Ey for s, holds only
+    roundoff noise and cannot serve as its own scale)."""
+    def cut(c, a):
+        return a[:, :-1, :] if c in ("Ey", "Hx", "Hz") else a
+    sE = max(np.abs(cut(c, B[c])).max() for c in ("Ex", "Ey", "Ez"))
+    sH = max(np.abs(cut(c, B[c])).max() for c in ("Hx", "Hy", "Hz"))
     out = {}
     for c in nc.COMPS:
-        a, b = A[c], B[c]
-        if c in ("Ey", "Hx", "Hz"):
-            a, b = a[:, :-1, :], b[:, :-1, :]
-        s = np.abs(a).max()
-        out[c] = float(np.abs(a - b).max() / s) if s > 0 else float(np.abs(a - b).max())
+        s = sE if c[0] == "E" else sH
+        d = np.abs(cut(c, A[c]) - cut(c, B[c])).max()
+        out[c] = float(d / s) if s > 0 else float(d)
     return out
 
 
@@ -66,7 +71,7 @@ def main():
     # 0-1b: legacy regression log (produced by tests/run_nu_regression.py or run_all_regression.py --fresh)
     log = os.path.join(nc.RESULTS, "regression.log")
     status = None
-    if os.path.exists(log):
+    if os.path.exists(log) and os.path.getmtime(log) > os.path.getmtime(nc.BIN):   # only a log made by this binary
         txt = open(log, encoding="utf-8", errors="replace").read()
         m = re.findall(r"REGRESSION: (\w+)", txt)
         status = m[-1] if m else None

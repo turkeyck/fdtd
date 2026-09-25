@@ -1,0 +1,147 @@
+{
+ "gate": "gate0_energy_stability",
+ "created_utc": "2026-09-25T16:25:07Z",
+ "table": [
+  {
+   "item": "0-3",
+   "quantity": "energy W_mod relative drift over 1e+05 steps (L1_taper_r1.1_base20, PEC)",
+   "theory": "0",
+   "measured": "5.33e-15",
+   "threshold": "< 1e-10",
+   "passed": true,
+   "grid": "Δy_min=λ0/80, Δy_max=λ0/20, r_max=1.0968, Δx=λ0/20, Δt=0.0102062 T0",
+   "note": ""
+  },
+  {
+   "item": "0-3",
+   "quantity": "legacy-form energy ½Σ(εE^n·E^(n+1)+|H^(n+½)|²) drift (L1_taper_r1.1_base20)",
+   "theory": "0",
+   "measured": "8.88e-16",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "L1_taper_r1.1_base20_pec_thin",
+   "note": ""
+  },
+  {
+   "item": "0-4",
+   "quantity": "power iteration λ_max, Δt_max = 2/sqrt(λ_max) (L1_taper_r1.1_base20)",
+   "theory": "—",
+   "measured": "λ=28764.3243, Δt_max=0.01179241915 T0 (1483 it)",
+   "threshold": "RQ change < 1e-10",
+   "passed": true,
+   "grid": "L1_taper_r1.1_base20_pec_thin",
+   "note": ""
+  },
+  {
+   "item": "0-4",
+   "quantity": "Courant formula Δt ≤ Δt_max (L1_taper_r1.1_base20)",
+   "theory": "0.01178511302",
+   "measured": "Δt_max 0.01179241915",
+   "threshold": "Δt_C ≤ Δt_max",
+   "passed": true,
+   "grid": "L1_taper_r1.1_base20_pec_thin",
+   "note": "margin 0.06%"
+  },
+  {
+   "item": "0-4",
+   "quantity": "Δt cost of the smallest cell (L1_taper_r1.1_base20)",
+   "theory": "—",
+   "measured": "Δt(S=0.5) = 0.0102062 T0 vs 0.025 on the base grid: ×2.449 steps",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "Δy_min=λ0/80, Δy_max=λ0/20, r_max=1.0968, Δx=λ0/20",
+   "note": ""
+  },
+  {
+   "item": "0-4",
+   "quantity": "0.99 Δt_max: 20000 steps finite, energy drift (L1_taper_r1.1_base20)",
+   "theory": "stable",
+   "measured": "exit 0, drift 4.77e-15",
+   "threshold": "finite & drift < 1e-10",
+   "passed": true,
+   "grid": "L1_taper_r1.1_base20_pec_thin",
+   "note": ""
+  },
+  {
+   "item": "0-4",
+   "quantity": "1.02 Δt_max: diverges within 20000 steps (L1_taper_r1.1_base20)",
+   "theory": "diverges",
+   "measured": "exit 2, step 900",
+   "threshold": "non-finite before the end",
+   "passed": true,
+   "grid": "L1_taper_r1.1_base20_pec_thin",
+   "note": ""
+  },
+  {
+   "item": "0-3",
+   "quantity": "energy W_mod relative drift over 1e+05 steps (L1_abrupt_r4_base20, PEC)",
+   "theory": "0",
+   "measured": "5.11e-15",
+   "threshold": "< 1e-10",
+   "passed": true,
+   "grid": "Δy_min=λ0/80, Δy_max=λ0/20, r_max=4.0000, Δx=λ0/20, Δt=0.0102062 T0",
+   "note": ""
+  },
+  {
+   "item": "0-3",
+   "quantity": "legacy-form energy ½Σ(εE^n·E^(n+1)+|H^(n+½)|²) drift (L1_abrupt_r4_base20)",
+   "theory": "0",
+   "measured": "1.11e-15",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "L1_abrupt_r4_base20_pec_thin",
+   "note": ""
+  },
+  {
+   "item": "0-4",
+   "quantity": "power iteration λ_max, Δt_max = 2/sqrt(λ_max) (L1_abrupt_r4_base20)",
+   "theory": "—",
+   "measured": "λ=28761.04604, Δt_max=0.0117930912 T0 (1389 it)",
+   "threshold": "RQ change < 1e-10",
+   "passed": true,
+   "grid": "L1_abrupt_r4_base20_pec_thin",
+   "note": ""
+  },
+  {
+   "item": "0-4",
+   "quantity": "Courant formula Δt ≤ Δt_max (L1_abrupt_r4_base20)",
+   "theory": "0.01178511302",
+   "measured": "Δt_max 0.0117930912",
+   "threshold": "Δt_C ≤ Δt_max",
+   "passed": true,
+   "grid": "L1_abrupt_r4_base20_pec_thin",
+   "note": "margin 0.07%"
+  },
+  {
+   "item": "0-4",
+   "quantity": "Δt cost of the smallest cell (L1_abrupt_r4_base20)",
+   "theory": "—",
+   "measured": "Δt(S=0.5) = 0.0102062 T0 vs 0.025 on the base grid: ×2.449 steps",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "Δy_min=λ0/80, Δy_max=λ0/20, r_max=4.0000, Δx=λ0/20",
+   "note": ""
+  },
+  {
+   "item": "0-4",
+   "quantity": "0.99 Δt_max: 20000 steps finite, energy drift (L1_abrupt_r4_base20)",
+   "theory": "stable",
+   "measured": "exit 0, drift 4.55e-15",
+   "threshold": "finite & drift < 1e-10",
+   "passed": true,
+   "grid": "L1_abrupt_r4_base20_pec_thin",
+   "note": ""
+  },
+  {
+   "item": "0-4",
+   "quantity": "1.02 Δt_max: diverges within 20000 steps (L1_abrupt_r4_base20)",
+   "theory": "diverges",
+   "measured": "exit 2, step 900",
+   "threshold": "non-finite before the end",
+   "passed": true,
+   "grid": "L1_abrupt_r4_base20_pec_thin",
+   "note": ""
+  }
+ ],
+ "passed": true
+}
