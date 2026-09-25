@@ -50,7 +50,7 @@ CPML；$`H_y`$ 位於整數 $`j`$ 但只含 $`x,z`$ 差分，所以在 $`j=0,N_y
 時間上對 $`e^{-i\omega t}`$：$`\dfrac{g(t+\tfrac{\Delta t}{2})-g(t-\tfrac{\Delta t}{2})}{\Delta t}=-i\tilde\omega\,e^{-i\omega t}`$，
 $`\tilde\omega=\dfrac{2}{\Delta t}\sin\dfrac{\omega\Delta t}{2}`$。
 
-因此把 $`\mathbf F=\operatorname{Re}\{\mathbf F_0\,e^{i(\mathbf k\cdot\mathbf r-\omega t)}\}`$（每個分量在自己的
+因此把 $`\mathbf F=\mathrm{Re}\{\mathbf F_0\,e^{i(\mathbf k\cdot\mathbf r-\omega t)}\}`$（每個分量在自己的
 Yee 點與時間取樣）代入離散 Maxwell，等同於連續 Maxwell 中把 $`\nabla\to i\tilde{\mathbf K}`$、
 $`\partial_t\to -i\tilde\omega`$：
 
@@ -87,7 +87,7 @@ k_y=\frac{2}{\Delta}\arcsin\sqrt{Q}.
 |---|---|
 | $`k_x/k_0,\ k_z/k_0`$ | 0.5, 1/3 |
 | $`\lvert k_t\rvert/k_0`$ | 0.60093（裕度 40%） |
-| $`\theta=\operatorname{atan2}(\lvert k_t\rvert,k_y)`$ | 36.895°；$`\varphi=\operatorname{atan2}(k_z,k_x)=33.690°`$ |
+| $`\theta=\mathrm{atan2}(\lvert k_t\rvert,k_y)`$ | 36.895°；$`\varphi=\mathrm{atan2}(k_z,k_x)=33.690°`$ |
 | $`k_y`$（離散） | 5.0297668864 /λ0 |
 | $`k_y`$（連續 $`\sqrt{k_0^2-k_t^2}`$） | 5.0221830272 /λ0 |
 | $`\tilde{\mathbf K}`$ | (3.13836383, 5.01652259, 2.09343825) |
@@ -290,7 +290,7 @@ ramp 期間 $`\mathbf R_E\ne0`$，TF/SF 面就是一個大小 $`\sim g'/\omega_0
 因 $`x,z`$ 週期且只有單一模態，入射場可寫成
 
 ```math
-F_c^{\rm inc}(i,j,k,n)=\operatorname{Re}\big\{a_c[j](t_c)\,e^{i(k_xx_c+k_zz_c)}\big\},
+F_c^{\rm inc}(i,j,k,n)=\mathrm{Re}\big\{a_c[j](t_c)\,e^{i(k_xx_c+k_zz_c)}\big\},
 ```
 
 $`x_c,z_c`$ 為分量 $`c`$ 自己的 Yee 座標。§2.1 的本徵關係對 $`x,z`$ 差分**逐點精確**成立，所以 3D Yee
@@ -369,7 +369,7 @@ $`W^{n+\frac12}=\tfrac12\sum(\varepsilon\,\mathbf E^n\!\cdot\mathbf E^{n+1}+\mu|
 ## 9. 守恆通量與 Poynting 向量的內插（Stage 4）
 
 ### 9.1 為什麼 $`S_y`$ 不能用胞心內插
-把六分量都平均到胞心再算 $`\tfrac12\operatorname{Re}(\mathbf E\times\mathbf H^*)`$，每個分量乘上不同的
+把六分量都平均到胞心再算 $`\tfrac12\mathrm{Re}(\mathbf E\times\mathbf H^*)`$，每個分量乘上不同的
 $`\cos(k_d\Delta/2)`$ 因子（§5 L1-5a）。這對方向與阻抗是 $`O((k\Delta)^2)`$ 的偏差；但在真空與介質中 $`k_y`$ 不同，
 會讓 $`R+T`$ 產生 $`\sim1.5\times10^{-2}`$ 的假誤差（$`\cos(k_y^{\rm vac}\Delta/2)=0.9921`$ vs
 $`\cos(k_y^{\rm med}\Delta/2)=0.9768`$），遠超 $`10^{-4}`$ 門檻。所以通量另用下面的精確定義。
@@ -377,11 +377,11 @@ $`\cos(k_y^{\rm med}\Delta/2)=0.9768`$），遠超 $`10^{-4}`$ 門檻。所以�
 ### 9.2 離散守恆通量
 時諧、無損、無源區域內，離散方程給 $`\nabla_h\times\mathbf H=-i\tilde\omega\varepsilon\mathbf E`$、
 $`\nabla_e\times\mathbf E=i\tilde\omega\mu\mathbf H`$，所以
-$`\operatorname{Re}\sum_V[\mathbf E^*\!\cdot(\nabla_h\times\mathbf H)-\mathbf H\cdot(\nabla_e\times\mathbf E)^*]=0`$。
+$`\mathrm{Re}\sum_V[\mathbf E^*\!\cdot(\nabla_h\times\mathbf H)-\mathbf H\cdot(\nabla_e\times\mathbf E)^*]=0`$。
 $`x,z`$ 週期求和使橫向差分項相消；$`y`$ 方向分部求和（summation by parts）只留下兩個端面項，因此
 
 ```math
-\Phi(j)=\tfrac12\operatorname{Re}\sum_{i,k}\Big[E_z|_{j}\,H_x^*|_{j+\frac12}-E_x|_{j}\,H_z^*|_{j+\frac12}\Big]\Delta^2
+\Phi(j)=\tfrac12\mathrm{Re}\sum_{i,k}\Big[E_z|_{j}\,H_x^*|_{j+\frac12}-E_x|_{j}\,H_z^*|_{j+\frac12}\Big]\Delta^2
 ```
 
 對 $`j`$ **精確為常數**（對任何滿足離散方程的場，包括正反向波疊加與介面上平均過的 $`\varepsilon`$）。
@@ -395,7 +395,7 @@ $`\Phi_{\rm TF}=\Phi_{\rm inc}+\Phi_{\rm refl}`$、$`\Phi_{\rm SF}=\Phi_{\rm ref
 ### 9.3 Poynting 向量方向（需要三個分量時）
 把六分量各自以兩點平均移到胞心 $`(i+\frac12,j+\frac12,k+\frac12)`$：$`E_x`$ 平均 $`(j,j+1)\times(k,k+1)`$ 四點；
 $`E_y`$ 平均 $`(i,i+1)\times(k,k+1)`$；$`E_z`$ 平均 $`(i,i+1)\times(j,j+1)`$；$`H_x`$ 平均 $`(i,i+1)`$；$`H_y`$ 平均 $`(j,j+1)`$；
-$`H_z`$ 平均 $`(k,k+1)`$。再算 $`\mathbf S=\tfrac12\operatorname{Re}(\mathbf E\times\mathbf H^*)`$。對平面波這個內插的結果可精確預測
+$`H_z`$ 平均 $`(k,k+1)`$。再算 $`\mathbf S=\tfrac12\mathrm{Re}(\mathbf E\times\mathbf H^*)`$。對平面波這個內插的結果可精確預測
 （分量乘上 §5 的 $`a_c`$），所以方向同時與「內插理論」與 $`\mathbf k`$、$`\tilde{\mathbf K}`$、$`\mathbf v_g`$ 比較。
 
 ---
