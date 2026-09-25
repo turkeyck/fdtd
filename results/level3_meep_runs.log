@@ -1,0 +1,17 @@
+  start vac10_s
+  start vac10_p
+  start vac8_s
+  start vac8_p
+  done vac10_s (exit 0)
+  done vac10_p (exit 0)
+  done vac8_s (exit 0)
+  done vac8_p (exit 0)
+  start med_s_avg1
+  start med_s_avg0
+  start med_p_avg1
+  start med_p_avg0
+  done med_s_avg1 (exit 0)
+  done med_s_avg0 (exit 0)
+  done med_p_avg1 (exit 0)
+  done med_p_avg0 (exit 0)
+EXIT=0

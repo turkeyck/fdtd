@@ -1,0 +1,26 @@
+{
+  "nsteps": 5000,
+  "grid": [
+    40,
+    261,
+    60
+  ],
+  "Delta": 0.05,
+  "dt": 0.025,
+  "pml": {
+    "m": 3,
+    "sig_fac": 0.8,
+    "kappa_max": 5,
+    "alpha_max": 0.3141592653589793
+  },
+  "cavity_energy_drift": 8.881784197001252e-16,
+  "W_initial": 2.2559654815262085,
+  "W_final": 9.034516963639266e-09,
+  "decay_ratio": 4.004723049896676e-09,
+  "max_growth_per_period_total": -4.2302506674604174e-11,
+  "max_growth_per_step_total": 5.90553197936735e-16,
+  "max_growth_per_period_phys": -2.6921607689662166e-10,
+  "max_growth_per_step_phys": 0.0012685471339854762,
+  "runtime_s": 71.0,
+  "passed": true
+}

@@ -1,0 +1,239 @@
+
+===== Level 0   exact injection: tests/level0_exact_injection.py =====
+N/lam pol   (m,n) |     E res     H res E res bnd H res bnd |      divE      divH | PASS
+   10   s  (1, 1) |  2.15e-15  3.18e-15  1.52e-15  3.09e-15 |  5.60e-15  9.15e-15 | PASS
+   10   s (-1, 1) |  8.68e-16  1.61e-15  8.68e-16  1.13e-15 |  3.31e-15  4.81e-15 | PASS
+   10   s (1, -1) |  1.15e-15  1.40e-15  1.07e-15  1.21e-15 |  3.52e-15  5.74e-15 | PASS
+   10   p  (1, 1) |  2.56e-15  3.20e-15  2.55e-15  3.04e-15 |  8.35e-15  6.78e-15 | PASS
+   10   p (-1, 1) |  1.59e-15  1.07e-15  1.59e-15  9.35e-16 |  3.87e-15  2.77e-15 | PASS
+   10   p (1, -1) |  1.60e-15  1.20e-15  1.33e-15  8.01e-16 |  4.41e-15  3.73e-15 | PASS
+   20   s  (1, 1) |  1.89e-15  2.53e-15  1.89e-15  2.25e-15 |  1.28e-14  1.38e-14 | PASS
+   20   s (-1, 1) |  1.47e-15  1.80e-15  1.40e-15  1.59e-15 |  5.63e-15  8.81e-15 | PASS
+   20   s (1, -1) |  9.76e-16  1.63e-15  9.76e-16  1.57e-15 |  5.74e-15  8.78e-15 | PASS
+   20   p  (1, 1) |  2.94e-15  1.95e-15  2.94e-15  1.63e-15 |  1.74e-14  9.67e-15 | PASS
+   20   p (-1, 1) |  1.59e-15  1.50e-15  1.42e-15  1.48e-15 |  8.71e-15  7.07e-15 | PASS
+   20   p (1, -1) |  1.25e-15  1.53e-15  1.25e-15  1.53e-15 |  7.05e-15  5.74e-15 | PASS
+   40   s  (1, 1) |  1.92e-15  2.42e-15  1.91e-15  2.02e-15 |  1.90e-14  2.54e-14 | PASS
+   40   s (-1, 1) |  1.25e-15  1.86e-15  1.20e-15  1.55e-15 |  1.89e-14  1.70e-14 | PASS
+   40   s (1, -1) |  1.22e-15  1.86e-15  1.20e-15  1.79e-15 |  1.90e-14  1.71e-14 | PASS
+   40   p  (1, 1) |  2.92e-15  2.34e-15  1.96e-15  1.97e-15 |  2.07e-14  2.64e-14 | PASS
+   40   p (-1, 1) |  1.47e-15  1.35e-15  1.47e-15  1.33e-15 |  2.08e-14  1.53e-14 | PASS
+   40   p (1, -1) |  1.48e-15  1.35e-15  1.46e-15  1.23e-15 |  2.08e-14  1.52e-14 | PASS
+
+Controls (continuous ky), s and p, (m,n)=(1,1):
+ ctrl pol N/lam |     E res      pred |     H res      pred | E res/(w dt) |      divE
+   ky   s    10 |  2.39e-03  2.39e-03 |  3.53e-15  5.59e-17 |    7.605e-03 |  5.39e-15
+   ky   s    20 |  3.00e-04  3.00e-04 |  2.82e-15  4.56e-17 |    1.913e-03 |  1.13e-14
+   ky   s    40 |  3.76e-05  3.76e-05 |  2.90e-15  1.57e-17 |    4.789e-04 |  2.62e-14
+   ky   p    10 |  2.39e-03  2.39e-03 |  2.81e-15  7.49e-17 |    7.605e-03 |  8.10e-15
+   ky   p    20 |  3.00e-04  3.00e-04 |  2.73e-15  4.59e-17 |    1.913e-03 |  1.33e-14
+   ky   p    40 |  3.76e-05  3.76e-05 |  1.97e-15  2.02e-17 |    4.789e-04 |  2.21e-14
+ full   s    10 |  1.28e-03  1.28e-03 |  2.00e-03  2.00e-03 |    4.069e-03 |  7.63e-04
+ full   s    20 |  1.60e-04  1.60e-04 |  2.51e-04  2.51e-04 |    1.021e-03 |  1.90e-04
+ full   s    40 |  2.01e-05  2.01e-05 |  3.14e-05  3.14e-05 |    2.554e-04 |  4.76e-05
+ full   p    10 |  2.00e-03  2.00e-03 |  1.28e-03  1.28e-03 |    6.369e-03 |  5.13e-03
+ full   p    20 |  2.51e-04  2.51e-04 |  1.60e-04  1.60e-04 |    1.597e-03 |  1.28e-03
+ full   p    40 |  3.14e-05  3.14e-05 |  2.01e-05  2.01e-05 |    3.997e-04 |  3.20e-04
+
+log-log slope of E residual per radian vs k0*Delta: {'ky_s': 1.9945361898522977, 'ky_p': 1.9945701643838858, 'full_s': 1.9970149279081788, 'full_p': 1.9970489024669298}
+sensitivity ratio min(control)/max(exact) = 6.26e+09; controls match closed form: True; slopes 2±0.1: True
+
+LEVEL 0: PASS
+
+===== Stage 1   C multistep exactness: tests/level0b_multistep.py =====
+ nl pol   (m,n) |     E max     E bnd     E int |     H max     H bnd     H int |   C vs py | PASS
+ 10   s  (1, 1) |  1.19e-14  1.04e-14  1.19e-14 |  3.98e-14  3.83e-14  3.98e-14 |  0.00e+00 | PASS
+ 10   s (-1, 1) |  1.53e-14  1.42e-14  1.53e-14 |  3.91e-14  3.58e-14  3.91e-14 |  0.00e+00 | PASS
+ 10   p  (1, 1) |  1.31e-14  1.09e-14  1.31e-14 |  1.53e-14  1.17e-14  1.53e-14 |  0.00e+00 | PASS
+ 10   p (-1, 1) |  1.18e-14  1.16e-14  1.18e-14 |  1.83e-14  1.53e-14  1.83e-14 |  0.00e+00 | PASS
+ 20   s  (1, 1) |  7.34e-15  6.14e-15  7.34e-15 |  4.09e-14  4.09e-14  3.62e-14 |  0.00e+00 | PASS
+ 20   s (-1, 1) |  8.12e-15  7.34e-15  8.12e-15 |  4.07e-14  3.89e-14  4.07e-14 |  0.00e+00 | PASS
+ 20   p  (1, 1) |  7.39e-15  7.26e-15  7.39e-15 |  1.46e-14  1.17e-14  1.46e-14 |  0.00e+00 | PASS
+ 20   p (-1, 1) |  8.60e-15  8.18e-15  8.60e-15 |  1.96e-14  1.40e-14  1.96e-14 |  0.00e+00 | PASS
+STAGE 1 multistep: PASS
+
+===== Stage 2   CPML stability: tests/level_cpml_stability.py =====
+done: 5000 steps, grid 40 x 261 x 60, 71 s
+{
+  "nsteps": 5000,
+  "grid": [
+    40,
+    261,
+    60
+  ],
+  "Delta": 0.05,
+  "dt": 0.025,
+  "pml": {
+    "m": 3,
+    "sig_fac": 0.8,
+    "kappa_max": 5,
+    "alpha_max": 0.3141592653589793
+  },
+  "cavity_energy_drift": 8.881784197001252e-16,
+  "W_initial": 2.2559654815262085,
+  "W_final": 9.034516963639266e-09,
+  "decay_ratio": 4.004723049896676e-09,
+  "max_growth_per_period_total": -4.2302506674604174e-11,
+  "max_growth_per_step_total": 5.90553197936735e-16,
+  "max_growth_per_period_phys": -2.6921607689662166e-10,
+  "max_growth_per_step_phys": 0.0012685471339854762,
+  "runtime_s": 71.0,
+  "passed": true
+}
+STAGE 2 CPML stability: PASS
+
+===== Level 1-1 leakage: tests/level1_leakage.py =====
+pol                 ramp |    leak E    leak H | window end | PASS
+  s     erf(t0=20,tau=4) |  3.77e-16  7.08e-16 |        840 | PASS
+  s   raised-cosine 10T0 |  2.38e-15  3.94e-15 |        840 | PASS
+  p     erf(t0=20,tau=4) |  4.59e-16  4.86e-16 |        840 | PASS
+  p   raised-cosine 10T0 |  3.11e-15  2.89e-15 |        840 | PASS
+
+Controls (s, (1,1)):
+nl= 20  steady ky-leak |E|=6.338e-04  (discrete-ky run SF amplitude 2.45e-06; causal-window max: disc 5.40e-03, cont 5.45e-03)
+nl= 40  steady ky-leak |E|=1.566e-04  (discrete-ky run SF amplitude 2.15e-06; causal-window max: disc 5.14e-03, cont 5.15e-03)
+ky-leak scaling exponent (nl 20 -> 40): 2.017  -> PASS (2 ± 0.1)
+LEVEL 1-1 leakage: PASS
+
+===== Level 1-2..8: tests/level1_all.py =====
+[L1-2] far-PML echo |B|/|A| (s-pol, Δ=λ0/20): theory=quantify measured=3.000e-06 (-110.5 dB) thr=— -> INFO single-plane-wave model residual 4.3e-11
+[L1-2] k fit, raw TF phase (s-pol, Δ=λ0/20): theory=k_disc measured=max rel err 1.50e-09, RMS 1.43e-06 rad thr=— -> INFO echo NOT removed; shows the echo effect
+[L1-2] kx fit rel. error (s-pol, Δ=λ0/20, echo subtracted): theory=3.141592653590 /λ0 measured=5.94e-13 thr=< 1e-6 -> PASS fit 3.141592653588 /λ0
+[L1-2] ky fit rel. error (s-pol, Δ=λ0/20, echo subtracted): theory=5.029766886388 /λ0 measured=2.51e-13 thr=< 1e-6 -> PASS fit 5.029766886390 /λ0
+[L1-2] kz fit rel. error (s-pol, Δ=λ0/20, echo subtracted): theory=2.094395102393 /λ0 measured=3.16e-14 thr=< 1e-6 -> PASS fit 2.094395102393 /λ0
+[L1-2] phase residual RMS (s-pol, Δ=λ0/20): theory=0 measured=9.01e-12 rad thr=< 1e-3 rad -> PASS 219000 samples, max 2.3e-11 rad
+[L1-2] far-PML echo |B|/|A| (p-pol, Δ=λ0/20): theory=quantify measured=3.000e-06 (-110.5 dB) thr=— -> INFO single-plane-wave model residual 5.4e-11
+[L1-2] k fit, raw TF phase (p-pol, Δ=λ0/20): theory=k_disc measured=max rel err 2.75e-10, RMS 1.43e-06 rad thr=— -> INFO echo NOT removed; shows the echo effect
+[L1-2] kx fit rel. error (p-pol, Δ=λ0/20, echo subtracted): theory=3.141592653590 /λ0 measured=2.82e-12 thr=< 1e-6 -> PASS fit 3.141592653599 /λ0
+[L1-2] ky fit rel. error (p-pol, Δ=λ0/20, echo subtracted): theory=5.029766886388 /λ0 measured=2.75e-13 thr=< 1e-6 -> PASS fit 5.029766886387 /λ0
+[L1-2] kz fit rel. error (p-pol, Δ=λ0/20, echo subtracted): theory=2.094395102393 /λ0 measured=6.89e-14 thr=< 1e-6 -> PASS fit 2.094395102393 /λ0
+[L1-2] phase residual RMS (p-pol, Δ=λ0/20): theory=0 measured=8.39e-12 rad thr=< 1e-3 rad -> PASS 219000 samples, max 2.7e-11 rad
+[L1-3] |ky_meas − ky_disc|/ky_disc (Δ=λ0/10): theory=0 measured=4.04e-14 thr=< 1e-6 -> PASS 
+[L1-3] |ky_meas − ky_cont| (Δ=λ0/10): theory=3.013e-02 (leading term) measured=3.0969e-02 /λ0 thr=— -> INFO 
+[L1-3] |ky_meas − ky_disc|/ky_disc (Δ=λ0/20): theory=0 measured=2.51e-13 thr=< 1e-6 -> PASS 
+[L1-3] |ky_meas − ky_cont| (Δ=λ0/20): theory=7.533e-03 (leading term) measured=7.5839e-03 /λ0 thr=— -> INFO 
+[L1-3] |ky_meas − ky_disc|/ky_disc (Δ=λ0/40): theory=0 measured=1.79e-13 thr=< 1e-6 -> PASS 
+[L1-3] |ky_meas − ky_cont| (Δ=λ0/40): theory=1.883e-03 (leading term) measured=1.8864e-03 /λ0 thr=— -> INFO 
+[L1-3] log-log slope of |ky_meas − ky_cont| vs Δ: theory=2 measured=2.0186 thr=2 ± 0.1 -> PASS 
+[L1-4] max|∇·E|/(|K̃||E|), DFT, TF interior (s-pol, Δ=λ0/20): theory=0 measured=1.71e-14 thr=< 1e-10 -> PASS 
+[L1-4] max|∇·H|/(|K̃||H|), DFT, TF interior (s-pol, Δ=λ0/20): theory=0 measured=3.72e-14 thr=< 1e-10 -> PASS 
+[L1-4] time-domain max|∇·E| over run (s-pol, Δ=λ0/20): theory=0, not growing measured=4.51e-14 (late/early max ratio 1.74) thr=< 1e-10 -> PASS ∇·H max 7.09e-14
+[L1-4] |E·K̃|, |H·K̃|, |E·H*| normalized (s-pol, Δ=λ0/20): theory=0 measured=1.3e-16, 8.3e-15, 3.3e-16 thr=< 1e-10 -> PASS 
+[L1-4] max|∇·E|/(|K̃||E|), DFT, TF interior (p-pol, Δ=λ0/20): theory=0 measured=2.59e-14 thr=< 1e-10 -> PASS 
+[L1-4] max|∇·H|/(|K̃||H|), DFT, TF interior (p-pol, Δ=λ0/20): theory=0 measured=1.85e-14 thr=< 1e-10 -> PASS 
+[L1-4] time-domain max|∇·E| over run (p-pol, Δ=λ0/20): theory=0, not growing measured=7.02e-14 (late/early max ratio 2.08) thr=< 1e-10 -> PASS ∇·H max 4.71e-14
+[L1-4] |E·K̃|, |H·K̃|, |E·H*| normalized (p-pol, Δ=λ0/20): theory=0 measured=7.1e-15, 1.0e-16, 3.1e-16 thr=< 1e-10 -> PASS 
+[L1-5] |H|/|E| (own Yee points) vs |K̃|/(μ0ω̃) (s-pol, Δ=λ0/20): theory=1.000000000000000 measured=1.000000000000000 thr=rel < 1e-8 -> PASS max rel err 2.4e-15; |K̃|/(μ0ω̃) ≡ 1/η0 (derivation §2.5)
+[L1-5] |H'|/|E'| cell-centre interpolated (s-pol, Δ=λ0/20): theory=1.0060121133 measured=1.0060121133 thr=— -> INFO rel err vs interp theory 1.2e-12; deviation from 1/η0 = +6.012e-03 (O((k0Δ)²), (k0Δ)²=0.099)
+[L1-5] S_y (conserved flux Φ) variation over 10 TF planes (s-pol, Δ=λ0/20): theory=0 measured=1.85e-14 thr=< 1e-4 -> PASS Φ/Φ_inc,theory − 1 = -2.64e-11
+[L1-5] angle(S, k) (s-pol, Δ=λ0/20): theory=0.1050° (interp. theory) measured=0.1050° thr=report -> INFO angle(S, S_theory) = 0.0e+00°; angle(K̃,k) = 0.0499°, angle(v_g,k) = 0.2003°
+[L1-5] |H|/|E| (own Yee points) vs |K̃|/(μ0ω̃) (p-pol, Δ=λ0/20): theory=1.000000000000000 measured=1.000000000000000 thr=rel < 1e-8 -> PASS max rel err 2.2e-15; |K̃|/(μ0ω̃) ≡ 1/η0 (derivation §2.5)
+[L1-5] |H'|/|E'| cell-centre interpolated (p-pol, Δ=λ0/20): theory=1.0059991929 measured=1.0059991929 thr=— -> INFO rel err vs interp theory 1.2e-12; deviation from 1/η0 = +5.999e-03 (O((k0Δ)²), (k0Δ)²=0.099)
+[L1-5] S_y (conserved flux Φ) variation over 10 TF planes (p-pol, Δ=λ0/20): theory=0 measured=1.61e-14 thr=< 1e-4 -> PASS Φ/Φ_inc,theory − 1 = -2.64e-11
+[L1-5] angle(S, k) (p-pol, Δ=λ0/20): theory=0.1978° (interp. theory) measured=0.1978° thr=report -> INFO angle(S, S_theory) = 1.2e-06°; angle(K̃,k) = 0.0499°, angle(v_g,k) = 0.2003°
+[L1-6] PML reflection (s-pol, N_pml=5, Δ=λ0/20): theory=— measured=-54.1 dB thr=< −40 dB -> INFO target applies to N_pml=20
+[L1-6] PML reflection (s-pol, N_pml=10, Δ=λ0/20): theory=— measured=-92.4 dB thr=< −40 dB -> INFO target applies to N_pml=20
+[L1-6] PML reflection (s-pol, N_pml=20, Δ=λ0/20): theory=— measured=-110.5 dB thr=< −40 dB -> PASS 
+[L1-6] PML reflection (s-pol, N_pml=30, Δ=λ0/20): theory=— measured=-121.0 dB thr=< −40 dB -> INFO target applies to N_pml=20
+[L1-6] PML reflection (p-pol, N_pml=5, Δ=λ0/20): theory=— measured=-54.1 dB thr=< −40 dB -> INFO target applies to N_pml=20
+[L1-6] PML reflection (p-pol, N_pml=10, Δ=λ0/20): theory=— measured=-92.4 dB thr=< −40 dB -> INFO target applies to N_pml=20
+[L1-6] PML reflection (p-pol, N_pml=20, Δ=λ0/20): theory=— measured=-110.5 dB thr=< −40 dB -> PASS 
+[L1-6] PML reflection (p-pol, N_pml=30, Δ=λ0/20): theory=— measured=-121.0 dB thr=< −40 dB -> INFO target applies to N_pml=20
+[L1-6] PML reflection (s, N=20, κ_max=1.0, α_max=0.000): theory=— measured=-111.4 dB thr=— -> INFO sensitivity, not a gate
+[L1-6] PML reflection (s, N=20, κ_max=1.0, α_max=0.314): theory=— measured=-111.4 dB thr=— -> INFO sensitivity, not a gate
+[L1-6] PML reflection (s, N=20, κ_max=10.0, α_max=0.314): theory=— measured=-108.4 dB thr=— -> INFO sensitivity, not a gate
+[L1-7] steps run (Δ=λ0/20, S=0.5): theory=≥ 20000 measured=20000 thr=≥ 20000 -> PASS 
+[L1-7] W_total monotone from its peak (t=47.25 T0, off-ramp) down to 1e-8·peak: theory=monotone measured=150 samples, max ΔW/W = -2.63e-09 thr=ΔW ≤ 0 -> PASS source fully off at t = 80 T0; 1e-8·peak crossed at t = 84.8 T0
+[L1-7] final W_total / peak (t = 500 T0): theory=→ 0 measured=2.93e-28 thr=< 1e-8 -> PASS 
+[L1-7] late-time growth: max W over 2nd half / W at its start: theory=≤ 1 measured=1.000000 thr=≤ 1 -> PASS 
+[L1-7] strict per-sample monotonicity over the whole tail (incl. round-off floor): theory=— measured=28 increases, max +1.12e-03 relative, all at W/peak ≤ 4.9e-28 thr=— -> INFO increases occur only at W/peak ~ 4e-28 (fields ~ 2e-14 ≈ 100 ulp of O(1)); no upward trend
+[L1-8] (m,n)=(−1,1) vs x-mirror of (1,1), s-pol, Δ=λ0/20: theory=0 measured=2.54e-15 thr=< 1e-6 -> PASS all six components, x–y slice + all y-planes (incl. SF)
+[L1-8] (m,n)=(−1,1) vs x-mirror of (1,1), p-pol, Δ=λ0/20: theory=0 measured=2.35e-15 thr=< 1e-6 -> PASS all six components, x–y slice + all y-planes (incl. SF)
+
+LEVEL 1 (items 2-8): 32/32 gates PASS -> PASS
+
+===== Level 2   Fresnel / Snell: tests/level2_fresnel.py =====
+[L2] R vs continuous Fresnel (s-pol, Δ=λ0/20, θ1=36.94°): theory=0.069991 measured=0.066145 thr=rel err < 1% -> FAIL rel err -5.495e-02; absolute |ΔR| = 3.85e-03 (if '1%' meant 1 percentage point: INFO only, not used for the verdict)
+[L2] T vs continuous Fresnel (s-pol, Δ=λ0/20, θ1=36.94°): theory=0.930009 measured=0.933854 thr=rel err < 1% -> PASS rel err +4.135e-03
+[L2] R, T vs exact discrete (Yee-lattice) Fresnel (s-pol, Δ=λ0/20, θ1=36.94°, N_pml=20): theory=R 0.0661450874, T 0.9338549126 measured=R 0.0661448866, T 0.9338543942 thr=see PML study -> INFO rel err R -3.0e-06, T -5.6e-07 (PML-echo contaminated, see thickness study); the discrete theory itself differs from continuous Fresnel by -5.49e-02 in R (derivation §8.1)
+[L2] R + T − 1 (s-pol, Δ=λ0/20, θ1=36.94°): theory=0 measured=-7.19e-07 thr=|·| < 1e-4 -> PASS 
+[L2] Snell: ky in medium vs discrete dispersion (n=1.5) (s-pol, Δ=λ0/20, θ1=36.94°): theory=8.6945506444 /λ0 measured=8.6945506398 /λ0 thr=rel err < 1e-6 -> PASS rel err 5.3e-10; continuous ky_m = 8.635412; kx rel err 5.8e-13; θ2 = 23.62°
+[L2] R vs continuous Fresnel (p-pol, Δ=λ0/20, θ1=36.94°): theory=0.017864 measured=0.015830 thr=rel err < 1% -> FAIL rel err -1.139e-01; absolute |ΔR| = 2.03e-03 (if '1%' meant 1 percentage point: INFO only, not used for the verdict)
+[L2] T vs continuous Fresnel (p-pol, Δ=λ0/20, θ1=36.94°): theory=0.982136 measured=0.984170 thr=rel err < 1% -> PASS rel err +2.071e-03
+[L2] R, T vs exact discrete (Yee-lattice) Fresnel (p-pol, Δ=λ0/20, θ1=36.94°, N_pml=20): theory=R 0.0158296637, T 0.9841703363 measured=R 0.0158295791, T 0.9841700691 thr=see PML study -> INFO rel err R -5.3e-06, T -2.7e-07 (PML-echo contaminated, see thickness study); the discrete theory itself differs from continuous Fresnel by -1.14e-01 in R (derivation §8.1)
+[L2] R + T − 1 (p-pol, Δ=λ0/20, θ1=36.94°): theory=0 measured=-3.52e-07 thr=|·| < 1e-4 -> PASS 
+[L2] Snell: ky in medium vs discrete dispersion (n=1.5) (p-pol, Δ=λ0/20, θ1=36.94°): theory=8.6945506444 /λ0 measured=8.6945506375 /λ0 thr=rel err < 1e-6 -> PASS rel err 7.9e-10; continuous ky_m = 8.635412; kx rel err 1.6e-12; θ2 = 23.62°
+[L2] R convergence order (s-pol, Δ=λ0/10,20,40): theory=2 (O(Δ²)) measured=2.047 thr=2 ± 0.3 -> PASS errors: 2.32e-01, 5.50e-02, 1.36e-02
+[L2] T convergence order (s-pol, Δ=λ0/10,20,40): theory=2 (O(Δ²)) measured=2.048 thr=2 ± 0.3 -> PASS errors: 1.74e-02, 4.13e-03, 1.02e-03
+[L2] R+T−1 (s, Δ=λ0/10): theory=0 measured=-7.72e-07 thr=|·| < 1e-4 -> PASS 
+[L2] R, T vs exact discrete Fresnel (s, Δ=λ0/10, N_pml=20): theory=R 0.05376684 measured=R 0.05377988 thr=see PML study -> INFO rel err R +2.4e-04, T -1.5e-05; vs continuous Fresnel R -2.32e-01, T +1.74e-02
+[L2] R+T−1 (s, Δ=λ0/20): theory=0 measured=-7.19e-07 thr=|·| < 1e-4 -> PASS 
+[L2] R+T−1 (s, Δ=λ0/40): theory=0 measured=-8.30e-07 thr=|·| < 1e-4 -> PASS 
+[L2] R, T vs exact discrete Fresnel (s, Δ=λ0/40, N_pml=20): theory=R 0.06904232 measured=R 0.06904186 thr=see PML study -> INFO rel err R -6.7e-06, T -3.9e-07; vs continuous Fresnel R -1.36e-02, T +1.02e-03
+[L2] staircase interface (tangential ε = n² on the plane), s, Δ=λ0/10: theory=— measured=R err +2.60e-01, T err -1.96e-02 thr=— -> INFO informational: shows why the arithmetic mean is used
+[L2] staircase interface (tangential ε = n² on the plane), s, Δ=λ0/20: theory=— measured=R err +5.67e-02, T err -4.27e-03 thr=— -> INFO informational: shows why the arithmetic mean is used
+[L2] R convergence order (p-pol, Δ=λ0/10,20,40): theory=2 (O(Δ²)) measured=1.992 thr=2 ± 0.3 -> PASS errors: 4.51e-01, 1.14e-01, 2.85e-02
+[L2] T convergence order (p-pol, Δ=λ0/10,20,40): theory=2 (O(Δ²)) measured=1.993 thr=2 ± 0.3 -> PASS errors: 8.20e-03, 2.07e-03, 5.17e-04
+[L2] R+T−1 (p, Δ=λ0/10): theory=0 measured=-3.29e-07 thr=|·| < 1e-4 -> PASS 
+[L2] R, T vs exact discrete Fresnel (p, Δ=λ0/10, N_pml=20): theory=R 0.00980904 measured=R 0.00981488 thr=see PML study -> INFO rel err R +6.0e-04, T -6.2e-06; vs continuous Fresnel R -4.51e-01, T +8.20e-03
+[L2] R+T−1 (p, Δ=λ0/20): theory=0 measured=-3.52e-07 thr=|·| < 1e-4 -> PASS 
+[L2] R+T−1 (p, Δ=λ0/40): theory=0 measured=-4.16e-07 thr=|·| < 1e-4 -> PASS 
+[L2] R, T vs exact discrete Fresnel (p, Δ=λ0/40, N_pml=20): theory=R 0.01735583 measured=R 0.01735560 thr=see PML study -> INFO rel err R -1.3e-05, T -2.0e-07; vs continuous Fresnel R -2.85e-02, T +5.17e-04
+[L2] staircase interface (tangential ε = n² on the plane), p, Δ=λ0/10: theory=— measured=R err +6.98e-01, T err -1.27e-02 thr=— -> INFO informational: shows why the arithmetic mean is used
+[L2] staircase interface (tangential ε = n² on the plane), p, Δ=λ0/20: theory=— measured=R err +1.48e-01, T err -2.69e-03 thr=— -> INFO informational: shows why the arithmetic mean is used
+[L2] FDTD → exact discrete Fresnel as N_pml = 20→40→60 (s, Δ=λ0/10): theory=decreasing to 0 measured=R: 2.4e-04 → 1.1e-05 → 3.3e-06; T: 1.5e-05 → 7.3e-07 → 2.2e-07 thr=monotone decrease -> PASS R+T−1: -7.7e-07 → -9.5e-08 → -2.8e-08
+[L2] FDTD → exact discrete Fresnel as N_pml = 20→40→60 (p, Δ=λ0/10): theory=decreasing to 0 measured=R: 6.0e-04 → 2.8e-05 → 8.2e-06; T: 6.2e-06 → 3.1e-07 → 9.3e-08 thr=monotone decrease -> PASS R+T−1: -3.3e-07 → -4.1e-08 → -1.2e-08
+[L2] FDTD → exact discrete Fresnel as N_pml = 20→40→60 (s, Δ=λ0/20): theory=decreasing to 0 measured=R: 3.0e-06 → 3.8e-07 → 1.1e-07; T: 5.6e-07 → 6.9e-08 → 2.1e-08 thr=monotone decrease -> PASS R+T−1: -7.2e-07 → -9.0e-08 → -2.7e-08
+[L2] FDTD vs exact discrete Fresnel, N_pml=60 (s, Δ=λ0/20): theory=0 measured=1.1e-07 thr=rel err < 1e-6 -> PASS proves the code solves the lattice problem exactly up to PML echo
+[L2] FDTD → exact discrete Fresnel as N_pml = 20→40→60 (p, Δ=λ0/20): theory=decreasing to 0 measured=R: 5.3e-06 → 6.7e-07 → 2.0e-07; T: 2.7e-07 → 3.4e-08 → 1.0e-08 thr=monotone decrease -> PASS R+T−1: -3.5e-07 → -4.4e-08 → -1.3e-08
+[L2] FDTD vs exact discrete Fresnel, N_pml=60 (p, Δ=λ0/20): theory=0 measured=2.0e-07 thr=rel err < 1e-6 -> PASS proves the code solves the lattice problem exactly up to PML echo
+[L2 (opt.)] Brewster: angle of minimum R_p (p-pol sweep, Δ=λ0/20): theory=56.31° measured=56.44° (R_p = 5.81e-05) thr=dip present -> PASS coarse sweep in Lx; minimum sampled R_p vs smallest R_s
+
+LEVEL 2: 23/25 gates PASS -> FAIL
+
+===== Level 3   Meep comparison: tests/level3_meep.py =====
+[L3-a] vacuum ky, s-pol, Δ=λ0/20, S=0.5 (recurrence estimator): ours=5.029766886388 meep=5.029766886388 theory=5.029766886388 (discrete) thr=|Δky|/ky < 1e-6 -> PASS ours−theory 1.2e-15, meep−theory 1.2e-15; continuous ky = 5.022183
+[L3-b] polar angle θ from phase fit, s-pol: ours=36.89467211° meep=36.89467205° theory=36.89467207° (discrete k) thr=|Δθ| < 1e-4° -> PASS phase residual RMS ours 2.1e-06 rad, meep 6.7e-06 rad (raw, echo included)
+[L3-b] Meep k_point check: fitted kx/(2π), s-pol: ours=0.5000000000 meep=0.5000000000 theory=0.5000000000 (k_point.x) thr=|Δ| < 1e-8 -> PASS confirms k_point in units of 2π/a with Bloch phase exp(2πi k·r)
+[L3-b] Meep k_point check: fitted kz/(2π), s-pol: ours=— meep=0.3333333333 theory=0.3333333333 (k_point.z) thr=|Δ| < 1e-8 -> PASS 
+[L3-d] point-wise DFT field, vacuum TF region, s-pol (ref. point Ez at y=3.00λ0): ours=— meep=rel. L2 = 1.56e-05 theory=0 thr=< 1e-3 -> PASS E-only 1.6e-05, H-only 1.6e-05; LS-scaled 1.1e-05
+[L3-e] PML reflection (N=20 cells, s-pol, θ=36.9°): ours=-110.5 dB meep=-100.4 dB theory=— thr=record only -> INFO ours: CPML m=3, κ_max=5, α_max=0.1π; Meep: default PML (quadratic profile, R_asymptotic 1e-15)
+[L3-a] vacuum ky, p-pol, Δ=λ0/20, S=0.5 (recurrence estimator): ours=5.029766886388 meep=5.029766886388 theory=5.029766886388 (discrete) thr=|Δky|/ky < 1e-6 -> PASS ours−theory 3.0e-15, meep−theory 1.2e-15; continuous ky = 5.022183
+[L3-b] polar angle θ from phase fit, p-pol: ours=36.89467206° meep=36.89467196° theory=36.89467207° (discrete k) thr=|Δθ| < 1e-4° -> PASS phase residual RMS ours 2.1e-06 rad, meep 6.7e-06 rad (raw, echo included)
+[L3-b] Meep k_point check: fitted kx/(2π), p-pol: ours=0.5000000000 meep=0.5000000000 theory=0.5000000000 (k_point.x) thr=|Δ| < 1e-8 -> PASS confirms k_point in units of 2π/a with Bloch phase exp(2πi k·r)
+[L3-b] Meep k_point check: fitted kz/(2π), p-pol: ours=— meep=0.3333333333 theory=0.3333333333 (k_point.z) thr=|Δ| < 1e-8 -> PASS 
+[L3-d] point-wise DFT field, vacuum TF region, p-pol (ref. point Ey at y=3.00λ0): ours=— meep=rel. L2 = 1.56e-05 theory=0 thr=< 1e-3 -> PASS E-only 1.6e-05, H-only 1.6e-05; LS-scaled 1.1e-05
+[L3-e] PML reflection (N=20 cells, p-pol, θ=36.9°): ours=-110.5 dB meep=-100.4 dB theory=— thr=record only -> INFO ours: CPML m=3, κ_max=5, α_max=0.1π; Meep: default PML (quadratic profile, R_asymptotic 1e-15)
+[L3-c] R, s-pol, Meep eps_averaging=True, Meep flux = native: ours=0.066145 meep=0.066159 theory=0.069991 (Fresnel) thr=rel diff < 0.5% -> PASS rel diff 2.15e-04; Meep vs Fresnel -5.47e-02; ours vs Fresnel -5.50e-02
+[L3-c] R, s-pol, Meep eps_averaging=True, Meep flux = phi: ours=0.066145 meep=0.066159 theory=0.069991 (Fresnel) thr=rel diff < 0.5% -> INFO rel diff 2.15e-04; Meep vs Fresnel -5.47e-02; ours vs Fresnel -5.50e-02
+[L3-c] T, s-pol, Meep eps_averaging=True, Meep flux = native: ours=0.933854 meep=0.933838 theory=0.930009 (Fresnel) thr=rel diff < 0.5% -> PASS rel diff 1.74e-05; Meep vs Fresnel +4.12e-03; ours vs Fresnel +4.13e-03
+[L3-c] T, s-pol, Meep eps_averaging=True, Meep flux = phi: ours=0.933854 meep=0.933838 theory=0.930009 (Fresnel) thr=rel diff < 0.5% -> INFO rel diff 1.74e-05; Meep vs Fresnel +4.12e-03; ours vs Fresnel +4.13e-03
+[L3-c] R, T with Meep eps_averaging=False, s-pol: ours=0.066145, 0.933854 meep=0.073973, 0.926024 theory=— thr=attribution -> INFO R rel diff 1.18e-01: interface ε treatment differs (no averaging on the tangential interface plane)
+[L3-c] Meep R+T−1, s-pol (native add_flux / conserved Φ): ours=-7.2e-07 meep=-2.8e-06 / -2.8e-06 theory=0 thr=record -> INFO 
+[L3-c] R, p-pol, Meep eps_averaging=True, Meep flux = native: ours=0.015830 meep=0.015837 theory=0.017864 (Fresnel) thr=rel diff < 0.5% -> PASS rel diff 4.66e-04; Meep vs Fresnel -1.13e-01; ours vs Fresnel -1.14e-01
+[L3-c] R, p-pol, Meep eps_averaging=True, Meep flux = phi: ours=0.015830 meep=0.015837 theory=0.017864 (Fresnel) thr=rel diff < 0.5% -> INFO rel diff 4.66e-04; Meep vs Fresnel -1.13e-01; ours vs Fresnel -1.14e-01
+[L3-c] T, p-pol, Meep eps_averaging=True, Meep flux = native: ours=0.984170 meep=0.984161 theory=0.982136 (Fresnel) thr=rel diff < 0.5% -> PASS rel diff 8.79e-06; Meep vs Fresnel +2.06e-03; ours vs Fresnel +2.07e-03
+[L3-c] T, p-pol, Meep eps_averaging=True, Meep flux = phi: ours=0.984170 meep=0.984161 theory=0.982136 (Fresnel) thr=rel diff < 0.5% -> INFO rel diff 8.79e-06; Meep vs Fresnel +2.06e-03; ours vs Fresnel +2.07e-03
+[L3-c] R, T with Meep eps_averaging=False, p-pol: ours=0.015830, 0.984170 meep=0.020508, 0.979491 theory=— thr=attribution -> INFO R rel diff 2.96e-01: interface ε treatment differs (no averaging on the tangential interface plane)
+[L3-c] Meep R+T−1, p-pol (native add_flux / conserved Φ): ours=-3.5e-07 meep=-1.6e-06 / -1.6e-06 theory=0 thr=record -> INFO 
+
+LEVEL 3: 14/14 gates PASS -> PASS
+  reuse vac10_s
+  reuse vac10_p
+  reuse vac8_s
+  reuse vac8_p
+  reuse med_s_avg1
+  reuse med_s_avg0
+  reuse med_p_avg1
+  reuse med_p_avg0
+
+===== regression summary =====
+Level 0   exact injection          PASS           4 s
+Stage 1   C multistep exactness    PASS           5 s
+Stage 2   CPML stability           PASS          87 s
+Level 1-1 leakage                  PASS         826 s
+Level 1-2..8                       PASS          44 s
+Level 2   Fresnel / Snell          FAIL           9 s
+Level 3   Meep comparison          PASS           4 s
+--continue: steps after 'Level 2   Fresnel / Snell' were run for diagnosis only; per SPEC a level is not entered until the previous one passes, so they grant no release
+REGRESSION: FAIL

@@ -1,0 +1,62 @@
+done: 2200 steps, grid 20 x 151 x 30, 25 s
+done: 4400 steps, grid 40 x 261 x 60, 151 s
+done: 8800 steps, grid 80 x 481 x 120, 1068 s
+done: 4400 steps, grid 40 x 261 x 60, 71 s
+done: 4400 steps, grid 40 x 261 x 60, 77 s
+done: 4400 steps, grid 40 x 261 x 60, 172 s
+[L1-2] far-PML echo |B|/|A| (s-pol, Δ=λ0/20): theory=quantify measured=3.000e-06 (-110.5 dB) thr=— -> INFO single-plane-wave model residual 4.3e-11
+[L1-2] k fit, raw TF phase (s-pol, Δ=λ0/20): theory=k_disc measured=max rel err 1.50e-09, RMS 1.43e-06 rad thr=— -> INFO echo NOT removed; shows the echo effect
+[L1-2] kx fit rel. error (s-pol, Δ=λ0/20, echo subtracted): theory=3.141592653590 /λ0 measured=5.94e-13 thr=< 1e-6 -> PASS fit 3.141592653588 /λ0
+[L1-2] ky fit rel. error (s-pol, Δ=λ0/20, echo subtracted): theory=5.029766886388 /λ0 measured=2.51e-13 thr=< 1e-6 -> PASS fit 5.029766886390 /λ0
+[L1-2] kz fit rel. error (s-pol, Δ=λ0/20, echo subtracted): theory=2.094395102393 /λ0 measured=3.16e-14 thr=< 1e-6 -> PASS fit 2.094395102393 /λ0
+[L1-2] phase residual RMS (s-pol, Δ=λ0/20): theory=0 measured=9.01e-12 rad thr=< 1e-3 rad -> PASS 219000 samples, max 2.3e-11 rad
+[L1-2] far-PML echo |B|/|A| (p-pol, Δ=λ0/20): theory=quantify measured=3.000e-06 (-110.5 dB) thr=— -> INFO single-plane-wave model residual 5.4e-11
+[L1-2] k fit, raw TF phase (p-pol, Δ=λ0/20): theory=k_disc measured=max rel err 2.75e-10, RMS 1.43e-06 rad thr=— -> INFO echo NOT removed; shows the echo effect
+[L1-2] kx fit rel. error (p-pol, Δ=λ0/20, echo subtracted): theory=3.141592653590 /λ0 measured=2.82e-12 thr=< 1e-6 -> PASS fit 3.141592653599 /λ0
+[L1-2] ky fit rel. error (p-pol, Δ=λ0/20, echo subtracted): theory=5.029766886388 /λ0 measured=2.75e-13 thr=< 1e-6 -> PASS fit 5.029766886387 /λ0
+[L1-2] kz fit rel. error (p-pol, Δ=λ0/20, echo subtracted): theory=2.094395102393 /λ0 measured=6.89e-14 thr=< 1e-6 -> PASS fit 2.094395102393 /λ0
+[L1-2] phase residual RMS (p-pol, Δ=λ0/20): theory=0 measured=8.39e-12 rad thr=< 1e-3 rad -> PASS 219000 samples, max 2.7e-11 rad
+[L1-3] |ky_meas − ky_disc|/ky_disc (Δ=λ0/10): theory=0 measured=4.04e-14 thr=< 1e-6 -> PASS 
+[L1-3] |ky_meas − ky_cont| (Δ=λ0/10): theory=3.013e-02 (leading term) measured=3.0969e-02 /λ0 thr=— -> INFO 
+[L1-3] |ky_meas − ky_disc|/ky_disc (Δ=λ0/20): theory=0 measured=2.51e-13 thr=< 1e-6 -> PASS 
+[L1-3] |ky_meas − ky_cont| (Δ=λ0/20): theory=7.533e-03 (leading term) measured=7.5839e-03 /λ0 thr=— -> INFO 
+[L1-3] |ky_meas − ky_disc|/ky_disc (Δ=λ0/40): theory=0 measured=1.79e-13 thr=< 1e-6 -> PASS 
+[L1-3] |ky_meas − ky_cont| (Δ=λ0/40): theory=1.883e-03 (leading term) measured=1.8864e-03 /λ0 thr=— -> INFO 
+[L1-3] log-log slope of |ky_meas − ky_cont| vs Δ: theory=2 measured=2.0186 thr=2 ± 0.1 -> PASS 
+[L1-4] max|∇·E|/(|K̃||E|), DFT, TF interior (s-pol, Δ=λ0/20): theory=0 measured=1.71e-14 thr=< 1e-10 -> PASS 
+[L1-4] max|∇·H|/(|K̃||H|), DFT, TF interior (s-pol, Δ=λ0/20): theory=0 measured=3.72e-14 thr=< 1e-10 -> PASS 
+[L1-4] time-domain max|∇·E| over run (s-pol, Δ=λ0/20): theory=0, not growing measured=4.51e-14 (late/early max ratio 1.74) thr=< 1e-10 -> PASS ∇·H max 7.09e-14
+[L1-4] |E·K̃|, |H·K̃|, |E·H*| normalized (s-pol, Δ=λ0/20): theory=0 measured=1.3e-16, 8.3e-15, 3.3e-16 thr=< 1e-10 -> PASS 
+[L1-4] max|∇·E|/(|K̃||E|), DFT, TF interior (p-pol, Δ=λ0/20): theory=0 measured=2.59e-14 thr=< 1e-10 -> PASS 
+[L1-4] max|∇·H|/(|K̃||H|), DFT, TF interior (p-pol, Δ=λ0/20): theory=0 measured=1.85e-14 thr=< 1e-10 -> PASS 
+[L1-4] time-domain max|∇·E| over run (p-pol, Δ=λ0/20): theory=0, not growing measured=7.02e-14 (late/early max ratio 2.08) thr=< 1e-10 -> PASS ∇·H max 4.71e-14
+[L1-4] |E·K̃|, |H·K̃|, |E·H*| normalized (p-pol, Δ=λ0/20): theory=0 measured=7.1e-15, 1.0e-16, 3.1e-16 thr=< 1e-10 -> PASS 
+[L1-5] |H|/|E| (own Yee points) vs |K̃|/(μ0ω̃) (s-pol, Δ=λ0/20): theory=1.000000000000000 measured=1.000000000000000 thr=rel < 1e-8 -> PASS max rel err 2.4e-15; |K̃|/(μ0ω̃) ≡ 1/η0 (derivation §2.5)
+[L1-5] |H'|/|E'| cell-centre interpolated (s-pol, Δ=λ0/20): theory=1.0060121133 measured=1.0060121133 thr=— -> INFO rel err vs interp theory 1.2e-12; deviation from 1/η0 = +6.012e-03 (O((k0Δ)²), (k0Δ)²=0.099)
+[L1-5] S_y (conserved flux Φ) variation over 10 TF planes (s-pol, Δ=λ0/20): theory=0 measured=1.85e-14 thr=< 1e-4 -> PASS Φ/Φ_inc,theory − 1 = -2.64e-11
+[L1-5] angle(S, k) (s-pol, Δ=λ0/20): theory=0.1050° (interp. theory) measured=0.1050° thr=report -> INFO angle(S, S_theory) = 0.0e+00°; angle(K̃,k) = 0.0499°, angle(v_g,k) = 0.2003°
+[L1-5] |H|/|E| (own Yee points) vs |K̃|/(μ0ω̃) (p-pol, Δ=λ0/20): theory=1.000000000000000 measured=1.000000000000000 thr=rel < 1e-8 -> PASS max rel err 2.2e-15; |K̃|/(μ0ω̃) ≡ 1/η0 (derivation §2.5)
+[L1-5] |H'|/|E'| cell-centre interpolated (p-pol, Δ=λ0/20): theory=1.0059991929 measured=1.0059991929 thr=— -> INFO rel err vs interp theory 1.2e-12; deviation from 1/η0 = +5.999e-03 (O((k0Δ)²), (k0Δ)²=0.099)
+[L1-5] S_y (conserved flux Φ) variation over 10 TF planes (p-pol, Δ=λ0/20): theory=0 measured=1.61e-14 thr=< 1e-4 -> PASS Φ/Φ_inc,theory − 1 = -2.64e-11
+[L1-5] angle(S, k) (p-pol, Δ=λ0/20): theory=0.1978° (interp. theory) measured=0.1978° thr=report -> INFO angle(S, S_theory) = 1.2e-06°; angle(K̃,k) = 0.0499°, angle(v_g,k) = 0.2003°
+[L1-6] PML reflection (s-pol, N_pml=5, Δ=λ0/20): theory=— measured=-54.1 dB thr=< −40 dB -> INFO target applies to N_pml=20
+[L1-6] PML reflection (s-pol, N_pml=10, Δ=λ0/20): theory=— measured=-92.4 dB thr=< −40 dB -> INFO target applies to N_pml=20
+[L1-6] PML reflection (s-pol, N_pml=20, Δ=λ0/20): theory=— measured=-110.5 dB thr=< −40 dB -> PASS 
+[L1-6] PML reflection (s-pol, N_pml=30, Δ=λ0/20): theory=— measured=-121.0 dB thr=< −40 dB -> INFO target applies to N_pml=20
+[L1-6] PML reflection (p-pol, N_pml=5, Δ=λ0/20): theory=— measured=-54.1 dB thr=< −40 dB -> INFO target applies to N_pml=20
+[L1-6] PML reflection (p-pol, N_pml=10, Δ=λ0/20): theory=— measured=-92.4 dB thr=< −40 dB -> INFO target applies to N_pml=20
+[L1-6] PML reflection (p-pol, N_pml=20, Δ=λ0/20): theory=— measured=-110.5 dB thr=< −40 dB -> PASS 
+[L1-6] PML reflection (p-pol, N_pml=30, Δ=λ0/20): theory=— measured=-121.0 dB thr=< −40 dB -> INFO target applies to N_pml=20
+[L1-6] PML reflection (s, N=20, κ_max=1.0, α_max=0.000): theory=— measured=-111.4 dB thr=— -> INFO sensitivity, not a gate
+[L1-6] PML reflection (s, N=20, κ_max=1.0, α_max=0.314): theory=— measured=-111.4 dB thr=— -> INFO sensitivity, not a gate
+[L1-6] PML reflection (s, N=20, κ_max=10.0, α_max=0.314): theory=— measured=-108.4 dB thr=— -> INFO sensitivity, not a gate
+done: 20000 steps, grid 40 x 261 x 60, 610 s
+[L1-7] steps run (Δ=λ0/20, S=0.5): theory=≥ 20000 measured=20000 thr=≥ 20000 -> PASS 
+[L1-7] W_total non-increasing after source off (t ≥ 80 T0): theory=monotone measured=max relative step change 1.12e-03 thr=≤ 0 -> FAIL 
+[L1-7] final W_total / peak: theory=→ 0 measured=2.93e-28 thr=< 1e-8 -> PASS 
+[L1-7] late-time growth (second half): theory=none measured=max relative step change 1.12e-03 thr=≤ 0 -> FAIL 
+[L1-8] (m,n)=(−1,1) vs x-mirror of (1,1), s-pol, Δ=λ0/20: theory=0 measured=2.54e-15 thr=< 1e-6 -> PASS all six components, x–y slice + all y-planes (incl. SF)
+[L1-8] (m,n)=(−1,1) vs x-mirror of (1,1), p-pol, Δ=λ0/20: theory=0 measured=2.35e-15 thr=< 1e-6 -> PASS all six components, x–y slice + all y-planes (incl. SF)
+
+LEVEL 1 (items 2-8): 30/32 gates PASS -> FAIL
+EXIT=0

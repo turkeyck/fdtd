@@ -1,0 +1,7 @@
+runs/
+__pycache__/
+*.pyc
+fdtd3d_oblique
+fdtd3d_oblique.exe
+fdtd3d_oblique_ref
+fdtd3d_oblique_ref.exe
