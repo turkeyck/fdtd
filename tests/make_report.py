@@ -142,7 +142,7 @@ def main():
         failed_before |= (ok is False)
         status_rows.append([n, s])
     md.append(md_table(["關卡", "結果"], status_rows))
-    md.append("\n所有數值為正規化單位（$c=\\varepsilon_0=\\mu_0=1$，$\\lambda_0=1$，長度以 λ0、時間以 T0=λ0/c 計），"
+    md.append("\n所有數值為正規化單位（$`c=\\varepsilon_0=\\mu_0=1`$，$`\\lambda_0=1`$，長度以 λ0、時間以 T0=λ0/c 計），"
               "預設網格 Δ=λ0/20、Courant S=cΔt/Δ=0.5（Δt=T0/40）；其他解析度在各列標明。表格由 `tests/make_report.py` "
               "直接從 `results/*.json` 產生。\n")
     md.append("## 1. 環境與重現\n")

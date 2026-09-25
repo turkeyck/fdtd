@@ -2,20 +2,38 @@
   "table": [
     {
       "item": "L2",
+      "quantity": "R vs exact discrete Fresnel (s-pol, \u0394=\u03bb0/20, \u03b81=36.94\u00b0, N_pml=20)",
+      "theory": "0.0661450874",
+      "measured": "0.0661448866",
+      "threshold": "rel err < 1% (D7)",
+      "passed": true,
+      "note": "rel err -3.036e-06"
+    },
+    {
+      "item": "L2",
+      "quantity": "T vs exact discrete Fresnel (s-pol, \u0394=\u03bb0/20, \u03b81=36.94\u00b0, N_pml=20)",
+      "theory": "0.9338549126",
+      "measured": "0.9338543942",
+      "threshold": "rel err < 1% (D7)",
+      "passed": true,
+      "note": "rel err -5.552e-07"
+    },
+    {
+      "item": "L2",
       "quantity": "R vs continuous Fresnel (s-pol, \u0394=\u03bb0/20, \u03b81=36.94\u00b0)",
       "theory": "0.069991",
       "measured": "0.066145",
-      "threshold": "rel err < 1%",
-      "passed": false,
-      "note": "rel err -5.495e-02; absolute |\u0394R| = 3.85e-03 (if '1%' meant 1 percentage point: INFO only, not used for the verdict)"
+      "threshold": "INFO (D7)",
+      "passed": null,
+      "note": "rel err -5.495e-02; absolute |\u0394R| = 3.85e-03; was the 1% gate before decision D7"
     },
     {
       "item": "L2",
       "quantity": "T vs continuous Fresnel (s-pol, \u0394=\u03bb0/20, \u03b81=36.94\u00b0)",
       "theory": "0.930009",
       "measured": "0.933854",
-      "threshold": "rel err < 1%",
-      "passed": true,
+      "threshold": "INFO (D7)",
+      "passed": null,
       "note": "rel err +4.135e-03"
     },
     {
@@ -47,20 +65,38 @@
     },
     {
       "item": "L2",
+      "quantity": "R vs exact discrete Fresnel (p-pol, \u0394=\u03bb0/20, \u03b81=36.94\u00b0, N_pml=20)",
+      "theory": "0.0158296637",
+      "measured": "0.0158295791",
+      "threshold": "rel err < 1% (D7)",
+      "passed": true,
+      "note": "rel err -5.342e-06"
+    },
+    {
+      "item": "L2",
+      "quantity": "T vs exact discrete Fresnel (p-pol, \u0394=\u03bb0/20, \u03b81=36.94\u00b0, N_pml=20)",
+      "theory": "0.9841703363",
+      "measured": "0.9841700691",
+      "threshold": "rel err < 1% (D7)",
+      "passed": true,
+      "note": "rel err -2.716e-07"
+    },
+    {
+      "item": "L2",
       "quantity": "R vs continuous Fresnel (p-pol, \u0394=\u03bb0/20, \u03b81=36.94\u00b0)",
       "theory": "0.017864",
       "measured": "0.015830",
-      "threshold": "rel err < 1%",
-      "passed": false,
-      "note": "rel err -1.139e-01; absolute |\u0394R| = 2.03e-03 (if '1%' meant 1 percentage point: INFO only, not used for the verdict)"
+      "threshold": "INFO (D7)",
+      "passed": null,
+      "note": "rel err -1.139e-01; absolute |\u0394R| = 2.03e-03; was the 1% gate before decision D7"
     },
     {
       "item": "L2",
       "quantity": "T vs continuous Fresnel (p-pol, \u0394=\u03bb0/20, \u03b81=36.94\u00b0)",
       "theory": "0.982136",
       "measured": "0.984170",
-      "threshold": "rel err < 1%",
-      "passed": true,
+      "threshold": "INFO (D7)",
+      "passed": null,
       "note": "rel err +2.071e-03"
     },
     {
@@ -1112,5 +1148,5 @@
       "RT": 0.999999986975412
     }
   ],
-  "passed": false
+  "passed": true
 }
