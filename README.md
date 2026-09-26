@@ -78,3 +78,43 @@ Units: c = ε0 = μ0 = 1, λ0 = 1. Main keys (defaults in brackets): `nl` cells 
 Outputs in `out/`: `meta.json` (grid, Δ, Δt, Yee offsets, k, E0/H0, all parameters), `dft_<slice>.bin`
 (complex128 phasors, six components, F with f(t) = Re[F e^{-iω0 t}]), `dft_aux.bin`, `log.csv` (SF max field, Yee energy,
 divergence), optional `snapshots.bin`, `fields_final.bin`.
+
+## Nonuniform (tensor-product) grids — `SPEC_nonuniform.md`
+
+The solver has one code path: `mesh=uniform` (default) builds the legacy equally spaced layout above, `grid=<file>`
+reads a grid made by `grid_gen.py`. On an equally spaced layout the two give the legacy fields bit for bit (gate 0-1a).
+
+```bash
+python3 grid_gen.py --all                         # write every grid used by the gates into grids/ (and check them)
+python3 grid_gen.py --check grids/L2_F1_ppw40.json
+./fdtd3d_oblique grid=grids/L2_F1_ppw40.json pol=s dt=0.00934579439252336 nsteps=9630 dft0=6420 dft1=9630 proj=1 out=/tmp/f1
+```
+
+Grid files (`grids/*.json`): per-axis spacing arrays `x.h`, `y.h`, `z.h`, cell permittivity `eps_y`, zones (`npml_lo/hi`,
+`j0`, `ja`), optional `eps_t`/`eps_n` overrides and a `grating` block (stage B), plus a sha256 of the content.
+Interfaces lie on primal nodes; tangential E at an interface node uses the length-weighted mean of the two cells.
+**Coordinates for post-processing always come from `out/grid_used.json`** (never index × Δ; `tests/nu_lint_coords.py`).
+
+New solver keys: `mesh`, `grid`, `dt` (explicit Δt; the gates use Δt = T0/⌈T0/Δt_C⌉, an integer number of steps per
+period), `dtfac`, `auxref=1` (exact 1D reduction of the whole main grid; logs main vs aux_ref), `proj=1` (per-row x–z
+Floquet projection, `dft_proj.bin`), `planar=1` (per-plane phase residual), `dump_at=`, `init=r` + `seed`,
+`mode=e` (power iteration: λ_max and Δt_max), `divop=u` (control), `inc=p` (continuous plane wave sampled at the
+component positions) and `inc=j` (current sheet, `jsrc`) for x/z-nonuniform grids — the phasor aux line (`inc=a`,
+`auxref=1`) is refused there with an explicit error.
+
+Δt cost of the smallest cell: Δt = S·√3 / sqrt(1/Δx_min² + 1/Δy_min² + 1/Δz_min²); e.g. the λ0/20 → λ0/80 taper needs
+2.45× the steps of the λ0/20 grid (`meta.json`: `dt_courant`, `dt_penalty`).
+
+Validation (run inside WSL; Meep via `MEEP_PYTHON`):
+
+```bash
+python3 tests/nu_predict.py            # theory values, frozen before any run (results/nu_predictions.json)
+python3 tests/run_nu_regression.py     # frozen-hash check, legacy regression, lint, unit tests, gates 0-3, stage B
+python3 tests/make_report_nu.py        # validation_report.md (Part II nonuniform + Part I legacy)
+```
+
+Each gate on its own: `tests/nu_gate0_regression.py`, `nu_gate0_adjoint.py`, `nu_gate0_energy_stability.py`,
+`nu_gate1_vacuum.py` (+0-5), `nu_gate2_film.py`, `nu_gate3_meep.py`, `nuB_gate0.py`, `nuB_gate1.py`,
+`nuB_gate3_grating.py`. References: `tmm.py` (continuous TMM and the exact discrete Yee reduction), `rcwa.py`
+(conical RCWA, Li factorization), `meep_ref_uniform.py`, `meep_ref_transform.py`. Documents: `docs/inventory_nonuniform.md`,
+`docs/derivation_nonuniform.md`, `docs/DIFF_NOTES.md`, `ref/nonuniform.diff`.

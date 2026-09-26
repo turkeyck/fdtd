@@ -1,0 +1,15 @@
+1 {'leak': 8.018989052145245e-05, 'R_i': 0.20918974991055803, 'T_i': 0.790794982161893, 'R_ii': 0.2092040560679185, 'T_ii': 0.7907952254589637, 'planar': 0.003031373881257272, 'floquet': 1.9934661278071084e-07, 'grid': 'Δy_min=λ0/50, Δy_max=λ0/50, r_max=1.0000, Δx=λ0/29, Δt=0.0121951 T0'}
+2 {'leak': 2.0563869639079772e-05, 'R_i': 0.21121192645595355, 'T_i': 0.788782397533533, 'R_ii': 0.2112174583341498, 'T_ii': 0.788782413622006, 'planar': 0.0008029231477569714, 'floquet': 8.810075104959176e-09, 'grid': 'Δy_min=λ0/100, Δy_max=λ0/100, r_max=1.0000, Δx=λ0/58, Δt=0.00613497 T0'}
+4 {'leak': 5.25545874564283e-06, 'R_i': 0.21171534099883754, 'T_i': 0.788282993296861, 'R_ii': 0.21171698719456009, 'T_ii': 0.7882829942615251, 'planar': 0.00020044761450785863, 'floquet': 4.708717534950048e-10, 'grid': 'Δy_min=λ0/200, Δy_max=λ0/200, r_max=1.0000, Δx=λ0/115, Δt=0.00307692 T0'}
+[B1-1] order of the analytic-injection leakage |L_SF − echo|/|a| (i): theory=2 measured=1.966 (values 8.02e-05, 2.06e-05, 5.26e-06) thr=∈ [1.8, 2.2] -> PASS 
+[B1-2] order of |R_(i) − R_(ii)| (TF/SF analytic vs current sheet + normalization): theory=2 measured=1.560 (values 1.43e-05, 5.53e-06, 1.65e-06) thr=∈ [1.8, 2.2] -> FAIL 
+[B1-2] order of |T_(i) − T_(ii)|: theory=2 measured=3.989 (values 2.43e-07, 1.61e-08, 9.65e-10) thr=∈ [1.8, 2.2] -> FAIL 
+[B1-3] modal (transverse Bloch eigenmode) injection (iii): theory=optional measured=not implemented thr=optional -> INFO SPEC: optional
+[B2-1] order of the x–z phase residual (max over TF planes, vacuum, inc=p): theory=2 measured=1.959 (values 3.03e-03, 8.03e-04, 2.00e-04) thr=∈ [1.8, 2.2] -> PASS 
+[B2-2] power fraction in non-specular propagating orders (vacuum, TF plane): theory=→ 0 measured=k=1: 1.99e-07, k=2: 8.81e-09, k=4: 4.71e-10 thr=INFO -> INFO order 4.36
+[B1-2] R, T at k=1 (s): (i) / (ii) vs TMM: theory=R 0.211883, T 0.788117 measured=(i) R 0.209190 T 0.790795; (ii) R 0.209204 T 0.790795 thr=INFO -> INFO R+T−1: (i) -1.5e-05, (ii) -7.2e-07
+[B1-2] R, T at k=2 (s): (i) / (ii) vs TMM: theory=R 0.211883, T 0.788117 measured=(i) R 0.211212 T 0.788782; (ii) R 0.211217 T 0.788782 thr=INFO -> INFO R+T−1: (i) -5.7e-06, (ii) -1.3e-07
+[B1-2] R, T at k=4 (s): (i) / (ii) vs TMM: theory=R 0.211883, T 0.788117 measured=(i) R 0.211715 T 0.788283; (ii) R 0.211717 T 0.788283 thr=INFO -> INFO R+T−1: (i) -1.7e-06, (ii) -1.9e-08
+
+B_gate1: 2/4 gates PASS -> FAIL
+exit=1

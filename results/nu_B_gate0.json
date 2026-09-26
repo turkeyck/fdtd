@@ -1,0 +1,97 @@
+{
+ "gate": "B_gate0",
+ "created_utc": "2026-09-26T13:59:09Z",
+ "table": [
+  {
+   "item": "B0-1",
+   "quantity": "x nonuniform + inc=a is refused",
+   "theory": "exit 2 + message",
+   "measured": "exit 2: ERROR: phasor aux line requires uniform x and z (x nonuniform=1, z nonuniform=0); use inc=",
+   "threshold": "exact",
+   "passed": true,
+   "grid": "B_vac_k1",
+   "note": ""
+  },
+  {
+   "item": "B0-1",
+   "quantity": "x nonuniform + inc=p + auxref=1 is refused",
+   "theory": "exit 2 + message",
+   "measured": "exit 2: ERROR: phasor aux line requires uniform x and z (x nonuniform=1, z nonuniform=0); use inc=",
+   "threshold": "exact",
+   "passed": true,
+   "grid": "B_vac_k1",
+   "note": ""
+  },
+  {
+   "item": "B0-2 (0-2)",
+   "quantity": "adjointness, x and z graded, seed 1",
+   "theory": "0",
+   "measured": "7.41e-19",
+   "threshold": "< 1e-13",
+   "passed": true,
+   "grid": "B_ops_xz_graded_pec",
+   "note": ""
+  },
+  {
+   "item": "B0-2 (0-2)",
+   "quantity": "adjointness, x and z graded, seed 2",
+   "theory": "0",
+   "measured": "5.93e-19",
+   "threshold": "< 1e-13",
+   "passed": true,
+   "grid": "B_ops_xz_graded_pec",
+   "note": ""
+  },
+  {
+   "item": "B0-2 (0-2)",
+   "quantity": "C kernel vs Python operator, x and z graded",
+   "theory": "0",
+   "measured": "H 3.3e-16, E 2.8e-16",
+   "threshold": "< 1e-13",
+   "passed": true,
+   "grid": "B_ops_xz_graded_pec",
+   "note": ""
+  },
+  {
+   "item": "B0-2 (0-3)",
+   "quantity": "energy drift over 1e+05 steps, x and z graded",
+   "theory": "0",
+   "measured": "2.66e-15",
+   "threshold": "< 1e-10",
+   "passed": true,
+   "grid": "Δy_min=λ0/80, Δy_max=λ0/20, r_max=1.0968, Δx=λ0/30, Δt=0.00944287 T0",
+   "note": ""
+  },
+  {
+   "item": "B0-2 (0-4)",
+   "quantity": "Courant formula Δt ≤ Δt_max (power iteration), x and z graded",
+   "theory": "0.01090368546",
+   "measured": "0.01091781749 (1810 it)",
+   "threshold": "Δt_C ≤ Δt_max",
+   "passed": true,
+   "grid": "B_ops_xz_graded_pec",
+   "note": ""
+  },
+  {
+   "item": "B0-2 (0-4)",
+   "quantity": "0.99 Δt_max stable / 1.02 Δt_max diverges (20000 steps)",
+   "theory": "stable / diverges",
+   "measured": "exit 0 / exit 2",
+   "threshold": "0 / non-finite",
+   "passed": true,
+   "grid": "B_ops_xz_graded_pec",
+   "note": ""
+  },
+  {
+   "item": "B0-2 (0-5)",
+   "quantity": "divergence in the TF interior, x graded, inc=p",
+   "theory": "0",
+   "measured": "E 0.0e+00, H 4.1e-14",
+   "threshold": "< 1e-10",
+   "passed": true,
+   "grid": "B_vac_k1",
+   "note": "control (uniform operator): 0.0e+00"
+  }
+ ],
+ "passed": true
+}

@@ -48,7 +48,10 @@ def main():
         oT = nc.pred(f"B/rcwa/{pol}/orders_T")
         eff = {}
         for inc in ("p", "j"):
-            o_g, m_g, _ = RN.stageB(G, pol, inc, m=1, n=1, periods=90, dft_periods=30, yplanes=yp)
+            if inc == "p":     # D19: the grating rings (guided-mode resonance near f = 1.039): long run, long window
+                o_g, m_g, _ = RN.stageB(G, pol, inc, tag="_long450", m=1, n=1, periods=450, dft_periods=150, yplanes=yp)
+            else:
+                o_g, m_g, _ = RN.stageB(G, pol, inc, m=1, n=1, periods=90, dft_periods=30, yplanes=yp)
             o_v, m_v, _ = RN.stageB(GV, pol, inc, m=1, n=1, periods=90, dft_periods=30, yplanes=yp)
             used = nc.load_used(o_g)
             Lx = used["x"][-1]

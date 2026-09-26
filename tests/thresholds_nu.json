@@ -359,6 +359,11 @@
       "gate": "3A-2, 3A-3",
       "change": "Meep resolutions 100, 200, 400 (interfaces on pixel boundaries) instead of 40, 80, 160, 320",
       "reason": "failure protocol: Meep subpixel averaging left first-order errors at non-aligned resolutions (F5 −1e-2 at 160); aligned resolutions converge at order 2 (F5 s: −5.8e-4, −1.4e-4). Thresholds unchanged."
+    },
+    "D19": {
+      "gate": "B3-1, B3-2",
+      "change": "judged grating runs (injection (i)) last 450 periods with the DFT over the last 150 periods (was 90 / 30); the vacuum normalization runs stay 90 / 30; (ii) reported at 90 / 30",
+      "reason": "failure protocol: with 90 / 30 both injections give Σ−1 ≈ −1e-3 and T0 −1.4e-3 (discrete energy is conserved only in steady state); RCWA shows a guided-mode resonance near f = 1.039 whose slow ring-down leaks into a 30-period window at f0; 180 / 30 already reduces Σ−1 to −3.2e-4 and T0 to −9.7e-4. Thresholds unchanged."
     }
   }
 }
