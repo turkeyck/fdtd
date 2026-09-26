@@ -22,5 +22,13 @@
   "experiment": "F5 s at interface-aligned resolutions 100 and 200: R error −5.8e-4 and −1.4e-4 (order 2.0, converging to TMM 0.103642) vs −1.0e-2 at resolution 160",
   "fix": "D18: gate-3A Meep resolutions 100, 200, 400 (all interfaces on pixel boundaries); thresholds unchanged; 3A-1 (thin vs full cell, D13) unaffected",
   "result": "see gate 3"
+ },
+ {
+  "gate": "3B",
+  "symptom": "own vs Meep tangential profiles: rel L2 1.02 (vac, s), identical for the continuous and the discrete metric; Meep profile shows a strong standing wave and ~0.2% transmission through the transformed region",
+  "hypothesis": "Meep 1.34 does not honour mu_diag returned by a material_function (the transformed region becomes an eps-only mismatch)",
+  "experiment": "uniform anisotropic half-space s = 0.5: as a geometry Block -> transmitted/incident 1.00, k_u = 2.536 (s·k_y = 2.511); as a material_function -> ripple 0.64, k_u 2.16",
+  "fix": "meep_ref_transform.py builds the metric as geometry blocks (one per half-grid sample, du/2 thick, centred on the sample; eps_averaging off); comparison and threshold unchanged",
+  "result": "see gate 3 rerun"
  }
 ]

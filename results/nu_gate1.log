@@ -1,0 +1,148 @@
+[1-0] main field vs Re[aux_ref e^(i(kx x+kz z))], all y, every 10 T0 (L1_taper_r1.1_base20, s): theory=0 measured=E 1.8e-14, H·η0 1.5e-14 thr=< 1e-12 -> PASS 
+[1-1] SF leakage = |F − aux_ref scattered field|/E0, n ≤ 727 (L1_taper_r1.1_base20, s): theory=0 measured=E 5.4e-23, H·η0 1.0e-22 thr=< 1e-10 -> PASS D8
+[1-1] literal SF max / E0 (same window) (L1_taper_r1.1_base20, s): theory=— measured=9.76e-23 thr=INFO (D8) -> INFO includes the physical numerical reflection of the grid grading
+[1-1] whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base20, s): theory=0 / — measured=E 6.1e-15, H·η0 6.8e-15 / 9.11e-08 thr=INFO -> INFO the frozen window ends at t = 7.4 T0, where the ramped incident amplitude is only 4.3e-06; the whole-run value is the informative one
+[1-2] x–z planarity: max over TF planes of RMS phase residual vs kx·x+kz·z (L1_taper_r1.1_base20, s): theory=0 measured=3.32e-14 rad (Hx) thr=< 1e-08 rad -> PASS 167 planes, all non-zero components
+[1-3a] ky in sub-region tf_a (h=λ0/20) (L1_taper_r1.1_base20, s): theory=5.036552350917 /λ0 measured=5.036552350917 /λ0 thr=rel < 1e-06 -> PASS rel 4.2e-15; three-point over 38 nodes; imag residual 4.9e-17
+[1-3a] ky in sub-region hold (h=λ0/80) (L1_taper_r1.1_base20, s): theory=5.024079981391 /λ0 measured=5.024079981390 /λ0 thr=rel < 1e-06 -> PASS rel 1.1e-13; three-point over 39 nodes; imag residual 6.2e-17
+[1-3a] ky in sub-region tf_b (h=λ0/20) (L1_taper_r1.1_base20, s): theory=5.036552350917 /λ0 measured=5.036552350917 /λ0 thr=rel < 1e-06 -> PASS rel 1.1e-15; three-point over 59 nodes; imag residual 2.0e-18
+[1-3b] taper angle: max |θ_meas−θ_pred| / |θ_pred−θ_cont| over graded nodes (L1_taper_r1.1_base20, s): theory=0 measured=4.50e-03 thr=≤ 0.1 -> PASS 30 nodes; mean |θ_meas−θ_cont| = 9.420e-04 rad
+[1-5] time-averaged S_y over 167 TF planes, distance-weighted H (L1_taper_r1.1_base20, s): theory=constant measured=(max−min)/mean = 7.61e-14 thr=< 0.0001 -> PASS 
+[1-5] control: ½-average interpolation (L1_taper_r1.1_base20, s): theory=— measured=7.60e-14 thr=INFO -> INFO 
+[0-5] max|div E|, |div H| / (|K~| max|F|), TF j∈[42,206] (L1_taper_r1.1_base20, s, final step): theory=0 measured=E 6.6e-14, H 2.4e-13 (C log, all periods: E 6.8e-14) thr=< 1e-10 -> PASS 
+[0-5] control: uniform operator (every difference / Δx) on div H (s): theory=clearly ≠ 0 measured=E 6.58e-14, H 5.38e-01 thr=div H ≥ 1e-06 -> PASS div E is blind to the y metric here: its normal component Ey is identically 0
+[1-0] main field vs Re[aux_ref e^(i(kx x+kz z))], all y, every 10 T0 (L1_taper_r1.1_base20, p): theory=0 measured=E 1.7e-14, H·η0 1.7e-14 thr=< 1e-12 -> PASS 
+[1-1] SF leakage = |F − aux_ref scattered field|/E0, n ≤ 727 (L1_taper_r1.1_base20, p): theory=0 measured=E 8.6e-23, H·η0 6.9e-23 thr=< 1e-10 -> PASS D8
+[1-1] literal SF max / E0 (same window) (L1_taper_r1.1_base20, p): theory=— measured=8.74e-23 thr=INFO (D8) -> INFO includes the physical numerical reflection of the grid grading
+[1-1] whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base20, p): theory=0 / — measured=E 6.2e-15, H·η0 6.3e-15 / 9.11e-08 thr=INFO -> INFO the frozen window ends at t = 7.4 T0, where the ramped incident amplitude is only 4.3e-06; the whole-run value is the informative one
+[1-2] x–z planarity: max over TF planes of RMS phase residual vs kx·x+kz·z (L1_taper_r1.1_base20, p): theory=0 measured=3.79e-14 rad (Ex) thr=< 1e-08 rad -> PASS 167 planes, all non-zero components
+[1-3a] ky in sub-region tf_a (h=λ0/20) (L1_taper_r1.1_base20, p): theory=5.036552350917 /λ0 measured=5.036552350917 /λ0 thr=rel < 1e-06 -> PASS rel 2.5e-15; three-point over 38 nodes; imag residual 1.1e-16
+[1-3a] ky in sub-region hold (h=λ0/80) (L1_taper_r1.1_base20, p): theory=5.024079981391 /λ0 measured=5.024079981393 /λ0 thr=rel < 1e-06 -> PASS rel 3.4e-13; three-point over 39 nodes; imag residual 6.4e-16
+[1-3a] ky in sub-region tf_b (h=λ0/20) (L1_taper_r1.1_base20, p): theory=5.036552350917 /λ0 measured=5.036552350917 /λ0 thr=rel < 1e-06 -> PASS rel 1.4e-14; three-point over 59 nodes; imag residual 1.3e-17
+[1-3b] taper angle: max |θ_meas−θ_pred| / |θ_pred−θ_cont| over graded nodes (L1_taper_r1.1_base20, p): theory=0 measured=4.50e-03 thr=≤ 0.1 -> PASS 30 nodes; mean |θ_meas−θ_cont| = 9.420e-04 rad
+[1-5] time-averaged S_y over 167 TF planes, distance-weighted H (L1_taper_r1.1_base20, p): theory=constant measured=(max−min)/mean = 1.07e-13 thr=< 0.0001 -> PASS 
+[1-5] control: ½-average interpolation (L1_taper_r1.1_base20, p): theory=— measured=1.07e-13 thr=INFO -> INFO 
+[0-5] max|div E|, |div H| / (|K~| max|F|), TF j∈[42,206] (L1_taper_r1.1_base20, p, final step): theory=0 measured=E 2.0e-13, H 6.4e-14 (C log, all periods: E 2.1e-13) thr=< 1e-10 -> PASS 
+[0-5] control: uniform operator (every difference / Δx) on div E (p): theory=clearly ≠ 0 measured=E 5.38e-01, H 6.87e-14 thr=div E ≥ 1e-06 -> PASS div H is blind to the y metric here: its normal component Hy is identically 0
+[1-0] main field vs Re[aux_ref e^(i(kx x+kz z))], all y, every 10 T0 (L1_abrupt_r4_base20, s): theory=0 measured=E 1.5e-14, H·η0 1.5e-14 thr=< 1e-12 -> PASS 
+[1-1] SF leakage = |F − aux_ref scattered field|/E0, n ≤ 661 (L1_abrupt_r4_base20, s): theory=0 measured=E 1.9e-23, H·η0 3.0e-23 thr=< 1e-10 -> PASS D8
+[1-1] literal SF max / E0 (same window) (L1_abrupt_r4_base20, s): theory=— measured=2.98e-23 thr=INFO (D8) -> INFO includes the physical numerical reflection of the grid grading
+[1-1] whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_abrupt_r4_base20, s): theory=0 / — measured=E 6.2e-15, H·η0 7.6e-15 / 9.11e-08 thr=INFO -> INFO the frozen window ends at t = 6.7 T0, where the ramped incident amplitude is only 1.4e-06; the whole-run value is the informative one
+[1-2] x–z planarity: max over TF planes of RMS phase residual vs kx·x+kz·z (L1_abrupt_r4_base20, s): theory=0 measured=3.49e-14 rad (Hz) thr=< 1e-08 rad -> PASS 139 planes, all non-zero components
+[1-3a] ky in sub-region tf_a (h=λ0/20) (L1_abrupt_r4_base20, s): theory=5.036552350917 /λ0 measured=5.036552350917 /λ0 thr=rel < 1e-06 -> PASS rel 1.1e-15; three-point over 38 nodes; imag residual 4.5e-17
+[1-3a] ky in sub-region hold (h=λ0/80) (L1_abrupt_r4_base20, s): theory=5.024079981391 /λ0 measured=5.024079981392 /λ0 thr=rel < 1e-06 -> PASS rel 1.7e-13; three-point over 39 nodes; imag residual 5.8e-17
+[1-3a] ky in sub-region tf_b (h=λ0/20) (L1_abrupt_r4_base20, s): theory=5.036552350917 /λ0 measured=5.036552350917 /λ0 thr=rel < 1e-06 -> PASS rel 1.2e-14; three-point over 59 nodes; imag residual 2.9e-17
+[1-5] time-averaged S_y over 139 TF planes, distance-weighted H (L1_abrupt_r4_base20, s): theory=constant measured=(max−min)/mean = 9.42e-14 thr=< 0.0001 -> PASS 
+[1-5] control: ½-average interpolation (L1_abrupt_r4_base20, s): theory=— measured=9.43e-14 thr=INFO -> INFO 
+[1-0] main field vs Re[aux_ref e^(i(kx x+kz z))], all y, every 10 T0 (L1_abrupt_r4_base20, p): theory=0 measured=E 1.9e-14, H·η0 1.7e-14 thr=< 1e-12 -> PASS 
+[1-1] SF leakage = |F − aux_ref scattered field|/E0, n ≤ 661 (L1_abrupt_r4_base20, p): theory=0 measured=E 2.2e-23, H·η0 2.3e-23 thr=< 1e-10 -> PASS D8
+[1-1] literal SF max / E0 (same window) (L1_abrupt_r4_base20, p): theory=— measured=2.27e-23 thr=INFO (D8) -> INFO includes the physical numerical reflection of the grid grading
+[1-1] whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_abrupt_r4_base20, p): theory=0 / — measured=E 6.2e-15, H·η0 6.0e-15 / 9.11e-08 thr=INFO -> INFO the frozen window ends at t = 6.7 T0, where the ramped incident amplitude is only 1.4e-06; the whole-run value is the informative one
+[1-2] x–z planarity: max over TF planes of RMS phase residual vs kx·x+kz·z (L1_abrupt_r4_base20, p): theory=0 measured=3.21e-14 rad (Ex) thr=< 1e-08 rad -> PASS 139 planes, all non-zero components
+[1-3a] ky in sub-region tf_a (h=λ0/20) (L1_abrupt_r4_base20, p): theory=5.036552350917 /λ0 measured=5.036552350917 /λ0 thr=rel < 1e-06 -> PASS rel 4.2e-15; three-point over 38 nodes; imag residual 1.9e-16
+[1-3a] ky in sub-region hold (h=λ0/80) (L1_abrupt_r4_base20, p): theory=5.024079981391 /λ0 measured=5.024079981391 /λ0 thr=rel < 1e-06 -> PASS rel 7.1e-16; three-point over 39 nodes; imag residual 1.7e-16
+[1-3a] ky in sub-region tf_b (h=λ0/20) (L1_abrupt_r4_base20, p): theory=5.036552350917 /λ0 measured=5.036552350917 /λ0 thr=rel < 1e-06 -> PASS rel 1.1e-15; three-point over 59 nodes; imag residual 1.9e-16
+[1-5] time-averaged S_y over 139 TF planes, distance-weighted H (L1_abrupt_r4_base20, p): theory=constant measured=(max−min)/mean = 1.07e-13 thr=< 0.0001 -> PASS 
+[1-5] control: ½-average interpolation (L1_abrupt_r4_base20, p): theory=— measured=1.07e-13 thr=INFO -> INFO 
+
+gate0_divergence: 4/4 gates PASS -> PASS
+[1-0] main field vs Re[aux_ref e^(i(kx x+kz z))], all y, every 10 T0 (L1_taper_r1.1_base40, s): theory=0 measured=E 2.2e-14, H·η0 2.2e-14 thr=< 1e-12 -> PASS 
+[1-1] SF leakage = |F − aux_ref scattered field|/E0, n ≤ 1163 (L1_taper_r1.1_base40, s): theory=0 measured=E 1.2e-22, H·η0 1.4e-22 thr=< 1e-10 -> PASS D8
+[1-1] literal SF max / E0 (same window) (L1_taper_r1.1_base40, s): theory=— measured=1.36e-22 thr=INFO (D8) -> INFO includes the physical numerical reflection of the grid grading
+[1-1] whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base40, s): theory=0 / — measured=E 8.6e-15, H·η0 9.9e-15 / 8.08e-08 thr=INFO -> INFO the frozen window ends at t = 6.2 T0, where the ramped incident amplitude is only 5.2e-07; the whole-run value is the informative one
+[1-3a] ky in sub-region tf_a (h=λ0/40) (L1_taper_r1.1_base40, s): theory=5.027543096692 /λ0 measured=5.027543096692 /λ0 thr=rel < 1e-06 -> PASS rel 2.1e-14; three-point over 78 nodes; imag residual 1.9e-16
+[1-3a] ky in sub-region hold (h=λ0/160) (L1_taper_r1.1_base40, s): theory=5.024440895885 /λ0 measured=5.024440895882 /λ0 thr=rel < 1e-06 -> PASS rel 5.6e-13; three-point over 79 nodes; imag residual 1.2e-16
+[1-3a] ky in sub-region tf_b (h=λ0/40) (L1_taper_r1.1_base40, s): theory=5.027543096692 /λ0 measured=5.027543096691 /λ0 thr=rel < 1e-06 -> PASS rel 3.5e-14; three-point over 119 nodes; imag residual 1.8e-17
+[1-3b] taper angle: max |θ_meas−θ_pred| / |θ_pred−θ_cont| over graded nodes (L1_taper_r1.1_base40, s): theory=0 measured=2.27e-03 thr=≤ 0.1 -> PASS 30 nodes; mean |θ_meas−θ_cont| = 7.131e-04 rad
+[1-0] main field vs Re[aux_ref e^(i(kx x+kz z))], all y, every 10 T0 (L1_taper_r1.1_base40, p): theory=0 measured=E 2.6e-14, H·η0 2.2e-14 thr=< 1e-12 -> PASS 
+[1-1] SF leakage = |F − aux_ref scattered field|/E0, n ≤ 1163 (L1_taper_r1.1_base40, p): theory=0 measured=E 1.7e-22, H·η0 1.0e-22 thr=< 1e-10 -> PASS D8
+[1-1] literal SF max / E0 (same window) (L1_taper_r1.1_base40, p): theory=— measured=1.65e-22 thr=INFO (D8) -> INFO includes the physical numerical reflection of the grid grading
+[1-1] whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base40, p): theory=0 / — measured=E 8.7e-15, H·η0 8.4e-15 / 8.08e-08 thr=INFO -> INFO the frozen window ends at t = 6.2 T0, where the ramped incident amplitude is only 5.2e-07; the whole-run value is the informative one
+[1-3a] ky in sub-region tf_a (h=λ0/40) (L1_taper_r1.1_base40, p): theory=5.027543096692 /λ0 measured=5.027543096692 /λ0 thr=rel < 1e-06 -> PASS rel 1.4e-14; three-point over 78 nodes; imag residual 3.0e-16
+[1-3a] ky in sub-region hold (h=λ0/160) (L1_taper_r1.1_base40, p): theory=5.024440895885 /λ0 measured=5.024440895884 /λ0 thr=rel < 1e-06 -> PASS rel 1.1e-13; three-point over 79 nodes; imag residual 4.6e-16
+[1-3a] ky in sub-region tf_b (h=λ0/40) (L1_taper_r1.1_base40, p): theory=5.027543096692 /λ0 measured=5.027543096692 /λ0 thr=rel < 1e-06 -> PASS rel 0.0e+00; three-point over 119 nodes; imag residual 2.4e-16
+[1-3b] taper angle: max |θ_meas−θ_pred| / |θ_pred−θ_cont| over graded nodes (L1_taper_r1.1_base40, p): theory=0 measured=2.27e-03 thr=≤ 0.1 -> PASS 30 nodes; mean |θ_meas−θ_cont| = 7.131e-04 rad
+[1-0] main field vs Re[aux_ref e^(i(kx x+kz z))], all y, every 10 T0 (L1_taper_r1.1_base80, s): theory=0 measured=E 3.7e-14, H·η0 3.9e-14 thr=< 1e-12 -> PASS 
+[1-1] SF leakage = |F − aux_ref scattered field|/E0, n ≤ 2065 (L1_taper_r1.1_base80, s): theory=0 measured=E 1.3e-22, H·η0 1.7e-22 thr=< 1e-10 -> PASS D8
+[1-1] literal SF max / E0 (same window) (L1_taper_r1.1_base80, s): theory=— measured=1.69e-22 thr=INFO (D8) -> INFO includes the physical numerical reflection of the grid grading
+[1-1] whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base80, s): theory=0 / — measured=E 1.2e-14, H·η0 1.2e-14 / 7.81e-08 thr=INFO -> INFO the frozen window ends at t = 5.6 T0, where the ramped incident amplitude is only 1.7e-07; the whole-run value is the informative one
+[1-3a] ky in sub-region tf_a (h=λ0/80) (L1_taper_r1.1_base80, s): theory=5.025332415829 /λ0 measured=5.025332415829 /λ0 thr=rel < 1e-06 -> PASS rel 5.7e-14; three-point over 158 nodes; imag residual 1.5e-16
+[1-3a] ky in sub-region hold (h=λ0/320) (L1_taper_r1.1_base80, s): theory=5.024557837983 /λ0 measured=5.024557837967 /λ0 thr=rel < 1e-06 -> PASS rel 3.1e-12; three-point over 159 nodes; imag residual 2.7e-17
+[1-3a] ky in sub-region tf_b (h=λ0/80) (L1_taper_r1.1_base80, s): theory=5.025332415829 /λ0 measured=5.025332415829 /λ0 thr=rel < 1e-06 -> PASS rel 2.9e-14; three-point over 239 nodes; imag residual 9.1e-17
+[1-3b] taper angle: max |θ_meas−θ_pred| / |θ_pred−θ_cont| over graded nodes (L1_taper_r1.1_base80, s): theory=0 measured=6.56e-04 thr=≤ 0.1 -> PASS 30 nodes; mean |θ_meas−θ_cont| = 6.583e-04 rad
+[1-0] main field vs Re[aux_ref e^(i(kx x+kz z))], all y, every 10 T0 (L1_taper_r1.1_base80, p): theory=0 measured=E 3.6e-14, H·η0 3.5e-14 thr=< 1e-12 -> PASS 
+[1-1] SF leakage = |F − aux_ref scattered field|/E0, n ≤ 2065 (L1_taper_r1.1_base80, p): theory=0 measured=E 2.0e-22, H·η0 1.0e-22 thr=< 1e-10 -> PASS D8
+[1-1] literal SF max / E0 (same window) (L1_taper_r1.1_base80, p): theory=— measured=2.04e-22 thr=INFO (D8) -> INFO includes the physical numerical reflection of the grid grading
+[1-1] whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base80, p): theory=0 / — measured=E 1.3e-14, H·η0 1.3e-14 / 7.81e-08 thr=INFO -> INFO the frozen window ends at t = 5.6 T0, where the ramped incident amplitude is only 1.7e-07; the whole-run value is the informative one
+[1-3a] ky in sub-region tf_a (h=λ0/80) (L1_taper_r1.1_base80, p): theory=5.025332415829 /λ0 measured=5.025332415828 /λ0 thr=rel < 1e-06 -> PASS rel 2.0e-13; three-point over 158 nodes; imag residual 2.4e-16
+[1-3a] ky in sub-region hold (h=λ0/320) (L1_taper_r1.1_base80, p): theory=5.024557837983 /λ0 measured=5.024557837990 /λ0 thr=rel < 1e-06 -> PASS rel 1.4e-12; three-point over 159 nodes; imag residual 9.4e-17
+[1-3a] ky in sub-region tf_b (h=λ0/80) (L1_taper_r1.1_base80, p): theory=5.025332415829 /λ0 measured=5.025332415829 /λ0 thr=rel < 1e-06 -> PASS rel 8.8e-16; three-point over 239 nodes; imag residual 3.5e-17
+[1-3b] taper angle: max |θ_meas−θ_pred| / |θ_pred−θ_cont| over graded nodes (L1_taper_r1.1_base80, p): theory=0 measured=6.56e-04 thr=≤ 0.1 -> PASS 30 nodes; mean |θ_meas−θ_cont| = 6.583e-04 rad
+[1-0] main field vs Re[aux_ref e^(i(kx x+kz z))], all y, every 10 T0 (L1_taper_r1.1_base10_xz, s): theory=0 measured=E 1.0e-14, H·η0 1.1e-14 thr=< 1e-12 -> PASS 
+[1-1] SF leakage = |F − aux_ref scattered field|/E0, n ≤ 485 (L1_taper_r1.1_base10_xz, s): theory=0 measured=E 2.4e-23, H·η0 4.3e-23 thr=< 1e-10 -> PASS D8
+[1-1] literal SF max / E0 (same window) (L1_taper_r1.1_base10_xz, s): theory=— measured=4.22e-23 thr=INFO (D8) -> INFO includes the physical numerical reflection of the grid grading
+[1-1] whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base10_xz, s): theory=0 / — measured=E 4.0e-15, H·η0 4.4e-15 / 1.37e-07 thr=INFO -> INFO the frozen window ends at t = 9.9 T0, where the ramped incident amplitude is only 1.8e-04; the whole-run value is the informative one
+[1-3b] taper angle: max |θ_meas−θ_pred| / |θ_pred−θ_cont| over graded nodes (L1_taper_r1.1_base10_xz, s): theory=0 measured=4.72e-03 thr=≤ 0.1 -> PASS 30 nodes; mean |θ_meas−θ_cont| = 3.783e-03 rad
+[1-0] main field vs Re[aux_ref e^(i(kx x+kz z))], all y, every 10 T0 (L1_taper_r1.1_base10_xz, p): theory=0 measured=E 1.1e-14, H·η0 1.1e-14 thr=< 1e-12 -> PASS 
+[1-1] SF leakage = |F − aux_ref scattered field|/E0, n ≤ 485 (L1_taper_r1.1_base10_xz, p): theory=0 measured=E 2.3e-23, H·η0 3.1e-23 thr=< 1e-10 -> PASS D8
+[1-1] literal SF max / E0 (same window) (L1_taper_r1.1_base10_xz, p): theory=— measured=2.98e-23 thr=INFO (D8) -> INFO includes the physical numerical reflection of the grid grading
+[1-1] whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base10_xz, p): theory=0 / — measured=E 3.9e-15, H·η0 4.1e-15 / 1.37e-07 thr=INFO -> INFO the frozen window ends at t = 9.9 T0, where the ramped incident amplitude is only 1.8e-04; the whole-run value is the informative one
+[1-3b] taper angle: max |θ_meas−θ_pred| / |θ_pred−θ_cont| over graded nodes (L1_taper_r1.1_base10_xz, p): theory=0 measured=4.72e-03 thr=≤ 0.1 -> PASS 30 nodes; mean |θ_meas−θ_cont| = 3.783e-03 rad
+[1-0] main field vs Re[aux_ref e^(i(kx x+kz z))], all y, every 10 T0 (L1_taper_r1.1_base20_xz, s): theory=0 measured=E 1.8e-14, H·η0 1.5e-14 thr=< 1e-12 -> PASS 
+[1-1] SF leakage = |F − aux_ref scattered field|/E0, n ≤ 727 (L1_taper_r1.1_base20_xz, s): theory=0 measured=E 5.4e-23, H·η0 1.0e-22 thr=< 1e-10 -> PASS D8
+[1-1] literal SF max / E0 (same window) (L1_taper_r1.1_base20_xz, s): theory=— measured=9.76e-23 thr=INFO (D8) -> INFO includes the physical numerical reflection of the grid grading
+[1-1] whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base20_xz, s): theory=0 / — measured=E 6.1e-15, H·η0 6.8e-15 / 9.11e-08 thr=INFO -> INFO the frozen window ends at t = 7.4 T0, where the ramped incident amplitude is only 4.3e-06; the whole-run value is the informative one
+[1-3b] taper angle: max |θ_meas−θ_pred| / |θ_pred−θ_cont| over graded nodes (L1_taper_r1.1_base20_xz, s): theory=0 measured=4.50e-03 thr=≤ 0.1 -> PASS 30 nodes; mean |θ_meas−θ_cont| = 9.420e-04 rad
+[1-0] main field vs Re[aux_ref e^(i(kx x+kz z))], all y, every 10 T0 (L1_taper_r1.1_base20_xz, p): theory=0 measured=E 1.7e-14, H·η0 1.7e-14 thr=< 1e-12 -> PASS 
+[1-1] SF leakage = |F − aux_ref scattered field|/E0, n ≤ 727 (L1_taper_r1.1_base20_xz, p): theory=0 measured=E 8.6e-23, H·η0 6.9e-23 thr=< 1e-10 -> PASS D8
+[1-1] literal SF max / E0 (same window) (L1_taper_r1.1_base20_xz, p): theory=— measured=8.74e-23 thr=INFO (D8) -> INFO includes the physical numerical reflection of the grid grading
+[1-1] whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base20_xz, p): theory=0 / — measured=E 6.2e-15, H·η0 6.3e-15 / 9.11e-08 thr=INFO -> INFO the frozen window ends at t = 7.4 T0, where the ramped incident amplitude is only 4.3e-06; the whole-run value is the informative one
+[1-3b] taper angle: max |θ_meas−θ_pred| / |θ_pred−θ_cont| over graded nodes (L1_taper_r1.1_base20_xz, p): theory=0 measured=4.50e-03 thr=≤ 0.1 -> PASS 30 nodes; mean |θ_meas−θ_cont| = 9.420e-04 rad
+[1-0] main field vs Re[aux_ref e^(i(kx x+kz z))], all y, every 10 T0 (L1_taper_r1.1_base40_xz, s): theory=0 measured=E 2.6e-14, H·η0 2.3e-14 thr=< 1e-12 -> PASS 
+[1-1] SF leakage = |F − aux_ref scattered field|/E0, n ≤ 1212 (L1_taper_r1.1_base40_xz, s): theory=0 measured=E 1.5e-22, H·η0 2.0e-22 thr=< 1e-10 -> PASS D8
+[1-1] literal SF max / E0 (same window) (L1_taper_r1.1_base40_xz, s): theory=— measured=1.99e-22 thr=INFO (D8) -> INFO includes the physical numerical reflection of the grid grading
+[1-1] whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base40_xz, s): theory=0 / — measured=E 9.8e-15, H·η0 1.1e-14 / 8.08e-08 thr=INFO -> INFO the frozen window ends at t = 6.2 T0, where the ramped incident amplitude is only 5.2e-07; the whole-run value is the informative one
+[1-3b] taper angle: max |θ_meas−θ_pred| / |θ_pred−θ_cont| over graded nodes (L1_taper_r1.1_base40_xz, s): theory=0 measured=4.88e-03 thr=≤ 0.1 -> PASS 30 nodes; mean |θ_meas−θ_cont| = 2.355e-04 rad
+[1-0] main field vs Re[aux_ref e^(i(kx x+kz z))], all y, every 10 T0 (L1_taper_r1.1_base40_xz, p): theory=0 measured=E 2.5e-14, H·η0 2.6e-14 thr=< 1e-12 -> PASS 
+[1-1] SF leakage = |F − aux_ref scattered field|/E0, n ≤ 1212 (L1_taper_r1.1_base40_xz, p): theory=0 measured=E 1.2e-22, H·η0 2.2e-22 thr=< 1e-10 -> PASS D8
+[1-1] literal SF max / E0 (same window) (L1_taper_r1.1_base40_xz, p): theory=— measured=2.02e-22 thr=INFO (D8) -> INFO includes the physical numerical reflection of the grid grading
+[1-1] whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base40_xz, p): theory=0 / — measured=E 8.7e-15, H·η0 1.0e-14 / 8.08e-08 thr=INFO -> INFO the frozen window ends at t = 6.2 T0, where the ramped incident amplitude is only 5.2e-07; the whole-run value is the informative one
+[1-3b] taper angle: max |θ_meas−θ_pred| / |θ_pred−θ_cont| over graded nodes (L1_taper_r1.1_base40_xz, p): theory=0 measured=4.88e-03 thr=≤ 0.1 -> PASS 30 nodes; mean |θ_meas−θ_cont| = 2.355e-04 rad
+[1-3b] order of mean|θ_meas−θ_cont| under Δ-doubling, D9 family 10/20/40 (s): theory=2 (pred. 2.003) measured=2.003 (errors 3.78e-03, 9.42e-04, 2.36e-04 rad) thr=∈ [1.8, 2.2] -> PASS amendment D9
+[1-3b] order of mean|θ_meas−θ_cont| under Δ-doubling, D9 family 10/20/40 (p): theory=2 (pred. 2.003) measured=2.003 (errors 3.78e-03, 9.42e-04, 2.36e-04 rad) thr=∈ [1.8, 2.2] -> PASS amendment D9
+[1-4a] abrupt r=4 reflectance vs exact discrete R_disc (s): theory=1.92671634e-05 measured=1.92664279e-05 thr=rel < 0.001 -> PASS rel 3.8e-05 (-47.2 dB amplitude); fit residual 1.3e-14; D1
+[1-4a] numerical-index Fresnel estimate of the fine slab (s): theory=2.1312e-06 measured=measured/estimate = 9.04 (power), 3.01 (amplitude) thr=INFO (D1) -> INFO 
+[1-4a] abrupt r=4 reflectance vs exact discrete R_disc (p): theory=1.92671634e-05 measured=1.92664279e-05 thr=rel < 0.001 -> PASS rel 3.8e-05 (-47.2 dB amplitude); fit residual 3.0e-14; D1
+[1-4a] numerical-index Fresnel estimate of the fine slab (p): theory=1.6621e-07 measured=measured/estimate = 115.91 (power), 10.77 (amplitude) thr=INFO (D1) -> INFO 
+[1-4b] r=1.1 taper reflectance vs R_disc, base λ0/20 (s): theory=1.33213110e-05 measured=1.33205134e-05 thr=rel < 0.001 -> PASS rel 6.0e-05; -48.8 dB (amplitude; −60 dB INFO: above)
+[1-4b] r=1.1 taper reflectance vs R_disc, base λ0/40 (s): theory=7.37563702e-07 measured=7.37568948e-07 thr=rel < 0.001 -> PASS rel 7.1e-06; -61.3 dB (amplitude; −60 dB INFO: below)
+[1-4b] r=1.1 taper reflectance vs R_disc, base λ0/80 (s): theory=2.30295000e-10 measured=2.30255200e-10 thr=rel < 0.001 -> PASS rel 1.7e-04; -96.4 dB (amplitude; −60 dB INFO: below)
+[1-4b] |R| strictly decreasing with refinement 20→40→80 (s): theory=decreasing measured=-48.8 dB → -61.3 dB → -96.4 dB thr=strict decrease -> PASS 
+[1-4b] r=1.1 taper reflectance vs R_disc, base λ0/20 (p): theory=1.33213110e-05 measured=1.33205134e-05 thr=rel < 0.001 -> PASS rel 6.0e-05; -48.8 dB (amplitude; −60 dB INFO: above)
+[1-4b] r=1.1 taper reflectance vs R_disc, base λ0/40 (p): theory=7.37563702e-07 measured=7.37568948e-07 thr=rel < 0.001 -> PASS rel 7.1e-06; -61.3 dB (amplitude; −60 dB INFO: below)
+[1-4b] r=1.1 taper reflectance vs R_disc, base λ0/80 (p): theory=2.30294998e-10 measured=2.30255199e-10 thr=rel < 0.001 -> PASS rel 1.7e-04; -96.4 dB (amplitude; −60 dB INFO: below)
+[1-4b] |R| strictly decreasing with refinement 20→40→80 (p): theory=decreasing measured=-48.8 dB → -61.3 dB → -96.4 dB thr=strict decrease -> PASS 
+[1-4c] reflectance vs r_max and base: r=1.05, base λ0/20 (s): theory=-67.05 dB measured=-67.05 dB thr=INFO -> INFO 
+[1-4c] reflectance vs r_max and base: r=1.05, base λ0/40 (s): theory=-60.32 dB measured=-60.32 dB thr=INFO -> INFO 
+[1-4c] reflectance vs r_max and base: r=1.05, base λ0/80 (s): theory=-73.63 dB measured=— thr=INFO -> INFO FDTD not run at base 80 for the scan (theory only)
+[1-4c] reflectance vs r_max and base: r=1.1, base λ0/20 (s): theory=-48.75 dB measured=-48.75 dB thr=INFO -> INFO 
+[1-4c] reflectance vs r_max and base: r=1.1, base λ0/40 (s): theory=-61.32 dB measured=-61.32 dB thr=INFO -> INFO 
+[1-4c] reflectance vs r_max and base: r=1.1, base λ0/80 (s): theory=-96.38 dB measured=-96.43 dB thr=INFO -> INFO 
+[1-4c] reflectance vs r_max and base: r=1.2, base λ0/20 (s): theory=-48.80 dB measured=-48.80 dB thr=INFO -> INFO 
+[1-4c] reflectance vs r_max and base: r=1.2, base λ0/40 (s): theory=-91.74 dB measured=-91.78 dB thr=INFO -> INFO 
+[1-4c] reflectance vs r_max and base: r=1.2, base λ0/80 (s): theory=-76.76 dB measured=— thr=INFO -> INFO FDTD not run at base 80 for the scan (theory only)
+[1-4c] reflectance vs r_max and base: r=1.5, base λ0/20 (s): theory=-66.00 dB measured=-66.00 dB thr=INFO -> INFO 
+[1-4c] reflectance vs r_max and base: r=1.5, base λ0/40 (s): theory=-64.00 dB measured=-64.00 dB thr=INFO -> INFO 
+[1-4c] reflectance vs r_max and base: r=1.5, base λ0/80 (s): theory=-73.26 dB measured=— thr=INFO -> INFO FDTD not run at base 80 for the scan (theory only)
+[1-4c] reflectance vs r_max and base: r=4, base λ0/20 (s): theory=-47.15 dB measured=-47.15 dB thr=INFO -> INFO 
+[1-4c] reflectance vs r_max and base: r=4, base λ0/40 (s): theory=-59.25 dB measured=-59.25 dB thr=INFO -> INFO 
+[1-4c] reflectance vs r_max and base: r=4, base λ0/80 (s): theory=-71.30 dB measured=— thr=INFO -> INFO FDTD not run at base 80 for the scan (theory only)
+[1-1] uniform control grid: literal SF max / E0, n ≤ 251 (s): theory=0 measured=1.12e-23 thr=< 1e-10 -> PASS 
+[1-1] uniform control grid: literal SF max / E0, n ≤ 251 (p): theory=0 measured=9.07e-24 thr=< 1e-10 -> PASS 
+[1-6] far-PML reflection, N_pml=20 (s): theory=legacy uniform -110.5 dB measured=-110.6 dB thr=|Δ| ≤ 3 dB and < −40 dB -> PASS 
+[1-6] far-PML reflection, N_pml=20 (p): theory=legacy uniform -110.5 dB measured=-110.6 dB thr=|Δ| ≤ 3 dB and < −40 dB -> PASS 
+[1-6] far-PML reflection vs N_pml (s): theory=— measured=N=10: -93.4 dB, N=20: -110.6 dB, N=30: -121.1 dB, N=60: -139.2 dB thr=INFO -> INFO 
+[1-7] 20000 steps; after switch-off: monotone decay from peak to < 1e-8 peak, no late growth: theory=decay measured=42 samples monotone to 5.0e-09; 2nd-half max/start 1.000000 thr=monotone & no growth -> PASS 
+
+gate1: 89/89 gates PASS -> PASS
+exit=0

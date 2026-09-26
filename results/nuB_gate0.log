@@ -1,0 +1,5 @@
+[B0-1] x nonuniform + inc=a is refused: theory=exit 2 + message measured=exit 2: ERROR: phasor aux line requires uniform x and z (x nonuniform=1, z nonuniform=0); use inc= thr=exact -> PASS 
+[B0-1] x nonuniform + inc=p + auxref=1 is refused: theory=exit 2 + message measured=exit 2: ERROR: phasor aux line requires uniform x and z (x nonuniform=1, z nonuniform=0); use inc= thr=exact -> PASS 
+[B0-2 (0-2)] adjointness, x and z graded, seed 1: theory=0 measured=7.41e-19 thr=< 1e-13 -> PASS 
+[B0-2 (0-2)] adjointness, x and z graded, seed 2: theory=0 measured=5.93e-19 thr=< 1e-13 -> PASS 
+[B0-2 (0-2)] C kernel vs Python operator, x and z graded: theory=0 measured=H 3.3e-16, E 2.8e-16 thr=< 1e-13 -> PASS 

@@ -4,7 +4,7 @@
         --variant cont|disc --out runs/nu/meep/B_film_s_cont
 
 y = f(u), u uniform with Δu = du (= λ0/20, also the x/z spacing), s = dy/du. Equivalent material (Meep, u coordinates):
-    eps' = eps·diag(s, 1/s, s),  mu' = diag(s, 1/s, s)          (material_function, eps_averaging = False)
+    eps' = eps·diag(s, 1/s, s),  mu' = diag(s, 1/s, s)          (thin geometry blocks, eps_averaging = False)
 Field map: tangential components unchanged; E'_u = s E_y, H'_u = s H_y.
 variant cont: s(u) = 1 − amp·bump(u) sampled at each component's own position (the continuous metric).
 variant disc: s at integer u nodes = d_j/Δu and at half nodes = h_j/Δu (the discrete metric of our grid) -- diagnostic
@@ -104,10 +104,20 @@ def main():
         j = min(max(int(math.floor(u / du)), 0), Ny - 1)
         return float(eps_n[j])
 
-    def mat(p):
-        u = u_of(p)
-        s, e = s_at(u), eps_at(u)
-        return mp.Medium(epsilon_diag=mp.Vector3(e * s, e / s, e * s), mu_diag=mp.Vector3(s, 1.0 / s, s))
+    # The material is given as geometry: one block per half-grid sample point u_m = m·du/2, of thickness du/2
+    # centred on it (limits at quarter-cell offsets, so every Yee sample lies strictly inside one block).
+    # (A material_function returning mu_diag is NOT honoured by Meep 1.34 -- see results/nu_failures.json, 3B.)
+    def blocks():
+        geo_list = []
+        for m in range(0, 2 * Ny + 1):
+            u = m * du / 2
+            s, e = s_at(u), eps_at(u)
+            if s == 1.0 and e == 1.0:
+                continue
+            geo_list.append(mp.Block(center=mp.Vector3(0, u - Ly / 2, 0), size=mp.Vector3(mp.inf, du / 2, mp.inf),
+                                     material=mp.Medium(epsilon_diag=mp.Vector3(e * s, e / s, e * s),
+                                                        mu_diag=mp.Vector3(s, 1.0 / s, s))))
+        return geo_list
 
     kp = mp.Vector3(KX / (2 * math.pi), 0, KZ / (2 * math.pi))
     courant = a.dt / du
@@ -145,7 +155,7 @@ def main():
     src = [mp.Source(mp.GaussianSource(1.0, fwidth=0.3), component=c, center=mp.Vector3(0, y_src, 0),
                      size=mp.Vector3(Lx, 0, Lz), amplitude=complex(v), amp_func=amp)
            for c, v in ((mp.Ex, J[0]), (mp.Ez, J[2])) if abs(v) > 1e-14]
-    sim = mp.Simulation(cell_size=mp.Vector3(Lx, Ly, Lz), resolution=res, sources=src, material_function=mat,
+    sim = mp.Simulation(cell_size=mp.Vector3(Lx, Ly, Lz), resolution=res, sources=src, geometry=blocks(),
                         boundary_layers=[mp.PML(npml * du, direction=mp.Y)], k_point=kp, Courant=courant,
                         eps_averaging=False)
     dft = sim.add_dft_fields(list(COMPS.values()), [1.0], center=center, size=size, yee_grid=True,

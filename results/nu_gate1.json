@@ -1,6 +1,6 @@
 {
  "gate": "gate1",
- "created_utc": "2026-09-25T20:47:21Z",
+ "created_utc": "2026-09-25T22:14:25Z",
  "table": [
   {
    "item": "1-0",
@@ -31,6 +31,16 @@
    "passed": null,
    "grid": "Δy_min=λ0/80, Δy_max=λ0/20, r_max=1.0968, Δx=λ0/20, Δt=0.0102041 T0",
    "note": "includes the physical numerical reflection of the grid grading"
+  },
+  {
+   "item": "1-1",
+   "quantity": "whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base20, s)",
+   "theory": "0 / —",
+   "measured": "E 6.1e-15, H·η0 6.8e-15 / 9.11e-08",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "Δy_min=λ0/80, Δy_max=λ0/20, r_max=1.0968, Δx=λ0/20, Δt=0.0102041 T0",
+   "note": "the frozen window ends at t = 7.4 T0, where the ramped incident amplitude is only 4.3e-06; the whole-run value is the informative one"
   },
   {
    "item": "1-2",
@@ -133,6 +143,16 @@
    "note": "includes the physical numerical reflection of the grid grading"
   },
   {
+   "item": "1-1",
+   "quantity": "whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base20, p)",
+   "theory": "0 / —",
+   "measured": "E 6.2e-15, H·η0 6.3e-15 / 9.11e-08",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "Δy_min=λ0/80, Δy_max=λ0/20, r_max=1.0968, Δx=λ0/20, Δt=0.0102041 T0",
+   "note": "the frozen window ends at t = 7.4 T0, where the ramped incident amplitude is only 4.3e-06; the whole-run value is the informative one"
+  },
+  {
    "item": "1-2",
    "quantity": "x–z planarity: max over TF planes of RMS phase residual vs kx·x+kz·z (L1_taper_r1.1_base20, p)",
    "theory": "0",
@@ -233,6 +253,16 @@
    "note": "includes the physical numerical reflection of the grid grading"
   },
   {
+   "item": "1-1",
+   "quantity": "whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_abrupt_r4_base20, s)",
+   "theory": "0 / —",
+   "measured": "E 6.2e-15, H·η0 7.6e-15 / 9.11e-08",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "Δy_min=λ0/80, Δy_max=λ0/20, r_max=4.0000, Δx=λ0/20, Δt=0.0102041 T0",
+   "note": "the frozen window ends at t = 6.7 T0, where the ramped incident amplitude is only 1.4e-06; the whole-run value is the informative one"
+  },
+  {
    "item": "1-2",
    "quantity": "x–z planarity: max over TF planes of RMS phase residual vs kx·x+kz·z (L1_abrupt_r4_base20, s)",
    "theory": "0",
@@ -321,6 +351,16 @@
    "passed": null,
    "grid": "Δy_min=λ0/80, Δy_max=λ0/20, r_max=4.0000, Δx=λ0/20, Δt=0.0102041 T0",
    "note": "includes the physical numerical reflection of the grid grading"
+  },
+  {
+   "item": "1-1",
+   "quantity": "whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_abrupt_r4_base20, p)",
+   "theory": "0 / —",
+   "measured": "E 6.2e-15, H·η0 6.0e-15 / 9.11e-08",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "Δy_min=λ0/80, Δy_max=λ0/20, r_max=4.0000, Δx=λ0/20, Δt=0.0102041 T0",
+   "note": "the frozen window ends at t = 6.7 T0, where the ramped incident amplitude is only 1.4e-06; the whole-run value is the informative one"
   },
   {
    "item": "1-2",
@@ -413,6 +453,16 @@
    "note": "includes the physical numerical reflection of the grid grading"
   },
   {
+   "item": "1-1",
+   "quantity": "whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base40, s)",
+   "theory": "0 / —",
+   "measured": "E 8.6e-15, H·η0 9.9e-15 / 8.08e-08",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "Δy_min=λ0/160, Δy_max=λ0/40, r_max=1.0968, Δx=λ0/20, Δt=0.00531915 T0",
+   "note": "the frozen window ends at t = 6.2 T0, where the ramped incident amplitude is only 5.2e-07; the whole-run value is the informative one"
+  },
+  {
    "item": "1-3a",
    "quantity": "ky in sub-region tf_a (h=λ0/40) (L1_taper_r1.1_base40, s)",
    "theory": "5.027543096692 /λ0",
@@ -481,6 +531,16 @@
    "passed": null,
    "grid": "Δy_min=λ0/160, Δy_max=λ0/40, r_max=1.0968, Δx=λ0/20, Δt=0.00531915 T0",
    "note": "includes the physical numerical reflection of the grid grading"
+  },
+  {
+   "item": "1-1",
+   "quantity": "whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base40, p)",
+   "theory": "0 / —",
+   "measured": "E 8.7e-15, H·η0 8.4e-15 / 8.08e-08",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "Δy_min=λ0/160, Δy_max=λ0/40, r_max=1.0968, Δx=λ0/20, Δt=0.00531915 T0",
+   "note": "the frozen window ends at t = 6.2 T0, where the ramped incident amplitude is only 5.2e-07; the whole-run value is the informative one"
   },
   {
    "item": "1-3a",
@@ -553,6 +613,16 @@
    "note": "includes the physical numerical reflection of the grid grading"
   },
   {
+   "item": "1-1",
+   "quantity": "whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base80, s)",
+   "theory": "0 / —",
+   "measured": "E 1.2e-14, H·η0 1.2e-14 / 7.81e-08",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "Δy_min=λ0/320, Δy_max=λ0/80, r_max=1.0968, Δx=λ0/20, Δt=0.00269542 T0",
+   "note": "the frozen window ends at t = 5.6 T0, where the ramped incident amplitude is only 1.7e-07; the whole-run value is the informative one"
+  },
+  {
    "item": "1-3a",
    "quantity": "ky in sub-region tf_a (h=λ0/80) (L1_taper_r1.1_base80, s)",
    "theory": "5.025332415829 /λ0",
@@ -621,6 +691,16 @@
    "passed": null,
    "grid": "Δy_min=λ0/320, Δy_max=λ0/80, r_max=1.0968, Δx=λ0/20, Δt=0.00269542 T0",
    "note": "includes the physical numerical reflection of the grid grading"
+  },
+  {
+   "item": "1-1",
+   "quantity": "whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base80, p)",
+   "theory": "0 / —",
+   "measured": "E 1.3e-14, H·η0 1.3e-14 / 7.81e-08",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "Δy_min=λ0/320, Δy_max=λ0/80, r_max=1.0968, Δx=λ0/20, Δt=0.00269542 T0",
+   "note": "the frozen window ends at t = 5.6 T0, where the ramped incident amplitude is only 1.7e-07; the whole-run value is the informative one"
   },
   {
    "item": "1-3a",
@@ -693,6 +773,16 @@
    "note": "includes the physical numerical reflection of the grid grading"
   },
   {
+   "item": "1-1",
+   "quantity": "whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base10_xz, s)",
+   "theory": "0 / —",
+   "measured": "E 4.0e-15, H·η0 4.4e-15 / 1.37e-07",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "Δy_min=λ0/40, Δy_max=λ0/10, r_max=1.0968, Δx=λ0/10, Δt=0.0204082 T0",
+   "note": "the frozen window ends at t = 9.9 T0, where the ramped incident amplitude is only 1.8e-04; the whole-run value is the informative one"
+  },
+  {
    "item": "1-3b",
    "quantity": "taper angle: max |θ_meas−θ_pred| / |θ_pred−θ_cont| over graded nodes (L1_taper_r1.1_base10_xz, s)",
    "theory": "0",
@@ -731,6 +821,16 @@
    "passed": null,
    "grid": "Δy_min=λ0/40, Δy_max=λ0/10, r_max=1.0968, Δx=λ0/10, Δt=0.0204082 T0",
    "note": "includes the physical numerical reflection of the grid grading"
+  },
+  {
+   "item": "1-1",
+   "quantity": "whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base10_xz, p)",
+   "theory": "0 / —",
+   "measured": "E 3.9e-15, H·η0 4.1e-15 / 1.37e-07",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "Δy_min=λ0/40, Δy_max=λ0/10, r_max=1.0968, Δx=λ0/10, Δt=0.0204082 T0",
+   "note": "the frozen window ends at t = 9.9 T0, where the ramped incident amplitude is only 1.8e-04; the whole-run value is the informative one"
   },
   {
    "item": "1-3b",
@@ -773,6 +873,16 @@
    "note": "includes the physical numerical reflection of the grid grading"
   },
   {
+   "item": "1-1",
+   "quantity": "whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base20_xz, s)",
+   "theory": "0 / —",
+   "measured": "E 6.1e-15, H·η0 6.8e-15 / 9.11e-08",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "Δy_min=λ0/80, Δy_max=λ0/20, r_max=1.0968, Δx=λ0/20, Δt=0.0102041 T0",
+   "note": "the frozen window ends at t = 7.4 T0, where the ramped incident amplitude is only 4.3e-06; the whole-run value is the informative one"
+  },
+  {
    "item": "1-3b",
    "quantity": "taper angle: max |θ_meas−θ_pred| / |θ_pred−θ_cont| over graded nodes (L1_taper_r1.1_base20_xz, s)",
    "theory": "0",
@@ -811,6 +921,16 @@
    "passed": null,
    "grid": "Δy_min=λ0/80, Δy_max=λ0/20, r_max=1.0968, Δx=λ0/20, Δt=0.0102041 T0",
    "note": "includes the physical numerical reflection of the grid grading"
+  },
+  {
+   "item": "1-1",
+   "quantity": "whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base20_xz, p)",
+   "theory": "0 / —",
+   "measured": "E 6.2e-15, H·η0 6.3e-15 / 9.11e-08",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "Δy_min=λ0/80, Δy_max=λ0/20, r_max=1.0968, Δx=λ0/20, Δt=0.0102041 T0",
+   "note": "the frozen window ends at t = 7.4 T0, where the ramped incident amplitude is only 4.3e-06; the whole-run value is the informative one"
   },
   {
    "item": "1-3b",
@@ -853,6 +973,16 @@
    "note": "includes the physical numerical reflection of the grid grading"
   },
   {
+   "item": "1-1",
+   "quantity": "whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base40_xz, s)",
+   "theory": "0 / —",
+   "measured": "E 9.8e-15, H·η0 1.1e-14 / 8.08e-08",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "Δy_min=λ0/160, Δy_max=λ0/40, r_max=1.0968, Δx=λ0/40, Δt=0.00510204 T0",
+   "note": "the frozen window ends at t = 6.2 T0, where the ramped incident amplitude is only 5.2e-07; the whole-run value is the informative one"
+  },
+  {
    "item": "1-3b",
    "quantity": "taper angle: max |θ_meas−θ_pred| / |θ_pred−θ_cont| over graded nodes (L1_taper_r1.1_base40_xz, s)",
    "theory": "0",
@@ -891,6 +1021,16 @@
    "passed": null,
    "grid": "Δy_min=λ0/160, Δy_max=λ0/40, r_max=1.0968, Δx=λ0/40, Δt=0.00510204 T0",
    "note": "includes the physical numerical reflection of the grid grading"
+  },
+  {
+   "item": "1-1",
+   "quantity": "whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base40_xz, p)",
+   "theory": "0 / —",
+   "measured": "E 8.7e-15, H·η0 1.0e-14 / 8.08e-08",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "Δy_min=λ0/160, Δy_max=λ0/40, r_max=1.0968, Δx=λ0/40, Δt=0.00510204 T0",
+   "note": "the frozen window ends at t = 6.2 T0, where the ramped incident amplitude is only 5.2e-07; the whole-run value is the informative one"
   },
   {
    "item": "1-3b",
@@ -976,21 +1116,21 @@
    "item": "1-4b",
    "quantity": "r=1.1 taper reflectance vs R_disc, base λ0/40 (s)",
    "theory": "7.37563702e-07",
-   "measured": "7.37605680e-07",
+   "measured": "7.37568948e-07",
    "threshold": "rel < 0.001",
    "passed": true,
-   "grid": "L1_taper_r1.1_base40",
-   "note": "rel 5.7e-05; -61.3 dB (amplitude; −60 dB INFO: below)"
+   "grid": "L1_taper_r1.1_base40_P3",
+   "note": "rel 7.1e-06; -61.3 dB (amplitude; −60 dB INFO: below)"
   },
   {
    "item": "1-4b",
    "quantity": "r=1.1 taper reflectance vs R_disc, base λ0/80 (s)",
    "theory": "2.30295000e-10",
-   "measured": "2.27756387e-10",
+   "measured": "2.30255200e-10",
    "threshold": "rel < 0.001",
-   "passed": false,
-   "grid": "L1_taper_r1.1_base80",
-   "note": "rel 1.1e-02; -96.4 dB (amplitude; −60 dB INFO: below)"
+   "passed": true,
+   "grid": "L1_taper_r1.1_base80_P3",
+   "note": "rel 1.7e-04; -96.4 dB (amplitude; −60 dB INFO: below)"
   },
   {
    "item": "1-4b",
@@ -1016,21 +1156,21 @@
    "item": "1-4b",
    "quantity": "r=1.1 taper reflectance vs R_disc, base λ0/40 (p)",
    "theory": "7.37563702e-07",
-   "measured": "7.37605680e-07",
+   "measured": "7.37568948e-07",
    "threshold": "rel < 0.001",
    "passed": true,
-   "grid": "L1_taper_r1.1_base40",
-   "note": "rel 5.7e-05; -61.3 dB (amplitude; −60 dB INFO: below)"
+   "grid": "L1_taper_r1.1_base40_P3",
+   "note": "rel 7.1e-06; -61.3 dB (amplitude; −60 dB INFO: below)"
   },
   {
    "item": "1-4b",
    "quantity": "r=1.1 taper reflectance vs R_disc, base λ0/80 (p)",
    "theory": "2.30294998e-10",
-   "measured": "2.27756388e-10",
+   "measured": "2.30255199e-10",
    "threshold": "rel < 0.001",
-   "passed": false,
-   "grid": "L1_taper_r1.1_base80",
-   "note": "rel 1.1e-02; -96.4 dB (amplitude; −60 dB INFO: below)"
+   "passed": true,
+   "grid": "L1_taper_r1.1_base80_P3",
+   "note": "rel 1.7e-04; -96.4 dB (amplitude; −60 dB INFO: below)"
   },
   {
    "item": "1-4b",
@@ -1253,5 +1393,5 @@
    "note": ""
   }
  ],
- "passed": false
+ "passed": true
 }

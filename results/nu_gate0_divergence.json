@@ -1,6 +1,6 @@
 {
  "gate": "gate0_divergence",
- "created_utc": "2026-09-25T17:32:48Z",
+ "created_utc": "2026-09-25T21:24:21Z",
  "table": [
   {
    "item": "0-5",
@@ -14,14 +14,34 @@
   },
   {
    "item": "0-5",
-   "quantity": "control: uniform operator (every difference / Δx)",
+   "quantity": "control: uniform operator (every difference / Δx) on div H (s)",
    "theory": "clearly ≠ 0",
    "measured": "E 6.58e-14, H 5.38e-01",
-   "threshold": "≥ 1e-06",
-   "passed": false,
+   "threshold": "div H ≥ 1e-06",
+   "passed": true,
    "grid": "L1_taper_r1.1_base20",
-   "note": "proves the test is sensitive to the metric"
+   "note": "div E is blind to the y metric here: its normal component Ey is identically 0"
+  },
+  {
+   "item": "0-5",
+   "quantity": "max|div E|, |div H| / (|K~| max|F|), TF j∈[42,206] (L1_taper_r1.1_base20, p, final step)",
+   "theory": "0",
+   "measured": "E 2.0e-13, H 6.4e-14 (C log, all periods: E 2.1e-13)",
+   "threshold": "< 1e-10",
+   "passed": true,
+   "grid": "Δy_min=λ0/80, Δy_max=λ0/20, r_max=1.0968, Δx=λ0/20, Δt=0.0102041 T0",
+   "note": ""
+  },
+  {
+   "item": "0-5",
+   "quantity": "control: uniform operator (every difference / Δx) on div E (p)",
+   "theory": "clearly ≠ 0",
+   "measured": "E 5.38e-01, H 6.87e-14",
+   "threshold": "div E ≥ 1e-06",
+   "passed": true,
+   "grid": "L1_taper_r1.1_base20",
+   "note": "div H is blind to the y metric here: its normal component Hy is identically 0"
   }
  ],
- "passed": false
+ "passed": true
 }

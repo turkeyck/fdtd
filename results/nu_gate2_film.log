@@ -1,0 +1,31 @@
+[2-1] |R − R_TMM| (F1, s, default grid D6): theory=0.23602548 measured=0.23595142 thr=< 0.001 -> PASS Δ = -7.41e-05
+[2-1] |T − T_TMM| (F1, s, default grid D6): theory=0.76397452 measured=0.76404667 thr=< 0.001 -> PASS Δ = +7.21e-05
+[2-2] |R + T − 1| (F1, s): theory=0 measured=-1.90e-06 thr=< 1e-05 -> PASS R by 2-wave fit, T by substrate flux; S_y spread 8.8e-14
+[2-7] FDTD vs exact discrete R_disc, same grid (F1, s): theory=0.2359535843 measured=0.2359514241 thr=INFO -> INFO rel 9.2e-06; main vs aux_ref 1.2e-14
+[2-1] |R − R_TMM| (F1, p, default grid D6): theory=0.10224275 measured=0.10239699 thr=< 0.001 -> PASS Δ = +1.54e-04
+[2-1] |T − T_TMM| (F1, p, default grid D6): theory=0.89775725 measured=0.89760152 thr=< 0.001 -> PASS Δ = -1.56e-04
+[2-2] |R + T − 1| (F1, p): theory=0 measured=-1.50e-06 thr=< 1e-05 -> PASS R by 2-wave fit, T by substrate flux; S_y spread 9.9e-14
+[2-7] FDTD vs exact discrete R_disc, same grid (F1, p): theory=0.1023986682 measured=0.1023969870 thr=INFO -> INFO rel 1.6e-05; main vs aux_ref 1.3e-14
+[2-1] |R − R_TMM| (F5, s, default grid D6): theory=0.10364215 measured=0.10288858 thr=< 0.001 -> PASS Δ = -7.54e-04
+[2-1] |T − T_TMM| (F5, s, default grid D6): theory=0.89635785 measured=0.89711014 thr=< 0.001 -> PASS Δ = +7.52e-04
+[2-2] |R + T − 1| (F5, s): theory=0 measured=-1.28e-06 thr=< 1e-05 -> PASS R by 2-wave fit, T by substrate flux; S_y spread 1.0e-13
+[2-7] FDTD vs exact discrete R_disc, same grid (F5, s): theory=0.1028893834 measured=0.1028885814 thr=INFO -> INFO rel 7.8e-06; main vs aux_ref 1.2e-14
+[2-1] |R − R_TMM| (F5, p, default grid D6): theory=0.03810250 measured=0.03781652 thr=< 0.001 -> PASS Δ = -2.86e-04
+[2-1] |T − T_TMM| (F5, p, default grid D6): theory=0.96189750 measured=0.96218266 thr=< 0.001 -> PASS Δ = +2.85e-04
+[2-2] |R + T − 1| (F5, p): theory=0 measured=-8.20e-07 thr=< 1e-05 -> PASS R by 2-wave fit, T by substrate flux; S_y spread 1.2e-13
+[2-7] FDTD vs exact discrete R_disc, same grid (F5, p): theory=0.0378171758 measured=0.0378165218 thr=INFO -> INFO rel 1.7e-05; main vs aux_ref 1.3e-14
+[2-3] order of R vs Δy, aligned nonuniform (D10: bis1,2,4; F1, s): theory=2 (pred. 2.025) measured=2.026 thr=∈ [1.8, 2.2] -> PASS R = 0.23496064, 0.23565141, 0.23582097; R_∞(Δx) = 0.23587613
+[2-3] order of R vs Δy, aligned nonuniform (D10: bis1,2,4; F1, p): theory=2 (pred. 2.023) measured=2.024 thr=∈ [1.8, 2.2] -> PASS R = 0.10160845, 0.10218672, 0.10232886; R_∞(Δx) = 0.10237518
+[2-3] order of R vs Δy, aligned nonuniform (D10: bis1,2,4; F5, s): theory=2 (pred. 2.011) measured=2.010 thr=∈ [1.8, 2.2] -> PASS R = 0.10065920, 0.10272687, 0.10324006; R_∞(Δx) = 0.10340948
+[2-3] order of R vs Δy, aligned nonuniform (D10: bis1,2,4; F5, p): theory=2 (pred. 2.006) measured=2.005 thr=∈ [1.8, 2.2] -> PASS R = 0.03642456, 0.03768163, 0.03799482; R_∞(Δx) = 0.03809873
+[2-4] control: unaligned uniform grid, order of R (D11; F1, s): theory=1 (pred. 0.967) measured=0.966 thr=∈ [0.8, 1.2] -> PASS errors -1.99e-02, -9.73e-03, -5.07e-03
+[2-4] control: unaligned uniform grid, order of R (D11; F1, p): theory=1 (pred. 0.962) measured=0.962 thr=∈ [0.8, 1.2] -> PASS errors -1.42e-02, -7.00e-03, -3.65e-03
+[2-5] error budget (F1, s): total = y-discretization + transverse (K~t vs k_t): theory=total -7.41e-05 measured=y +7.53e-05, transverse -1.49e-04 thr=INFO -> INFO x/z λ0/20→λ0/40 at fixed y grid: ΔR = +1.11e-04 (theory +1.11e-04)
+[2-5] error budget (F1, p): total = y-discretization + transverse (K~t vs k_t): theory=total +1.54e-04 measured=y +2.18e-05, transverse +1.32e-04 thr=INFO -> INFO x/z λ0/20→λ0/40 at fixed y grid: ΔR = -9.20e-05 (theory -9.20e-05)
+[2-5] error budget (F5, s): total = y-discretization + transverse (K~t vs k_t): theory=total -7.54e-04 measured=y -5.21e-04, transverse -2.33e-04 thr=INFO -> INFO 
+[2-5] error budget (F5, p): total = y-discretization + transverse (K~t vs k_t): theory=total -2.86e-04 measured=y -2.82e-04, transverse -3.77e-06 thr=INFO -> INFO 
+[2-6] efficiency: same y-discretization error |R−R_∞(Δx)| (s): nonuniform default vs uniform aligned L2_F1_uniform_M24: theory=target 7.53e-05 measured=nonuniform 0.95M cells × 9630 steps, 346 s; uniform 5.20M cells × 31320 steps, 2524 s (err 7.25e-05) thr=INFO -> INFO 
+[2-6] efficiency: same y-discretization error |R−R_∞(Δx)| (p): nonuniform default vs uniform aligned L2_F1_uniform_M40: theory=target 2.18e-05 measured=nonuniform 0.95M cells × 9630 steps, 340 s; uniform 8.59M cells × 52110 steps (exact discrete err 2.12e-05; FDTD not run: ~49x the work) thr=INFO -> INFO 
+
+gate2: 18/18 gates PASS -> PASS
+exit=0

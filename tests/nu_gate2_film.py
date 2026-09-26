@@ -197,7 +197,9 @@ def main():
                   grid="default grid / D10 limit", note=note)
     # ---- 2-6 efficiency (INFO): uniform aligned grid reaching the same |R − R_TMM| as the default grid
     for pol in POLS:
-        Rt = nc.pred(f"L2/F1/{pol}/R_TMM")
+        # both grids share x/z (λ0/20), hence the same transverse error; compare the y-discretization error each grid
+        # controls, |R − R_∞(Δx)| (the total |R − R_TMM| of F1 benefits from a cancellation of y and transverse terms)
+        Rt = rinf[("F1", pol)]
         target = abs(res[("L2_F1_ppw40", pol)]["R"] - Rt)
         chosen = None
         for M in range(7, 80):
@@ -211,9 +213,19 @@ def main():
         if chosen is None:
             T.row("2-6", f"efficiency ({pol})", "—", "no uniform grid up to M=79 reaches the target", "INFO", None)
             continue
-        m, geo, meta = run_measure(chosen, pol)
         d = res[("L2_F1_ppw40", pol)]
-        T.row("2-6", f"efficiency: same |R−R_TMM| ({pol}): nonuniform default vs uniform aligned {chosen}",
+        if pol == "p":   # FDTD cost only estimated for p (the matching uniform grid needs ~9M cells x 5e4 steps)
+            geo_u = nc.Geo(nc.load_grid(chosen))
+            cells = geo_u.Nx * (geo_u.Ny + 1) * geo_u.Nz
+            steps = RN.PERIODS * int(round(1.0 / geo_u.dt_run()))
+            T.row("2-6", f"efficiency: same y-discretization error |R−R_∞(Δx)| ({pol}): nonuniform default vs uniform aligned {chosen}",
+                  f"target {target:.2e}",
+                  f"nonuniform {d['cells'] / 1e6:.2f}M cells × {d['steps']} steps, {d['runtime']:.0f} s; uniform "
+                  f"{cells / 1e6:.2f}M cells × {steps} steps (exact discrete err {abs(Rd - Rt):.2e}; FDTD not run: "
+                  f"~{cells * steps / (d['cells'] * d['steps']):.0f}x the work)", "INFO", None, grid="F1")
+            continue
+        m, geo, meta = run_measure(chosen, pol)
+        T.row("2-6", f"efficiency: same y-discretization error |R−R_∞(Δx)| ({pol}): nonuniform default vs uniform aligned {chosen}",
               f"target {target:.2e}",
               f"nonuniform {d['cells'] / 1e6:.2f}M cells × {d['steps']} steps, {d['runtime']:.0f} s; uniform "
               f"{m['cells'] / 1e6:.2f}M cells × {m['steps']} steps, {m['runtime']:.0f} s (err {abs(m['R'] - Rt):.2e})",

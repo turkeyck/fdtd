@@ -1,0 +1,30 @@
+[3A-2] Meep Richardson limit vs TMM (F1, s), res [100, 200, 400]: theory=R 0.23602548, T 0.76397452 measured=R 0.23602641, T 0.76397545 thr=< 0.0001 -> PASS ΔR +9.3e-07, ΔT +9.2e-07; observed order 2.00; R(res) = 0.2353690, 0.2358625, 0.2359855
+[3A-3] own limit (D14: y + x/z halved, 2-level) vs Meep limit (F1, s): theory=0.23602641 measured=0.23603025 thr=< 0.0001 -> PASS own R(k=1,2) = 0.23496064, 0.23576285; own limit − TMM +4.8e-06 (pred. +4.6e-06)
+[3A-4] own default grid (D6) vs Meep limit (F1, s): theory=0.23602641 measured=0.23595142 thr=< 0.001 -> PASS 
+[3A-2] Meep Richardson limit vs TMM (F1, p), res [100, 200, 400]: theory=R 0.10224275, T 0.89775725 measured=R 0.10224330, T 0.89775861 thr=< 0.0001 -> PASS ΔR +5.5e-07, ΔT +1.4e-06; observed order 2.00; R(res) = 0.1017189, 0.1021125, 0.1022107
+[3A-3] own limit (D14: y + x/z halved, 2-level) vs Meep limit (F1, p): theory=0.10224330 measured=0.10224659 thr=< 0.0001 -> PASS own R(k=1,2) = 0.10160845, 0.10208705; own limit − TMM +3.8e-06 (pred. +3.7e-06)
+[3A-4] own default grid (D6) vs Meep limit (F1, p): theory=0.10224330 measured=0.10239699 thr=< 0.001 -> PASS 
+[3A-2] Meep Richardson limit vs TMM (F5, s), res [100, 200, 400]: theory=R 0.10364215, T 0.89635785 measured=R 0.10364286, T 0.89635855 thr=< 0.0001 -> PASS ΔR +7.0e-07, ΔT +7.0e-07; observed order 2.00; R(res) = 0.1030647, 0.1034983, 0.1036067
+[3A-3] own limit (D14: y + x/z halved, 2-level) vs Meep limit (F5, s): theory=0.10364286 measured=0.10364754 thr=< 0.0001 -> PASS own R(k=1,2) = 0.10065920, 0.10290045; own limit − TMM +5.4e-06 (pred. +5.7e-06)
+[3A-4] own default grid (D6) vs Meep limit (F5, s): theory=0.10364286 measured=0.10288858 thr=< 0.001 -> PASS 
+[3A-2] Meep Richardson limit vs TMM (F5, p), res [100, 200, 400]: theory=R 0.03810250, T 0.96189750 measured=R 0.03810293, T 0.96189851 thr=< 0.0001 -> PASS ΔR +4.3e-07, ΔT +1.0e-06; observed order 2.00; R(res) = 0.0377522, 0.0380151, 0.0380810
+[3A-3] own limit (D14: y + x/z halved, 2-level) vs Meep limit (F5, p): theory=0.03810293 measured=0.03810455 thr=< 0.0001 -> PASS own R(k=1,2) = 0.03642456, 0.03768455; own limit − TMM +2.0e-06 (pred. +2.2e-06)
+[3A-4] own default grid (D6) vs Meep limit (F5, p): theory=0.03810293 measured=0.03781652 thr=< 0.001 -> PASS 
+[3A-1] Meep thin Bloch cell vs full Lx×Lz cell, res 40 (F1, s): theory=R 0.2325339081 measured=R 0.2325339081 thr=< 1e-06 -> PASS D13 (resolution 40)
+[3B-1] tangential DFT profiles, own vs Meep (transformation optics, continuous metric; vac, s): theory=0 measured=rel L2 5.45e-04 thr=< 0.001 -> PASS Meep Courant 0.2041 (= Δt_own/Δu); position probe OK; conj False
+[3B-4] both runs finite (vac, s): theory=finite measured=own exit 0, Meep finite=True thr=finite -> PASS 
+[3B-3] discrete-metric variant (s = d/Δu at nodes, h/Δu at half nodes; vac, s): theory=— measured=rel L2 2.39e-04 (continuous metric 5.45e-04) thr=INFO -> INFO 
+[3B-1] tangential DFT profiles, own vs Meep (transformation optics, continuous metric; vac, p): theory=0 measured=rel L2 6.48e-04 thr=< 0.001 -> PASS Meep Courant 0.2041 (= Δt_own/Δu); position probe OK; conj False
+[3B-4] both runs finite (vac, p): theory=finite measured=own exit 0, Meep finite=True thr=finite -> PASS 
+[3B-3] discrete-metric variant (s = d/Δu at nodes, h/Δu at half nodes; vac, p): theory=— measured=rel L2 4.30e-04 (continuous metric 6.48e-04) thr=INFO -> INFO 
+[3B-3] metric sampling difference (vac): theory=O(Δu²) measured=max|s(u_j) − d_j/Δu| = 7.63e-04, max|s(u_j+½) − h_j/Δu| = 1.92e-04 thr=INFO -> INFO our dual nodes are primal midpoints, Meep's are f(u_{j+1/2}); d_j and h_j are cell averages of s
+[3B-2] tangential DFT profiles, own vs Meep (transformation optics, continuous metric; film, s): theory=0 measured=rel L2 8.64e-04 thr=< 0.001 -> PASS Meep Courant 0.2041 (= Δt_own/Δu); position probe OK; conj False
+[3B-4] both runs finite (film, s): theory=finite measured=own exit 0, Meep finite=True thr=finite -> PASS 
+[3B-3] discrete-metric variant (s = d/Δu at nodes, h/Δu at half nodes; film, s): theory=— measured=rel L2 2.46e-04 (continuous metric 8.64e-04) thr=INFO -> INFO 
+[3B-2] tangential DFT profiles, own vs Meep (transformation optics, continuous metric; film, p): theory=0 measured=rel L2 9.29e-04 thr=< 0.001 -> PASS Meep Courant 0.2041 (= Δt_own/Δu); position probe OK; conj False
+[3B-4] both runs finite (film, p): theory=finite measured=own exit 0, Meep finite=True thr=finite -> PASS 
+[3B-3] discrete-metric variant (s = d/Δu at nodes, h/Δu at half nodes; film, p): theory=— measured=rel L2 4.24e-04 (continuous metric 9.29e-04) thr=INFO -> INFO 
+[3B-3] metric sampling difference (film): theory=O(Δu²) measured=max|s(u_j) − d_j/Δu| = 7.63e-04, max|s(u_j+½) − h_j/Δu| = 1.92e-04 thr=INFO -> INFO our dual nodes are primal midpoints, Meep's are f(u_{j+1/2}); d_j and h_j are cell averages of s
+
+gate3: 21/21 gates PASS -> PASS
+exit=0
