@@ -1,369 +1,389 @@
 {
-  "_doc": "Frozen gate definitions for the nonuniform-grid work (SPEC_nonuniform.md §20). Created in Stage 0 before any nonuniform simulation. Do not edit without a user decision recorded in SPEC_nonuniform.md; run_nu_regression.py checks the sha256.",
-  "decisions": {
-    "D1": "abrupt r=4 reflection judged vs exact discrete R_disc, rel < 1e-3",
-    "D2": "r=1.1 taper judged vs R_disc rel < 1e-3 and |R| strictly decreasing base 20->40->80; -60 dB INFO",
-    "D3": "taper angle |theta_meas-theta_pred| <= 0.1 |theta_pred-theta_cont|; order in [1.8,2.2]",
-    "D6": "Level 2 default grid: y PPW=40 per material, x/z = lambda0/20",
-    "D7": "legacy Level 2 judged vs exact discrete Fresnel",
-    "D8": "Level 1-1 leakage = SF field minus aux_ref predicted scattered field"
+ "_doc": "Frozen gate definitions for the nonuniform-grid work (SPEC_nonuniform.md §20). Created in Stage 0 before any nonuniform simulation. Do not edit without a user decision recorded in SPEC_nonuniform.md; run_nu_regression.py checks the sha256.",
+ "decisions": {
+  "D1": "abrupt r=4 reflection judged vs exact discrete R_disc, rel < 1e-3",
+  "D2": "r=1.1 taper judged vs R_disc rel < 1e-3 and |R| strictly decreasing base 20->40->80; -60 dB INFO",
+  "D3": "taper angle |theta_meas-theta_pred| <= 0.1 |theta_pred-theta_cont|; order in [1.8,2.2]",
+  "D6": "Level 2 default grid: y PPW=40 per material, x/z = lambda0/20",
+  "D7": "legacy Level 2 judged vs exact discrete Fresnel",
+  "D8": "Level 1-1 leakage = SF field minus aux_ref predicted scattered field"
+ },
+ "common": {
+  "angle": {
+   "m": 1,
+   "n": 1,
+   "Lx": 2.0,
+   "Lz": 3.0
   },
-  "common": {
-    "angle": {
-      "m": 1,
-      "n": 1,
-      "Lx": 2.0,
-      "Lz": 3.0
-    },
-    "S": 0.5,
-    "uniform_zone_cells": 5,
-    "r_max_default": 1.1,
-    "order_2_window": [
-      1.8,
-      2.2
-    ],
-    "order_1_window": [
-      0.8,
-      1.2
-    ]
+  "S": 0.5,
+  "uniform_zone_cells": 5,
+  "r_max_default": 1.1,
+  "order_2_window": [
+   1.8,
+   2.2
+  ],
+  "order_1_window": [
+   0.8,
+   1.2
+  ]
+ },
+ "gate0": {
+  "0-1a": {
+   "steps": [
+    1,
+    10,
+    100,
+    1000,
+    5000
+   ],
+   "max_rel": 1e-12,
+   "exclude": "half-grid components at j=Ny (NaN)"
   },
-  "gate0": {
-    "0-1a": {
-      "steps": [
-        1,
-        10,
-        100,
-        1000,
-        5000
-      ],
-      "max_rel": 1e-12,
-      "exclude": "half-grid components at j=Ny (NaN)"
-    },
-    "0-1b": {
-      "legacy_regression": "tests/run_all_regression.py --fresh",
-      "require": "all PASS"
-    },
-    "0-2": {
-      "rel": 1e-13,
-      "grids": [
-        "L1_taper_r1.1_base20",
-        "L1_abrupt_r4_base20"
-      ]
-    },
-    "0-3": {
-      "nsteps": 100000,
-      "rel_drift": 1e-10,
-      "grid": "L1_taper_r1.1_base20",
-      "bc_y": "PEC (npml=0)",
-      "init": "random"
-    },
-    "0-4": {
-      "power_iter_rq_tol": 1e-10,
-      "stable_factor": 0.99,
-      "unstable_factor": 1.02,
-      "nsteps": 20000,
-      "diverge_criterion": "non-finite field or max|F| > 1e6 * initial max|F| within nsteps",
-      "stable_criterion": "finite for nsteps and W_mod drift < 1e-10"
-    },
-    "0-5": {
-      "rel": 1e-10,
-      "normalization": "max|div F| / (|K~| max|F|)",
-      "region": "j in [j0+2, Ny-npml_hi-2]",
-      "control_min": 1e-06,
-      "grid": "L1_taper_r1.1_base20"
-    }
+  "0-1b": {
+   "legacy_regression": "tests/run_all_regression.py --fresh",
+   "require": "all PASS"
   },
-  "gate1": {
-    "grids": {
-      "taper": [
-        "L1_taper_r1.1_base20",
-        "L1_taper_r1.1_base40",
-        "L1_taper_r1.1_base80"
-      ],
-      "abrupt": "L1_abrupt_r4_base20",
-      "uniform_ctrl": "L1_uniform_ctrl",
-      "scan_r": [
-        1.05,
-        1.1,
-        1.2,
-        1.5,
-        4.0
-      ],
-      "scan_base": [
-        20,
-        40,
-        80
-      ]
-    },
-    "layout": "near PML 20 | SF 20 | j0 | uniform 2 lambda0 | taper down to base/4 | hold 0.5 lambda0 | taper up | uniform 3 lambda0 | far PML",
-    "npml_far_judged": 60,
-    "npml_far_info": 20,
-    "1-0": {
-      "max_rel": 1e-12,
-      "what": "max|F_main - Re[aux_ref e^{i phi}]|/E0 over all y planes"
-    },
-    "1-1": {
-      "max_rel": 1e-10,
-      "what": "SF: |F_main - aux_ref predicted scattered field|/E0 until incident front reaches far PML (c, 10% margin)",
-      "literal_info": "SF max / E0 (INFO)",
-      "uniform_ctrl_literal_max": 1e-10
-    },
-    "1-2": {
-      "rms_rad": 1e-08
-    },
-    "1-3a": {
-      "rel": 1e-06,
-      "method": "three-point cos(ky h)=(E_{j+1}+E_{j-1})/(2E_j), all nodes whose 3-point stencil lies in one uniform subregion, excluding j0+-1 and PML"
-    },
-    "1-3b": {
-      "ratio": 0.1,
-      "order_window": [
-        1.8,
-        2.2
-      ],
-      "h_loc": "d_j between the two adjacent dual nodes",
-      "method": "local forward-wave decomposition"
-    },
-    "1-4a": {
-      "rel_vs_Rdisc": 0.001,
-      "fit_region": "uniform region between j0+2 and first graded node - 1",
-      "fresnel_estimate": "INFO"
-    },
-    "1-4b": {
-      "rel_vs_Rdisc": 0.001,
-      "strictly_decreasing": [
-        "base20",
-        "base40",
-        "base80"
-      ],
-      "minus60dB": "INFO"
-    },
-    "1-5": {
-      "rel_var": 0.0001,
-      "interp": "distance-weighted H to E primal nodes",
-      "half_average": "INFO"
-    },
-    "1-6": {
-      "npml_list": [
-        10,
-        20,
-        30,
-        60
-      ],
-      "judged_npml": 20,
-      "max_db_diff_vs_uniform": 3.0,
-      "max_db": -40.0
-    },
-    "1-7": {
-      "nsteps_min": 20000,
-      "rule": "monotone decay from energy peak to < 1e-8 peak; second-half max <= its start value"
-    }
+  "0-2": {
+   "rel": 1e-13,
+   "grids": [
+    "L1_taper_r1.1_base20",
+    "L1_abrupt_r4_base20"
+   ]
   },
-  "gate2": {
-    "structures": {
-      "F1": "vacuum | n=2.0, 0.08 lambda0 | n=1.46 substrate into far PML",
-      "F5": "vacuum | H L H L H (nH=2.0 dH=0.08, nL=1.46 dL=0.12) | n=1.46 substrate"
-    },
-    "pols": [
-      "s",
-      "p"
-    ],
-    "default_grid": {
-      "ppw_y": 40,
-      "dxz": 0.05
-    },
-    "2-1": {
-      "abs": 0.001
-    },
-    "2-2": {
-      "abs": 1e-05
-    },
-    "2-3": {
-      "ppw_y": [
-        20,
-        40,
-        80,
-        160
-      ],
-      "order_window": [
-        1.8,
-        2.2
-      ],
-      "reference": "Richardson R_inf at fixed dx/dz"
-    },
-    "2-4": {
-      "order_window": [
-        0.8,
-        1.2
-      ],
-      "control": "uniform grid, ifmode=s, interface offset 0.3 cell"
-    },
-    "2-5": "INFO",
-    "2-6": "INFO",
-    "2-7": "INFO"
+  "0-3": {
+   "nsteps": 100000,
+   "rel_drift": 1e-10,
+   "grid": "L1_taper_r1.1_base20",
+   "bc_y": "PEC (npml=0)",
+   "init": "random"
   },
-  "gate3": {
-    "3A-1": {
-      "abs": 1e-06,
-      "resolution": 80
-    },
-    "3A-2": {
-      "abs": 0.0001,
-      "resolutions": [
-        40,
-        80,
-        160,
-        320
-      ],
-      "resolutions_D18": [
-        100,
-        200,
-        400
-      ]
-    },
-    "3A-3": {
-      "abs": 0.0001,
-      "own_ppw": [
-        20,
-        40,
-        80,
-        160
-      ]
-    },
-    "3A-4": {
-      "abs": 0.001
-    },
-    "3B-1": {
-      "rel_L2": 0.001,
-      "case": "vacuum"
-    },
-    "3B-2": {
-      "rel_L2": 0.001,
-      "case": "film"
-    },
-    "3B-3": "INFO",
-    "3B-4": "both runs finite",
-    "mapping": {
-      "du": 0.05,
-      "s": "1 - 0.75*bump(u)"
-    },
-    "source": {
-      "f0": 1.0,
-      "fwidth": 0.1
-    }
+  "0-4": {
+   "power_iter_rq_tol": 1e-10,
+   "stable_factor": 0.99,
+   "unstable_factor": 1.02,
+   "nsteps": 20000,
+   "diverge_criterion": "non-finite field or max|F| > 1e6 * initial max|F| within nsteps",
+   "stable_criterion": "finite for nsteps and W_mod drift < 1e-10"
   },
-  "stageB": {
-    "B0-1": "exit 2 with exact message",
-    "B0-2": "gate0 0-2..0-5 thresholds on x/z nonuniform grid",
-    "B1-1": {
-      "order_window": [
-        1.8,
-        2.2
-      ],
-      "dxz": [
-        0.05,
-        0.025,
-        0.0125
-      ]
-    },
-    "B1-2": {
-      "order_window": [
-        1.8,
-        2.2
-      ]
-    },
-    "B1-3": {
-      "max_rel": 1e-10,
-      "optional": true
-    },
-    "B2-1": {
-      "order_window": [
-        1.8,
-        2.2
-      ]
-    },
-    "B2-2": "INFO",
-    "B3-1": {
-      "abs": 0.001
-    },
-    "B3-2": {
-      "abs": 1e-05
-    },
-    "B3-3": {
-      "orders": [
-        11,
-        21,
-        41,
-        81
-      ],
-      "last_two_abs": 1e-05
-    },
-    "grating": {
-      "period_axis": "x",
-      "duty": 0.5,
-      "n": 2.0,
-      "thickness": 0.3,
-      "default_grid": "y as D6; x ridge lambda0/80, groove lambda0/40, r_max 1.1; z lambda0/40"
-    }
-  },
-  "amendments": {
-    "_doc": "Test-design corrections found by the Stage 1 preflight (exact discrete predictions) BEFORE any nonuniform FDTD run. No threshold value is changed; they make the measured quantity match the prompt wording. Recorded in SPEC_nonuniform.md change log (D9-D11); pending user review.",
-    "D9": {
-      "gate": "1-3b order",
-      "family": [
-        "L1_taper_r1.1_base10_xz",
-        "L1_taper_r1.1_base20_xz",
-        "L1_taper_r1.1_base40_xz"
-      ],
-      "reason": "prompt: '與連續 θ 的差距在 Δ 加倍細化時以 O(Δ²) 收斂' refines every Δ; with x/z fixed at λ0/20 the transverse error is a floor (predicted order 0.26). With x/z refined: predicted 2.000. The D3 ratio test still runs on the x/z-fixed family as well.",
-      "revision": "2026-09-25: family 20/40/80 -> 10/20/40 before any run: the base80_xz member is 26.5M cells x 35k steps (~10 h per run) vs 3.9M x 17.6k for base40_xz; predicted order 2.003 (10/20/40) vs 2.000 (20/40/80), same D3 ratio."
-    },
-    "D10": {
-      "gate": "2-3",
-      "family": "L2_{F1,F5}_bis{1,2,4,8}: nested bisection of the PPW=20 grid, dt = dt(bis1)/k, x/z fixed; order vs Richardson R_inf(Δx)",
-      "reason": "PPW-based grids do not scale the film cell count by exactly 2 (4,7,13,26 cells) and dt follows Δy_min non-proportionally; predicted orders 2.9/2.4 (non-monotone). Bisection family: predicted 2.00-2.01.",
-      "revision": "2026-09-25, before any run: k = 1,2,4 (bis8 ~2.5 h/run x 4); order from the 3-level estimate p = log2((R1-R2)/(R2-R4)), R_inf = R4 + (R4-R2)/(2^p-1). Predicted p = 2.006-2.025."
-    },
-    "D11": {
-      "gate": "2-4",
-      "family": "L2_F1_ctrl_mh{4.5,9.5,18.5,37.5}: uniform Δ=0.08/mh, interfaces at cell fractions 0.25/0.75, point-sampled eps; error vs the D10 R_inf",
-      "reason": "'interface offset 0.3 cell' with PPW-based spacing changes the offset fraction at every level (predicted order < 0). Same-fraction interfaces only translate the film (order 2). Fractions 0.25/0.75: predicted 0.97.",
-      "revision": "2026-09-25, before any run: mh = 4.5, 9.5, 18.5 (mh 37.5 ~4.4 h/run); error vs the D10 3-level R_inf; predicted order 0.96-0.97."
-    },
-    "D13": {
-      "gate": "3A-1",
-      "change": "thin vs full Meep cell compared at resolution 40 (was 80)",
-      "reason": "measured Meep speed ~190 ns/cell-step single-threaded: full 2x3 cell at resolution 80 ~12 h per run; at 40 ~45 min. Threshold |ΔR| < 1e-6 unchanged. Decided before any Meep run."
-    },
-    "D14": {
-      "gate": "3A-3",
-      "change": "own-code limit from L2_{F1,F5}_bisxz{1,2}: y bisection AND x/z spacing λ0/(20k), dt ∝ 1/k; 2-level Richardson R_inf = R2 + (R2-R1)/3 (order 2 established by 2-3 and theory)",
-      "reason": "PPW 20..160 with x/z refined together needs up to ~2e8 cells in 3D; a 3-level combined family needs ~35M cells x 24k steps (~6 h). Predicted |R_inf - R_TMM| <= 6e-6 (threshold vs Meep 1e-4 unchanged). Decided before any run."
-    },
-    "D15": {
-      "gate": "B3-3 / grating definition",
-      "change": "RCWA order list 41, 81, 161, 321 (was 11, 21, 41, 81); 'last two differ < 1e-5' unchanged; reference = 321 orders. Grating: period Λ = Lx = 2 λ0 along x, ridge (n = 2) on x ∈ [0, 1) λ0 (duty 0.5), groove vacuum, thickness 0.3 λ0, vacuum superstrate, n = 1.46 substrate (SPEC left the substrate open; A4-style assumption)",
-      "reason": "measured before any grating FDTD run: max efficiency change 41->81 orders 3.7e-5, 81->161 8.4e-6, 161->321 2.7e-6 (conical lamellar, Li rules)."
-    },
-    "D16": {
-      "gate": "B0-2, B1-1, B1-2, B2-1, B2-2",
-      "change": "test setups: B0-2 on B_ops_xz_graded_pec (x AND z graded, PEC y, source-free); B1/B2 families B_{vac,film}_k{1,2,4}: classical incidence m=1, n=0 (θ=30°) on a thin uniform z cell, x graded (λ0/(28.6k) | λ0/(20k)), y uniform h=0.02/k with the film aligned; s-polarization; 70 periods, DFT 50..70 T0. B3 (grating) keeps the conical A2 angle on B_grating_ppw40.",
-      "reason": "with the A2 angle (Lz = 3) a three-level x/z refinement needs ~25M cells at k=4 per run and 8 runs per level; the injection-order physics is carried by the x nonuniformity. Decided before any stage-B run."
-    },
-    "D17": {
-      "gate": "1-4 (and 1-4b decreasing check)",
-      "change": "judged reflection runs at base 40/80 use L1_taper_r1.1_base{40,80}_P3: far PML at constant physical thickness 3 λ0 (120 / 240 cells); base 20 unchanged (60 cells = 3 λ0)",
-      "reason": "failure protocol (results/nu_failures.json): the 60-cell far PML echo (~1e-7) is 1% of the base-80 taper reflection; with 3 λ0 the echo is 1.5e-9 and the base-80 rel. error 1.7e-4. Threshold unchanged."
-    },
-    "D18": {
-      "gate": "3A-2, 3A-3",
-      "change": "Meep resolutions 100, 200, 400 (interfaces on pixel boundaries) instead of 40, 80, 160, 320",
-      "reason": "failure protocol: Meep subpixel averaging left first-order errors at non-aligned resolutions (F5 −1e-2 at 160); aligned resolutions converge at order 2 (F5 s: −5.8e-4, −1.4e-4). Thresholds unchanged."
-    },
-    "D19": {
-      "gate": "B3-1, B3-2",
-      "change": "judged grating runs (injection (i)) last 450 periods with the DFT over the last 150 periods (was 90 / 30); the vacuum normalization runs stay 90 / 30; (ii) reported at 90 / 30",
-      "reason": "failure protocol: with 90 / 30 both injections give Σ−1 ≈ −1e-3 and T0 −1.4e-3 (discrete energy is conserved only in steady state); RCWA shows a guided-mode resonance near f = 1.039 whose slow ring-down leaks into a 30-period window at f0; 180 / 30 already reduces Σ−1 to −3.2e-4 and T0 to −9.7e-4. Thresholds unchanged."
-    }
+  "0-5": {
+   "rel": 1e-10,
+   "normalization": "max|div F| / (|K~| max|F|)",
+   "region": "j in [j0+2, Ny-npml_hi-2]",
+   "control_min": 1e-06,
+   "grid": "L1_taper_r1.1_base20"
   }
+ },
+ "gate1": {
+  "grids": {
+   "taper": [
+    "L1_taper_r1.1_base20",
+    "L1_taper_r1.1_base40",
+    "L1_taper_r1.1_base80"
+   ],
+   "abrupt": "L1_abrupt_r4_base20",
+   "uniform_ctrl": "L1_uniform_ctrl",
+   "scan_r": [
+    1.05,
+    1.1,
+    1.2,
+    1.5,
+    4.0
+   ],
+   "scan_base": [
+    20,
+    40,
+    80
+   ]
+  },
+  "layout": "near PML 20 | SF 20 | j0 | uniform 2 lambda0 | taper down to base/4 | hold 0.5 lambda0 | taper up | uniform 3 lambda0 | far PML",
+  "npml_far_judged": 60,
+  "npml_far_info": 20,
+  "1-0": {
+   "max_rel": 1e-12,
+   "what": "max|F_main - Re[aux_ref e^{i phi}]|/E0 over all y planes"
+  },
+  "1-1": {
+   "max_rel": 1e-10,
+   "what": "SF: |F_main - aux_ref predicted scattered field|/E0 until incident front reaches far PML (c, 10% margin)",
+   "literal_info": "SF max / E0 (INFO)",
+   "uniform_ctrl_literal_max": 1e-10
+  },
+  "1-2": {
+   "rms_rad": 1e-08
+  },
+  "1-3a": {
+   "rel": 1e-06,
+   "method": "three-point cos(ky h)=(E_{j+1}+E_{j-1})/(2E_j), all nodes whose 3-point stencil lies in one uniform subregion, excluding j0+-1 and PML"
+  },
+  "1-3b": {
+   "ratio": 0.1,
+   "order_window": [
+    1.8,
+    2.2
+   ],
+   "h_loc": "d_j between the two adjacent dual nodes",
+   "method": "local forward-wave decomposition"
+  },
+  "1-4a": {
+   "rel_vs_Rdisc": 0.001,
+   "fit_region": "uniform region between j0+2 and first graded node - 1",
+   "fresnel_estimate": "INFO"
+  },
+  "1-4b": {
+   "rel_vs_Rdisc": 0.001,
+   "strictly_decreasing": [
+    "base20",
+    "base40",
+    "base80"
+   ],
+   "minus60dB": "INFO"
+  },
+  "1-5": {
+   "rel_var": 0.0001,
+   "interp": "distance-weighted H to E primal nodes",
+   "half_average": "INFO"
+  },
+  "1-6": {
+   "npml_list": [
+    10,
+    20,
+    30,
+    60
+   ],
+   "judged_npml": 20,
+   "max_db_diff_vs_uniform": 3.0,
+   "max_db": -40.0
+  },
+  "1-7": {
+   "nsteps_min": 20000,
+   "rule": "monotone decay from energy peak to < 1e-8 peak; second-half max <= its start value"
+  }
+ },
+ "gate2": {
+  "structures": {
+   "F1": "vacuum | n=2.0, 0.08 lambda0 | n=1.46 substrate into far PML",
+   "F5": "vacuum | H L H L H (nH=2.0 dH=0.08, nL=1.46 dL=0.12) | n=1.46 substrate"
+  },
+  "pols": [
+   "s",
+   "p"
+  ],
+  "default_grid": {
+   "ppw_y": 40,
+   "dxz": 0.05
+  },
+  "2-1": {
+   "abs": 0.001
+  },
+  "2-2": {
+   "abs": 1e-05
+  },
+  "2-3": {
+   "ppw_y": [
+    20,
+    40,
+    80,
+    160
+   ],
+   "order_window": [
+    1.8,
+    2.2
+   ],
+   "reference": "Richardson R_inf at fixed dx/dz"
+  },
+  "2-4": {
+   "order_window": [
+    0.8,
+    1.2
+   ],
+   "control": "uniform grid, ifmode=s, interface offset 0.3 cell"
+  },
+  "2-5": "INFO",
+  "2-6": "INFO",
+  "2-7": "INFO"
+ },
+ "gate3": {
+  "3A-1": {
+   "abs": 1e-06,
+   "resolution": 80
+  },
+  "3A-2": {
+   "abs": 0.0001,
+   "resolutions": [
+    40,
+    80,
+    160,
+    320
+   ],
+   "resolutions_D18": [
+    100,
+    200,
+    400
+   ]
+  },
+  "3A-3": {
+   "abs": 0.0001,
+   "own_ppw": [
+    20,
+    40,
+    80,
+    160
+   ]
+  },
+  "3A-4": {
+   "abs": 0.001
+  },
+  "3B-1": {
+   "rel_L2": 0.001,
+   "case": "vacuum"
+  },
+  "3B-2": {
+   "rel_L2": 0.001,
+   "case": "film"
+  },
+  "3B-3": "INFO",
+  "3B-4": "both runs finite",
+  "mapping": {
+   "du": 0.05,
+   "s": "1 - 0.75*bump(u)"
+  },
+  "source": {
+   "f0": 1.0,
+   "fwidth": 0.1
+  }
+ },
+ "stageB": {
+  "B0-1": "exit 2 with exact message",
+  "B0-2": "gate0 0-2..0-5 thresholds on x/z nonuniform grid",
+  "B1-1": {
+   "order_window": [
+    1.8,
+    2.2
+   ],
+   "dxz": [
+    0.05,
+    0.025,
+    0.0125
+   ]
+  },
+  "B1-2": {
+   "R_bound": "at every k: |R_i - R_ii| <= 2|r||L_i| + |L_i|^2, |r| = sqrt(R_ii), |L_i| = |SF backward amplitude of (i)'s vacuum run| / |forward amplitude|",
+   "T_order_min": 1.8,
+   "leak_corrected": "INFO",
+   "superseded_D20": {
+    "order_window": [
+     1.8,
+     2.2
+    ]
+   }
+  },
+  "B1-3": {
+   "max_rel": 1e-10,
+   "optional": true
+  },
+  "B2-1": {
+   "order_window": [
+    1.8,
+    2.2
+   ]
+  },
+  "B2-2": "INFO",
+  "B3-1": {
+   "abs": 0.001
+  },
+  "B3-2": {
+   "abs": 1e-05,
+   "measure": "discrete conserved real-space flux (E at y_j, H at y_j+1/2, quadrature weights): (S_T - S_R)/S_inc - 1, S_inc = direct flux of the vacuum normalization run on the TF plane",
+   "order_sum": "INFO (with the max off-diagonal Gram entry of the Floquet basis on the nonuniform x nodes)",
+   "superseded_D21": "sum of per-order Floquet efficiencies"
+  },
+  "B3-3": {
+   "orders": [
+    11,
+    21,
+    41,
+    81
+   ],
+   "last_two_abs": 1e-05
+  },
+  "grating": {
+   "period_axis": "x",
+   "duty": 0.5,
+   "n": 2.0,
+   "thickness": 0.3,
+   "default_grid": "y as D6; x ridge lambda0/80, groove lambda0/40, r_max 1.1; z lambda0/40"
+  }
+ },
+ "amendments": {
+  "_doc": "Test-design corrections found by the Stage 1 preflight (exact discrete predictions) BEFORE any nonuniform FDTD run. No threshold value is changed; they make the measured quantity match the prompt wording. Recorded in SPEC_nonuniform.md change log (D9-D11); pending user review.",
+  "D9": {
+   "gate": "1-3b order",
+   "family": [
+    "L1_taper_r1.1_base10_xz",
+    "L1_taper_r1.1_base20_xz",
+    "L1_taper_r1.1_base40_xz"
+   ],
+   "reason": "prompt: '與連續 θ 的差距在 Δ 加倍細化時以 O(Δ²) 收斂' refines every Δ; with x/z fixed at λ0/20 the transverse error is a floor (predicted order 0.26). With x/z refined: predicted 2.000. The D3 ratio test still runs on the x/z-fixed family as well.",
+   "revision": "2026-09-25: family 20/40/80 -> 10/20/40 before any run: the base80_xz member is 26.5M cells x 35k steps (~10 h per run) vs 3.9M x 17.6k for base40_xz; predicted order 2.003 (10/20/40) vs 2.000 (20/40/80), same D3 ratio."
+  },
+  "D10": {
+   "gate": "2-3",
+   "family": "L2_{F1,F5}_bis{1,2,4,8}: nested bisection of the PPW=20 grid, dt = dt(bis1)/k, x/z fixed; order vs Richardson R_inf(Δx)",
+   "reason": "PPW-based grids do not scale the film cell count by exactly 2 (4,7,13,26 cells) and dt follows Δy_min non-proportionally; predicted orders 2.9/2.4 (non-monotone). Bisection family: predicted 2.00-2.01.",
+   "revision": "2026-09-25, before any run: k = 1,2,4 (bis8 ~2.5 h/run x 4); order from the 3-level estimate p = log2((R1-R2)/(R2-R4)), R_inf = R4 + (R4-R2)/(2^p-1). Predicted p = 2.006-2.025."
+  },
+  "D11": {
+   "gate": "2-4",
+   "family": "L2_F1_ctrl_mh{4.5,9.5,18.5,37.5}: uniform Δ=0.08/mh, interfaces at cell fractions 0.25/0.75, point-sampled eps; error vs the D10 R_inf",
+   "reason": "'interface offset 0.3 cell' with PPW-based spacing changes the offset fraction at every level (predicted order < 0). Same-fraction interfaces only translate the film (order 2). Fractions 0.25/0.75: predicted 0.97.",
+   "revision": "2026-09-25, before any run: mh = 4.5, 9.5, 18.5 (mh 37.5 ~4.4 h/run); error vs the D10 3-level R_inf; predicted order 0.96-0.97."
+  },
+  "D13": {
+   "gate": "3A-1",
+   "change": "thin vs full Meep cell compared at resolution 40 (was 80)",
+   "reason": "measured Meep speed ~190 ns/cell-step single-threaded: full 2x3 cell at resolution 80 ~12 h per run; at 40 ~45 min. Threshold |ΔR| < 1e-6 unchanged. Decided before any Meep run."
+  },
+  "D14": {
+   "gate": "3A-3",
+   "change": "own-code limit from L2_{F1,F5}_bisxz{1,2}: y bisection AND x/z spacing λ0/(20k), dt ∝ 1/k; 2-level Richardson R_inf = R2 + (R2-R1)/3 (order 2 established by 2-3 and theory)",
+   "reason": "PPW 20..160 with x/z refined together needs up to ~2e8 cells in 3D; a 3-level combined family needs ~35M cells x 24k steps (~6 h). Predicted |R_inf - R_TMM| <= 6e-6 (threshold vs Meep 1e-4 unchanged). Decided before any run."
+  },
+  "D15": {
+   "gate": "B3-3 / grating definition",
+   "change": "RCWA order list 41, 81, 161, 321 (was 11, 21, 41, 81); 'last two differ < 1e-5' unchanged; reference = 321 orders. Grating: period Λ = Lx = 2 λ0 along x, ridge (n = 2) on x ∈ [0, 1) λ0 (duty 0.5), groove vacuum, thickness 0.3 λ0, vacuum superstrate, n = 1.46 substrate (SPEC left the substrate open; A4-style assumption)",
+   "reason": "measured before any grating FDTD run: max efficiency change 41->81 orders 3.7e-5, 81->161 8.4e-6, 161->321 2.7e-6 (conical lamellar, Li rules)."
+  },
+  "D16": {
+   "gate": "B0-2, B1-1, B1-2, B2-1, B2-2",
+   "change": "test setups: B0-2 on B_ops_xz_graded_pec (x AND z graded, PEC y, source-free); B1/B2 families B_{vac,film}_k{1,2,4}: classical incidence m=1, n=0 (θ=30°) on a thin uniform z cell, x graded (λ0/(28.6k) | λ0/(20k)), y uniform h=0.02/k with the film aligned; s-polarization; 70 periods, DFT 50..70 T0. B3 (grating) keeps the conical A2 angle on B_grating_ppw40.",
+   "reason": "with the A2 angle (Lz = 3) a three-level x/z refinement needs ~25M cells at k=4 per run and 8 runs per level; the injection-order physics is carried by the x nonuniformity. Decided before any stage-B run."
+  },
+  "D17": {
+   "gate": "1-4 (and 1-4b decreasing check)",
+   "change": "judged reflection runs at base 40/80 use L1_taper_r1.1_base{40,80}_P3: far PML at constant physical thickness 3 λ0 (120 / 240 cells); base 20 unchanged (60 cells = 3 λ0)",
+   "reason": "failure protocol (results/nu_failures.json): the 60-cell far PML echo (~1e-7) is 1% of the base-80 taper reflection; with 3 λ0 the echo is 1.5e-9 and the base-80 rel. error 1.7e-4. Threshold unchanged."
+  },
+  "D18": {
+   "gate": "3A-2, 3A-3",
+   "change": "Meep resolutions 100, 200, 400 (interfaces on pixel boundaries) instead of 40, 80, 160, 320",
+   "reason": "failure protocol: Meep subpixel averaging left first-order errors at non-aligned resolutions (F5 −1e-2 at 160); aligned resolutions converge at order 2 (F5 s: −5.8e-4, −1.4e-4). Thresholds unchanged."
+  },
+  "D19": {
+   "gate": "B3-1, B3-2",
+   "change": "judged grating runs (injection (i)) last 450 periods with the DFT over the last 150 periods (was 90 / 30); the vacuum normalization runs stay 90 / 30; (ii) reported at 90 / 30",
+   "reason": "failure protocol: with 90 / 30 both injections give Σ−1 ≈ −1e-3 and T0 −1.4e-3 (discrete energy is conserved only in steady state); RCWA shows a guided-mode resonance near f = 1.039 whose slow ring-down leaks into a 30-period window at f0; 180 / 30 already reduces Σ−1 to −3.2e-4 and T0 to −9.7e-4. Thresholds unchanged."
+  },
+  "D20": {
+   "gate": "B1-2",
+   "decision": "user, 2026-09-26",
+   "change": "R: |R_i - R_ii| <= 2|r||L_i| + |L_i|^2 at every refinement level; T: order of |T_i - T_ii| >= 1.8; leak-corrected |R_i - R_ii| INFO",
+   "reason": "R_(i) is measured in the SF region where the O(Δ²) injection leakage of (i) adds coherently to the film reflection; T converges at order 4 (only the upper window edge failed). T lower-bound reading proposed by Claude, pending user confirmation."
+  },
+  "D21": {
+   "gate": "B3-2",
+   "decision": "user, 2026-09-26",
+   "change": "energy judged on the discrete conserved real-space flux; per-order sum INFO",
+   "reason": "Floquet orders are not orthogonal under the nonuniform-x quadrature (Gram off-diagonal up to 5.3e-4); the per-order partition differs from the conserved flux by 1-3e-5. Threshold 1e-5 unchanged."
+  }
+ }
 }

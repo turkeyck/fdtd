@@ -1,0 +1,26 @@
+{
+  "name": "film_spectrum",
+  "wavelength": [
+    "500nm",
+    "550nm",
+    "600nm",
+    "650nm",
+    "700nm"
+  ],
+  "angle_deg": 30,
+  "polarizations": [
+    "s"
+  ],
+  "layers": [
+    {
+      "thickness": "80nm",
+      "n": 2.0
+    }
+  ],
+  "substrate_n": 1.46,
+  "mesh": {
+    "type": "nonuniform",
+    "ppw": 30,
+    "transverse": "lambda/20"
+  }
+}

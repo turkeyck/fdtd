@@ -7,6 +7,8 @@ coefficients with the quadrature weights of the nonuniform x nodes:
   (ii) inc=j (current sheet): R_p from (run − vacuum normalization run) between source and grating, T_p in the substrate.
 Incident flux: the order-0 flux of the vacuum normalization run (same grid, same source) on a TF plane.
 Judged: (i). (ii) and |(i) − (ii)| reported.
+B3-2 (amendment D21): energy from the discretely conserved real-space flux (an.plane_flux) on the same planes,
+(S_T − S_R)/S_inc − 1; the per-order sum and the Gram non-orthogonality of the Floquet basis are INFO.
 """
 import math
 import os
@@ -54,6 +56,7 @@ def main():
                 o_g, m_g, _ = RN.stageB(G, pol, inc, m=1, n=1, periods=90, dft_periods=30, yplanes=yp)
             o_v, m_v, _ = RN.stageB(GV, pol, inc, m=1, n=1, periods=90, dft_periods=30, yplanes=yp)
             used = nc.load_used(o_g)
+            gram = an.floquet_gram_offdiag(used, range(-6, 7))
             Lx = used["x"][-1]
             kxs = np.array([m_g["kx"] + 2 * math.pi * p / Lx for p in range(-6, 7)])
             kxs_all = kxs
@@ -62,6 +65,7 @@ def main():
             Dv, _ = nc.load_dft(o_v, f"y{jR_j}", m_v)
             Sv, _ = an.order_fluxes(Dv, used, kxs, m_g["kz"])
             S_inc = Sv[idx[0]]
+            S_inc_d = an.plane_flux(Dv, used)
             if inc == "p":
                 DR, _ = nc.load_dft(o_g, f"y{jR_i}", m_g)
             else:
@@ -69,12 +73,13 @@ def main():
                 DR = {c: Dg[c] - Dv[c] for c in Dg}
             SR, _ = an.order_fluxes(DR, used, kxs, m_g["kz"])
             DT, _ = nc.load_dft(o_g, f"y{jT}", m_g)
+            direct = (an.plane_flux(DT, used) - an.plane_flux(DR, used)) / S_inc_d
             ST, _ = an.order_fluxes(DT, used, kxs, m_g["kz"])
             R = {p: -SR[idx[p]] / S_inc for p in oR}
             Tt = {p: ST[idx[p]] / S_inc for p in oT}
             allR = -SR / S_inc
             allT = ST / S_inc
-            eff[inc] = dict(R=R, T=Tt, sum=float(sum(R.values()) + sum(Tt.values())),
+            eff[inc] = dict(R=R, T=Tt, sum=float(sum(R.values()) + sum(Tt.values())), direct=float(direct),
                             evan=float(np.sum(np.abs(allR)) + np.sum(np.abs(allT)) - sum(abs(v) for v in R.values())
                                        - sum(abs(v) for v in Tt.values())), runtime=m_g["runtime_s"])
         out[pol] = eff
@@ -84,13 +89,16 @@ def main():
               "0", f"{dmax:.2e}", f"< {TH['B3-1']['abs']:g}", dmax < TH["B3-1"]["abs"], grid=nc.grid_info(geo, geo.dt_run()),
               note="R_p: " + ", ".join(f"{p}: {e['R'][p]:.5f}/{rc_R[q]:.5f}" for q, p in enumerate(oR))
                    + "; T_p: " + ", ".join(f"{p}: {e['T'][p]:.5f}/{rc_T[q]:.5f}" for q, p in enumerate(oT)))
-        T.row("B3-2", f"Σ R_p + Σ T_p − 1 ({pol}, (i))", "0", f"{e['sum'] - 1:+.2e}", f"|·| < {TH['B3-2']['abs']:g}",
-              abs(e["sum"] - 1) < TH["B3-2"]["abs"], grid=G)
+        T.row("B3-2", f"(S_T − S_R)/S_inc − 1, discrete conserved real-space flux ({pol}, (i)) (D21)", "0",
+              f"{e['direct'] - 1:+.2e}", f"|·| < {TH['B3-2']['abs']:g}", abs(e["direct"] - 1) < TH["B3-2"]["abs"], grid=G)
+        T.row("B3-2", f"Σ R_p + Σ T_p − 1 from the Floquet partition ({pol}, (i))", "0", f"{e['sum'] - 1:+.2e}", "INFO",
+              None, grid=G, note=f"partition − conserved flux {e['sum'] - e['direct']:+.1e}; Gram max off-diagonal "
+                                 f"{gram:.1e}")
         e2 = eff["j"]
         d2 = max([abs(e2["R"][p] - rc_R[q]) for q, p in enumerate(oR)] + [abs(e2["T"][p] - rc_T[q]) for q, p in enumerate(oT)])
         dij = max([abs(e2["R"][p] - e["R"][p]) for p in oR] + [abs(e2["T"][p] - e["T"][p]) for p in oT])
         T.row("B3-1", f"injection (ii) current sheet + normalization ({pol})", "RCWA", f"max |Δη| {d2:.2e}; Σ−1 "
-              f"{e2['sum'] - 1:+.1e}; max |η_(i) − η_(ii)| {dij:.2e}", "INFO", None, grid=G)
+              f"{e2['sum'] - 1:+.1e} (conserved flux {e2['direct'] - 1:+.1e}); max |η_(i) − η_(ii)| {dij:.2e}", "INFO", None, grid=G)
     for pol in ("s", "p"):
         T.row("B3-3", f"RCWA order convergence 161 → 321 orders ({pol}) (D15)", "< 1e-5",
               f"{nc.pred(f'B/rcwa/{pol}/maxdiff_321'):.2e}", "< 1e-5", nc.pred(f"B/rcwa/{pol}/maxdiff_321") < 1e-5,

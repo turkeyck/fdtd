@@ -18,5 +18,5 @@
 
 ## 凍結雜湊
 
-- tests/thresholds_nu.json: 44cf92ad7a2905f6860c7e9057b5682be3c4aab4cc0fd236f33fff7468c7d79a（含 amendments D9–D19，2026-09-26；D17、D18、D19 經失敗流程）
+- tests/thresholds_nu.json: e52f1e2abfb99d914a2769ecf9de4c45d9e3c1b24eee67fcee5d8b0af66a8f8a（含 amendments D9–D21，2026-09-26；D17–D19 經失敗流程；D20、D21 為使用者決策）
 - results/nu_predictions.json: 7cbfa0900a2c66619fc9d3887fef3ad8a693ed55c5219a00b64960182dd70b87（v2/ = D12 的 Δt 規則）

@@ -232,6 +232,29 @@ def plane_positions(used, comp):
     return xs, wx, zs, wz
 
 
+def plane_flux(D, used):
+    """z/x-averaged S_y of a y-plane DFT slice from the real-space samples (E at y_j, H at y_{j+1/2}, quadrature
+    weights): the discretely conserved flux, independent of any Floquet partition."""
+    Lx, Lz = used["x"][-1], used["z"][-1]
+    s = 0.0
+    for e, h, sg in (("Ez", "Hx", 1), ("Ex", "Hz", -1)):
+        xs, wx, zs, wz = plane_positions(used, e)
+        s += sg * 0.5 * np.real(np.sum(D[e] * np.conj(D[h]) * wx[:, None] * wz[None, :]))
+    return s / (Lx * Lz)
+
+
+def floquet_gram_offdiag(used, orders):
+    """max |G_pq|, p != q, of exp(i 2π p x / Lx) under the x quadrature weights (primal and dual samples); 0 on a
+    uniform grid."""
+    Lx = used["x"][-1]
+    P = np.asarray(orders)
+    m = 0.0
+    for xs, w in ((np.asarray(used["x"][:-1]), np.asarray(used["dx"])), (np.asarray(used["x_dual"]), np.asarray(used["hx"]))):
+        G = np.exp(2j * np.pi * (P[None, :] - P[:, None])[:, :, None] * xs[None, None, :] / Lx) @ w / Lx
+        m = max(m, float(np.max(np.abs(G - np.diag(np.diag(G))))))
+    return m
+
+
 def order_fluxes(D, used, kxs, kz):
     """Per-order z-averaged S_y of a y-plane DFT slice (E at y_j, H at y_{j+1/2}: the discrete-conserved pairing)."""
     Lx, Lz = used["x"][-1], used["z"][-1]

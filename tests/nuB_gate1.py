@@ -4,7 +4,9 @@ Families B_{vac,film}_k{1,2,4} (x graded, s-pol, classical incidence m=1, n=0). 
 Floquet projection (order 0) of every y row (dft_proj.bin) or from y-plane DFT slices.
 B1-1 leakage of the analytic injection (i): backward amplitude in the SF region minus the far-PML echo (the
       backward amplitude in the TF region, which crosses the TF/SF plane unchanged), relative to the forward amplitude.
-B1-2 R, T by (i) TF/SF-analytic and (ii) current sheet + vacuum normalization run: |R_i − R_ii|, |T_i − T_ii|.
+B1-2 R, T by (i) TF/SF-analytic and (ii) current sheet + vacuum normalization run (amendment D20): at every level
+      |R_i − R_ii| ≤ 2|r||L_i| + |L_i|² (R_i carries the coherent sum of the film reflection and (i)'s own SF leakage
+      L_i); order of |T_i − T_ii| ≥ 1.8; |R_i − R_ii| after subtracting (i)'s leakage: INFO.
 B2-1 x–z phase residual (max over TF planes of the RMS phase residual vs the Floquet mode).
 B2-2 power in non-specular orders on a TF plane of the vacuum run (INFO + order).
 """
@@ -91,6 +93,7 @@ def main():
         sff, tff, subf = regions(gfi)
         Lf = fit_back(a_fi[c][sff], y[sff], ky)
         R_i = abs(Lf / fa) ** 2
+        R_ic = abs((Lf - L) / fa) ** 2                 # (i) with its own SF leakage removed
         S_inc_i = flux_rows(a_vi, used, tf).mean()
         T_i = flux_rows(a_fi, used, subf).mean() / S_inc_i
         cj = comp(a_vj)
@@ -113,7 +116,7 @@ def main():
         prop = np.abs(kxs) < 2 * math.pi
         S0 = S[4]
         frac = float(np.sum(np.abs(S[prop])) - abs(S0)) / abs(S0)
-        res[k] = dict(leak=leak, R_i=R_i, T_i=T_i, R_ii=R_ii, T_ii=T_ii, planar=pres, floquet=frac,
+        res[k] = dict(leak=leak, L_i=abs(L / fa), R_ic=R_ic, R_i=R_i, T_i=T_i, R_ii=R_ii, T_ii=T_ii, planar=pres, floquet=frac,
                       grid=nc.grid_info(geo, m_vi["dt"]))
         print(k, res[k], flush=True)
     hs = [1.0 / k for k in KS]
@@ -127,8 +130,19 @@ def main():
     orow("B1-1", "order of the analytic-injection leakage |L_SF − echo|/|a| (i)", [res[k]["leak"] for k in KS], w)
     dR = [abs(res[k]["R_i"] - res[k]["R_ii"]) for k in KS]
     dT = [abs(res[k]["T_i"] - res[k]["T_ii"]) for k in KS]
-    orow("B1-2", "order of |R_(i) − R_(ii)| (TF/SF analytic vs current sheet + normalization)", dR, TH["B1-2"]["order_window"])
-    orow("B1-2", "order of |T_(i) − T_(ii)|", dT, TH["B1-2"]["order_window"])
+    th12 = TH["B1-2"]
+    for k, d in zip(KS, dR):
+        r = res[k]
+        bound = 2 * math.sqrt(r["R_ii"]) * r["L_i"] + r["L_i"] ** 2
+        T.row("B1-2", f"|R_(i) − R_(ii)| at k={k} vs the leakage bound 2|r||L_(i)| + |L_(i)|² (D20)", f"≤ {bound:.2e}",
+              f"{d:.2e}", "≤ bound", d <= bound, grid=r["grid"], note=f"|L_(i)| = {r['L_i']:.2e}")
+    oT = nc.order_fit(hs, dT)
+    T.row("B1-2", "order of |T_(i) − T_(ii)| (D20: lower bound only)", "≥ 2",
+          f"{oT:.3f} (values {', '.join(f'{v:.2e}' for v in dT)})", f"≥ {th12['T_order_min']}", oT >= th12["T_order_min"],
+          grid="B_{vac,film}_k{1,2,4} (x graded; k = refinement)")
+    T.row("B1-2", "|R_(i) − R_(ii)| with (i)'s own SF leakage subtracted", "→ 0",
+          ", ".join(f"k={k}: {abs(res[k]['R_ic'] - res[k]['R_ii']):.1e}" for k in KS), "INFO", None,
+          note="raw: " + ", ".join(f"{v:.2e}" for v in dR))
     T.row("B1-3", "modal (transverse Bloch eigenmode) injection (iii)", "optional", "not implemented", "optional", None,
           note="SPEC: optional")
     orow("B2-1", "order of the x–z phase residual (max over TF planes, vacuum, inc=p)", [res[k]["planar"] for k in KS],

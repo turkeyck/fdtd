@@ -37,7 +37,7 @@
   "hypothesis": "R_(i) is measured in the SF region, where the O(Δ²) injection leakage of (i) (B1-1) adds coherently to the film reflection with a phase that drifts with refinement; T cancels to higher order because both methods normalize by their own vacuum run",
   "experiment": "subtract (i)'s own leakage (SF backward amplitude of its vacuum run): R_(i) − R_(ii) becomes 3e-9, 1.3e-8, 1e-9 (k = 1, 2, 4); R+T−1 of (i) goes from −1.5e-5/−5.7e-6/−1.7e-6 to −9.6e-7/−1.3e-7/−1.8e-8; the raw difference is bounded by 2|r||L| = 7.3e-5, 1.9e-5, 4.8e-6 with |L| ∝ Δ^1.97 (B1-1)",
   "fix": "none applied: the frozen order criterion is a test-design issue (the difference is not a smooth O(Δ²) quantity), not a code defect; changing it needs a user decision",
-  "result": "B1-2 remains FAIL (reported); explanation and a proposed redefinition in the final report"
+  "result": "resolved by user decision D20 (2026-09-26): |R_i − R_ii| within 2|r||L_i| + |L_i|² at every level (1.43e-5 ≤ 7.28e-5, 5.53e-6 ≤ 1.88e-5, 1.65e-6 ≤ 4.83e-6), T order 3.99 ≥ 1.8; B_gate1 6/6 PASS"
  },
  {
   "gate": "B3",
@@ -53,6 +53,14 @@
   "hypothesis": "measurement resolution, not energy loss: on the nonuniform x nodes the Floquet orders are not orthogonal under the quadrature weights, so the per-order flux partition carries cross-order terms of ~1e-5",
   "experiment": "Gram matrix of exp(i k_p x) with the dx/hx weights: off-diagonal up to 5.3e-4 (primal) / 2.7e-4 (dual), exactly 0 on a uniform grid. T plane, direct conserved flux − Σ propagating-order fluxes: −1.45e-5 (s), +2.49e-5 (p); R plane −1.9e-6 / −1.1e-6. Direct conserved-flux balance: p −1.6e-6, s −1.17e-5. 81-order least-squares partition: s −1.6e-5, p +3.3e-5. Method spread 3–6e-5 > threshold",
   "fix": "none adopted: changing the judged measurement after the result would be choosing the measurement, and neither alternative passes both polarizations (direct flux: s −1.17e-5). Needs a user decision (proposal: judge B3-2 on the discrete conserved real-space flux, and make the order partition an INFO row with its Gram bound)",
-  "result": "B3-2 (p) remains FAIL (reported); stage B gate 3 NOT PASS"
+  "result": "resolved by user decision D21 (2026-09-26): judged on the conserved flux, p = −1.57e-6 PASS; under D21 s = −1.17e-5 FAIL, see the B3-2 (s) entry"
+ },
+ {
+  "gate": "B3-2 (s)",
+  "symptom": "under D21 (conserved real-space flux): (S_T − S_R)/S_inc − 1 = −1.17e-5 (s), threshold 1e-5; p −1.57e-6",
+  "hypothesis": "H1: residual ring-down of the guided-mode resonance in the 150-period window; H2: the O(Δ²) leakage of the analytic injection (i) on the nonuniform x grid interferes with the order-0 reflection (source work on the scattered field), bounded by 2|r0||L_inj|",
+  "experiment": "vacuum run, TF two-wave fit: the SF backward order-0 amplitude 8.1e-4 is almost all echo from the graded y cells (8.4e-4 in the TF region, energy-neutral); injection leakage |L_SF − echo|/|a| = 2.5e-5 (s), 2.6e-5 (p) → 2|r0||L| = 1.0e-5 (s, |r0| = 0.203), 3.8e-6 (p, |r0| = 0.073), the same size as the deficits. (ii) current sheet at 450/150: −3.13e-4, explained by the normalization subtraction: the vacuum grid echo (8.4e-4) leaves a cross term 2|r0||echo| = 3.4e-4; (ii) therefore cannot separate H1/H2. Decisive run: (i) s at 900 periods, DFT over the last 300 (diagnostic, grants no release); result: (i) s 450/150 −1.166e-5, 900/300 −1.157e-5 — time-converged to < 1%, H1 (ringing) rejected; the deficit is a steady-state property of injection (i) on the default grid, consistent with H2 (2|r0||L_inj| = 1.0e-5)",
+  "fix": "none available within the rules: the default grid is fixed (§20.5), the threshold is frozen, and (i) is the judged injection. Needs a user decision (options: accept; judge |Σ − 1| ≤ 1e-5 + 2|r0||L_inj| + |L_inj|² in the spirit of D20; or refine the grid)",
+  "result": "B3-2 (s) remains FAIL (−1.17e-5 vs 1e-5), explained; stage B gate 3 NOT PASS"
  }
 ]

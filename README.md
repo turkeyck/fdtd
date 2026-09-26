@@ -3,6 +3,8 @@
 Self-validating 3D FDTD in C (double precision) for a plane wave obliquely incident in vacuum and on an
 n = 1.5 half-space, with Python post-processing (numpy + matplotlib only) and a Meep cross-check.
 
+- **Running your own structure (physical units, uniform or nonuniform grid): [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md)**
+  — `python3 simulate.py examples/film_nonuniform.json`
 - Requirements: [`SPEC.md`](SPEC.md) · Derivations: [`derivation.md`](derivation.md) ·
   Results: [`validation_report.md`](validation_report.md) (tables + figures, generated from `results/*.json`)
 

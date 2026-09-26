@@ -1,0 +1,32 @@
+{
+  "name": "lamellar_grating",
+  "wavelength": "1000nm",
+  "angle_deg": 36.94,
+  "azimuth_deg": 33.69,
+  "polarizations": [
+    "s",
+    "p"
+  ],
+  "layers": [
+    {
+      "name": "grating",
+      "thickness": "300nm",
+      "grating": {
+        "period": "2000nm",
+        "duty": 0.5,
+        "n_ridge": 2.0,
+        "n_groove": 1.0
+      }
+    }
+  ],
+  "substrate_n": 1.46,
+  "mesh": {
+    "type": "nonuniform",
+    "ppw": 20,
+    "transverse": "lambda/20"
+  },
+  "run": {
+    "periods": 200,
+    "dft_periods": 60
+  }
+}

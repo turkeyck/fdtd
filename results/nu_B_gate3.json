@@ -1,6 +1,6 @@
 {
  "gate": "B_gate3",
- "created_utc": "2026-09-26T13:59:13Z",
+ "created_utc": "2026-09-26T19:03:44Z",
  "table": [
   {
    "item": "B3-1",
@@ -14,19 +14,29 @@
   },
   {
    "item": "B3-2",
-   "quantity": "Σ R_p + Σ T_p − 1 (s, (i))",
+   "quantity": "(S_T − S_R)/S_inc − 1, discrete conserved real-space flux (s, (i)) (D21)",
    "theory": "0",
-   "measured": "+4.77e-06",
+   "measured": "-1.17e-05",
    "threshold": "|·| < 1e-05",
-   "passed": true,
+   "passed": false,
    "grid": "B_grating_ppw40",
    "note": ""
+  },
+  {
+   "item": "B3-2",
+   "quantity": "Σ R_p + Σ T_p − 1 from the Floquet partition (s, (i))",
+   "theory": "0",
+   "measured": "+4.77e-06",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "B_grating_ppw40",
+   "note": "partition − conserved flux +1.6e-05; Gram max off-diagonal 5.3e-04"
   },
   {
    "item": "B3-1",
    "quantity": "injection (ii) current sheet + normalization (s)",
    "theory": "RCWA",
-   "measured": "max |Δη| 1.38e-03; Σ−1 -9.8e-04; max |η_(i) − η_(ii)| 4.15e-04",
+   "measured": "max |Δη| 1.38e-03; Σ−1 -9.8e-04 (conserved flux -9.7e-04); max |η_(i) − η_(ii)| 4.15e-04",
    "threshold": "INFO",
    "passed": null,
    "grid": "B_grating_ppw40",
@@ -44,19 +54,29 @@
   },
   {
    "item": "B3-2",
-   "quantity": "Σ R_p + Σ T_p − 1 (p, (i))",
+   "quantity": "(S_T − S_R)/S_inc − 1, discrete conserved real-space flux (p, (i)) (D21)",
    "theory": "0",
-   "measured": "-2.54e-05",
+   "measured": "-1.57e-06",
    "threshold": "|·| < 1e-05",
-   "passed": false,
+   "passed": true,
    "grid": "B_grating_ppw40",
    "note": ""
+  },
+  {
+   "item": "B3-2",
+   "quantity": "Σ R_p + Σ T_p − 1 from the Floquet partition (p, (i))",
+   "theory": "0",
+   "measured": "-2.54e-05",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "B_grating_ppw40",
+   "note": "partition − conserved flux -2.4e-05; Gram max off-diagonal 5.3e-04"
   },
   {
    "item": "B3-1",
    "quantity": "injection (ii) current sheet + normalization (p)",
    "theory": "RCWA",
-   "measured": "max |Δη| 1.07e-03; Σ−1 -3.1e-04; max |η_(i) − η_(ii)| 1.86e-04",
+   "measured": "max |Δη| 1.07e-03; Σ−1 -3.1e-04 (conserved flux -2.8e-04); max |η_(i) − η_(ii)| 1.86e-04",
    "threshold": "INFO",
    "passed": null,
    "grid": "B_grating_ppw40",
