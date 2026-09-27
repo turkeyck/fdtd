@@ -193,7 +193,7 @@
       "item": "L1-4",
       "quantity": "time-domain max|\u2207\u00b7E| over run (s-pol, \u0394=\u03bb0/20)",
       "theory": "0, not growing",
-      "measured": "4.51e-14 (late/early max ratio 1.74)",
+      "measured": "4.51e-14 (late/early max ratio 1.75)",
       "threshold": "< 1e-10",
       "passed": true,
       "note": "\u2207\u00b7H max 7.09e-14"

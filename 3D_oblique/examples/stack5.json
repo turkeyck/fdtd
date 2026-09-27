@@ -1,0 +1,38 @@
+{
+  "name": "stack5",
+  "wavelength": "1000nm",
+  "angle_deg": 36.94,
+  "azimuth_deg": 33.69,
+  "polarizations": [
+    "s",
+    "p"
+  ],
+  "layers": [
+    {
+      "thickness": "80nm",
+      "n": 2.0
+    },
+    {
+      "thickness": "120nm",
+      "n": 1.46
+    },
+    {
+      "thickness": "80nm",
+      "n": 2.0
+    },
+    {
+      "thickness": "120nm",
+      "n": 1.46
+    },
+    {
+      "thickness": "80nm",
+      "n": 2.0
+    }
+  ],
+  "substrate_n": 1.46,
+  "mesh": {
+    "type": "nonuniform",
+    "ppw": 40,
+    "transverse": "lambda/20"
+  }
+}

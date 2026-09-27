@@ -146,11 +146,17 @@ def main():
     for pol in ("s", "p"):
         r = res[(20, pol, "a")]
         tag = f"{pol}-pol, Δ=λ0/20, θ1={r['theta1']:.2f}°"
-        row("L2", f"R vs continuous Fresnel ({tag})", f"{r['R_fresnel']:.6f}", f"{r['R']:.6f}", "rel err < 1%",
-            abs(r["R_relerr"]) < 0.01, f"rel err {r['R_relerr']:+.3e}; absolute |ΔR| = {abs(r['R'] - r['R_fresnel']):.2e} "
-            "(if '1%' meant 1 percentage point: INFO only, not used for the verdict)")
-        row("L2", f"T vs continuous Fresnel ({tag})", f"{r['T_fresnel']:.6f}", f"{r['T']:.6f}", "rel err < 1%",
-            abs(r["T_relerr"]) < 0.01, f"rel err {r['T_relerr']:+.3e}")
+        # User decision D7 (2026-09-25, SPEC_nonuniform.md): the 1% gate is judged against the exact discrete
+        # (Yee-lattice) Fresnel value; the gap to continuous Fresnel is reported as INFO.
+        row("L2", f"R vs exact discrete Fresnel ({tag}, N_pml=20)", f"{r['R_disc']:.10f}", f"{r['R']:.10f}",
+            "rel err < 1% (D7)", abs(r["R_vs_disc"]) < 0.01, f"rel err {r['R_vs_disc']:+.3e}")
+        row("L2", f"T vs exact discrete Fresnel ({tag}, N_pml=20)", f"{r['T_disc']:.10f}", f"{r['T']:.10f}",
+            "rel err < 1% (D7)", abs(r["T_vs_disc"]) < 0.01, f"rel err {r['T_vs_disc']:+.3e}")
+        row("L2", f"R vs continuous Fresnel ({tag})", f"{r['R_fresnel']:.6f}", f"{r['R']:.6f}", "INFO (D7)",
+            None, f"rel err {r['R_relerr']:+.3e}; absolute |ΔR| = {abs(r['R'] - r['R_fresnel']):.2e}; "
+            "was the 1% gate before decision D7")
+        row("L2", f"T vs continuous Fresnel ({tag})", f"{r['T_fresnel']:.6f}", f"{r['T']:.6f}", "INFO (D7)",
+            None, f"rel err {r['T_relerr']:+.3e}")
         row("L2", f"R, T vs exact discrete (Yee-lattice) Fresnel ({tag}, N_pml=20)", f"R {r['R_disc']:.10f}, T {r['T_disc']:.10f}",
             f"R {r['R']:.10f}, T {r['T']:.10f}", "see PML study", None,
             f"rel err R {r['R_vs_disc']:+.1e}, T {r['T_vs_disc']:+.1e} (PML-echo contaminated, see thickness study); "

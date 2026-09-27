@@ -1,0 +1,165 @@
+{
+ "gate": "B_gate1",
+ "created_utc": "2026-09-26T19:03:42Z",
+ "table": [
+  {
+   "item": "B1-1",
+   "quantity": "order of the analytic-injection leakage |L_SF − echo|/|a| (i)",
+   "theory": "2",
+   "measured": "1.966 (values 8.02e-05, 2.06e-05, 5.26e-06)",
+   "threshold": "∈ [1.8, 2.2]",
+   "passed": true,
+   "grid": "B_{vac,film}_k{1,2,4} (x graded; k = refinement)",
+   "note": ""
+  },
+  {
+   "item": "B1-2",
+   "quantity": "|R_(i) − R_(ii)| at k=1 vs the leakage bound 2|r||L_(i)| + |L_(i)|² (D20)",
+   "theory": "≤ 7.28e-05",
+   "measured": "1.43e-05",
+   "threshold": "≤ bound",
+   "passed": true,
+   "grid": "Δy_min=λ0/50, Δy_max=λ0/50, r_max=1.0000, Δx=λ0/29, Δt=0.0121951 T0",
+   "note": "|L_(i)| = 7.96e-05"
+  },
+  {
+   "item": "B1-2",
+   "quantity": "|R_(i) − R_(ii)| at k=2 vs the leakage bound 2|r||L_(i)| + |L_(i)|² (D20)",
+   "theory": "≤ 1.88e-05",
+   "measured": "5.53e-06",
+   "threshold": "≤ bound",
+   "passed": true,
+   "grid": "Δy_min=λ0/100, Δy_max=λ0/100, r_max=1.0000, Δx=λ0/58, Δt=0.00613497 T0",
+   "note": "|L_(i)| = 2.05e-05"
+  },
+  {
+   "item": "B1-2",
+   "quantity": "|R_(i) − R_(ii)| at k=4 vs the leakage bound 2|r||L_(i)| + |L_(i)|² (D20)",
+   "theory": "≤ 4.83e-06",
+   "measured": "1.65e-06",
+   "threshold": "≤ bound",
+   "passed": true,
+   "grid": "Δy_min=λ0/200, Δy_max=λ0/200, r_max=1.0000, Δx=λ0/115, Δt=0.00307692 T0",
+   "note": "|L_(i)| = 5.25e-06"
+  },
+  {
+   "item": "B1-2",
+   "quantity": "order of |T_(i) − T_(ii)| (D20: lower bound only)",
+   "theory": "≥ 2",
+   "measured": "3.989 (values 2.43e-07, 1.61e-08, 9.65e-10)",
+   "threshold": "≥ 1.8",
+   "passed": true,
+   "grid": "B_{vac,film}_k{1,2,4} (x graded; k = refinement)",
+   "note": ""
+  },
+  {
+   "item": "B1-2",
+   "quantity": "|R_(i) − R_(ii)| with (i)'s own SF leakage subtracted",
+   "theory": "→ 0",
+   "measured": "k=1: 3.3e-09, k=2: 1.2e-08, k=4: 1.3e-09",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "",
+   "note": "raw: 1.43e-05, 5.53e-06, 1.65e-06"
+  },
+  {
+   "item": "B1-3",
+   "quantity": "modal (transverse Bloch eigenmode) injection (iii)",
+   "theory": "optional",
+   "measured": "not implemented",
+   "threshold": "optional",
+   "passed": null,
+   "grid": "",
+   "note": "SPEC: optional"
+  },
+  {
+   "item": "B2-1",
+   "quantity": "order of the x–z phase residual (max over TF planes, vacuum, inc=p)",
+   "theory": "2",
+   "measured": "1.959 (values 3.03e-03, 8.03e-04, 2.00e-04)",
+   "threshold": "∈ [1.8, 2.2]",
+   "passed": true,
+   "grid": "B_{vac,film}_k{1,2,4} (x graded; k = refinement)",
+   "note": ""
+  },
+  {
+   "item": "B2-2",
+   "quantity": "power fraction in non-specular propagating orders (vacuum, TF plane)",
+   "theory": "→ 0",
+   "measured": "k=1: 1.99e-07, k=2: 8.81e-09, k=4: 4.71e-10",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "",
+   "note": "order 4.36"
+  },
+  {
+   "item": "B1-2",
+   "quantity": "R, T at k=1 (s): (i) / (ii) vs TMM",
+   "theory": "R 0.211883, T 0.788117",
+   "measured": "(i) R 0.209190 T 0.790795; (ii) R 0.209204 T 0.790795",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "Δy_min=λ0/50, Δy_max=λ0/50, r_max=1.0000, Δx=λ0/29, Δt=0.0121951 T0",
+   "note": "R+T−1: (i) -1.5e-05, (ii) -7.2e-07"
+  },
+  {
+   "item": "B1-2",
+   "quantity": "R, T at k=2 (s): (i) / (ii) vs TMM",
+   "theory": "R 0.211883, T 0.788117",
+   "measured": "(i) R 0.211212 T 0.788782; (ii) R 0.211217 T 0.788782",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "Δy_min=λ0/100, Δy_max=λ0/100, r_max=1.0000, Δx=λ0/58, Δt=0.00613497 T0",
+   "note": "R+T−1: (i) -5.7e-06, (ii) -1.3e-07"
+  },
+  {
+   "item": "B1-2",
+   "quantity": "R, T at k=4 (s): (i) / (ii) vs TMM",
+   "theory": "R 0.211883, T 0.788117",
+   "measured": "(i) R 0.211715 T 0.788283; (ii) R 0.211717 T 0.788283",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "Δy_min=λ0/200, Δy_max=λ0/200, r_max=1.0000, Δx=λ0/115, Δt=0.00307692 T0",
+   "note": "R+T−1: (i) -1.7e-06, (ii) -1.9e-08"
+  }
+ ],
+ "passed": true,
+ "levels": {
+  "1": {
+   "leak": 8.018989052145245e-05,
+   "L_i": 7.961890199273618e-05,
+   "R_ic": 0.20920405938040165,
+   "R_i": 0.20918974991055803,
+   "T_i": 0.790794982161893,
+   "R_ii": 0.2092040560679185,
+   "T_ii": 0.7907952254589637,
+   "planar": 0.003031373881257272,
+   "floquet": 1.9934661278071084e-07,
+   "grid": "Δy_min=λ0/50, Δy_max=λ0/50, r_max=1.0000, Δx=λ0/29, Δt=0.0121951 T0"
+  },
+  "2": {
+   "leak": 2.0563869639079772e-05,
+   "L_i": 2.04845216674607e-05,
+   "R_ic": 0.2112174705163216,
+   "R_i": 0.21121192645595355,
+   "T_i": 0.788782397533533,
+   "R_ii": 0.2112174583341498,
+   "T_ii": 0.788782413622006,
+   "planar": 0.0008029231477569714,
+   "floquet": 8.810075104959176e-09,
+   "grid": "Δy_min=λ0/100, Δy_max=λ0/100, r_max=1.0000, Δx=λ0/58, Δt=0.00613497 T0"
+  },
+  "4": {
+   "leak": 5.25545874564283e-06,
+   "L_i": 5.24524557346574e-06,
+   "R_ic": 0.21171698848402778,
+   "R_i": 0.21171534099883754,
+   "T_i": 0.788282993296861,
+   "R_ii": 0.21171698719456009,
+   "T_ii": 0.7882829942615251,
+   "planar": 0.00020044761450785863,
+   "floquet": 4.708717534950048e-10,
+   "grid": "Δy_min=λ0/200, Δy_max=λ0/200, r_max=1.0000, Δx=λ0/115, Δt=0.00307692 T0"
+  }
+ }
+}

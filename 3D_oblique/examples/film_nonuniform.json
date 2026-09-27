@@ -1,0 +1,29 @@
+{
+  "name": "film_nonuniform",
+  "wavelength": "633nm",
+  "angle_deg": 30,
+  "azimuth_deg": 0,
+  "polarizations": [
+    "s",
+    "p"
+  ],
+  "layers": [
+    {
+      "name": "TiO2",
+      "thickness": "80nm",
+      "n": 2.0
+    }
+  ],
+  "substrate_n": 1.46,
+  "mesh": {
+    "type": "nonuniform",
+    "ppw": 40,
+    "transverse": "lambda/20",
+    "r_max": 1.1
+  },
+  "run": {
+    "periods": 90,
+    "dft_periods": 30,
+    "courant": 0.5
+  }
+}

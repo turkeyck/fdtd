@@ -1,0 +1,22 @@
+A F1 s 100
+A F1 s 200
+A F1 s 400
+A F5 s 100
+A F5 s 200
+A F5 s 400
+A F1 p 100
+A F1 p 200
+A F1 p 400
+A F5 p 100
+A F5 p 200
+A F5 p 400
+B vac s cont
+B vac s disc
+B vac p cont
+B vac p disc
+B film s cont
+B film s disc
+B film p cont
+B film p disc
+full cell done
+exit=0

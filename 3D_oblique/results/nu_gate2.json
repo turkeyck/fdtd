@@ -1,0 +1,531 @@
+{
+ "gate": "gate2",
+ "created_utc": "2026-09-26T19:02:23Z",
+ "table": [
+  {
+   "item": "2-1",
+   "quantity": "|R − R_TMM| (F1, s, default grid D6)",
+   "theory": "0.23602548",
+   "measured": "0.23595142",
+   "threshold": "< 0.001",
+   "passed": true,
+   "grid": "Δy_min=λ0/87.5, Δy_max=λ0/40, r_max=1.0909, Δx=λ0/20, Δt=0.00934579 T0",
+   "note": "Δ = -7.41e-05"
+  },
+  {
+   "item": "2-1",
+   "quantity": "|T − T_TMM| (F1, s, default grid D6)",
+   "theory": "0.76397452",
+   "measured": "0.76404667",
+   "threshold": "< 0.001",
+   "passed": true,
+   "grid": "Δy_min=λ0/87.5, Δy_max=λ0/40, r_max=1.0909, Δx=λ0/20, Δt=0.00934579 T0",
+   "note": "Δ = +7.21e-05"
+  },
+  {
+   "item": "2-2",
+   "quantity": "|R + T − 1| (F1, s)",
+   "theory": "0",
+   "measured": "-1.90e-06",
+   "threshold": "< 1e-05",
+   "passed": true,
+   "grid": "Δy_min=λ0/87.5, Δy_max=λ0/40, r_max=1.0909, Δx=λ0/20, Δt=0.00934579 T0",
+   "note": "R by 2-wave fit, T by substrate flux; S_y spread 8.8e-14"
+  },
+  {
+   "item": "2-7",
+   "quantity": "FDTD vs exact discrete R_disc, same grid (F1, s)",
+   "theory": "0.2359535843",
+   "measured": "0.2359514241",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "L2_F1_ppw40",
+   "note": "rel 9.2e-06; main vs aux_ref 1.2e-14"
+  },
+  {
+   "item": "2-1",
+   "quantity": "|R − R_TMM| (F1, p, default grid D6)",
+   "theory": "0.10224275",
+   "measured": "0.10239699",
+   "threshold": "< 0.001",
+   "passed": true,
+   "grid": "Δy_min=λ0/87.5, Δy_max=λ0/40, r_max=1.0909, Δx=λ0/20, Δt=0.00934579 T0",
+   "note": "Δ = +1.54e-04"
+  },
+  {
+   "item": "2-1",
+   "quantity": "|T − T_TMM| (F1, p, default grid D6)",
+   "theory": "0.89775725",
+   "measured": "0.89760152",
+   "threshold": "< 0.001",
+   "passed": true,
+   "grid": "Δy_min=λ0/87.5, Δy_max=λ0/40, r_max=1.0909, Δx=λ0/20, Δt=0.00934579 T0",
+   "note": "Δ = -1.56e-04"
+  },
+  {
+   "item": "2-2",
+   "quantity": "|R + T − 1| (F1, p)",
+   "theory": "0",
+   "measured": "-1.50e-06",
+   "threshold": "< 1e-05",
+   "passed": true,
+   "grid": "Δy_min=λ0/87.5, Δy_max=λ0/40, r_max=1.0909, Δx=λ0/20, Δt=0.00934579 T0",
+   "note": "R by 2-wave fit, T by substrate flux; S_y spread 9.9e-14"
+  },
+  {
+   "item": "2-7",
+   "quantity": "FDTD vs exact discrete R_disc, same grid (F1, p)",
+   "theory": "0.1023986682",
+   "measured": "0.1023969870",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "L2_F1_ppw40",
+   "note": "rel 1.6e-05; main vs aux_ref 1.3e-14"
+  },
+  {
+   "item": "2-1",
+   "quantity": "|R − R_TMM| (F5, s, default grid D6)",
+   "theory": "0.10364215",
+   "measured": "0.10288858",
+   "threshold": "< 0.001",
+   "passed": true,
+   "grid": "Δy_min=λ0/87.5, Δy_max=λ0/40, r_max=1.0909, Δx=λ0/20, Δt=0.00934579 T0",
+   "note": "Δ = -7.54e-04"
+  },
+  {
+   "item": "2-1",
+   "quantity": "|T − T_TMM| (F5, s, default grid D6)",
+   "theory": "0.89635785",
+   "measured": "0.89711014",
+   "threshold": "< 0.001",
+   "passed": true,
+   "grid": "Δy_min=λ0/87.5, Δy_max=λ0/40, r_max=1.0909, Δx=λ0/20, Δt=0.00934579 T0",
+   "note": "Δ = +7.52e-04"
+  },
+  {
+   "item": "2-2",
+   "quantity": "|R + T − 1| (F5, s)",
+   "theory": "0",
+   "measured": "-1.28e-06",
+   "threshold": "< 1e-05",
+   "passed": true,
+   "grid": "Δy_min=λ0/87.5, Δy_max=λ0/40, r_max=1.0909, Δx=λ0/20, Δt=0.00934579 T0",
+   "note": "R by 2-wave fit, T by substrate flux; S_y spread 1.0e-13"
+  },
+  {
+   "item": "2-7",
+   "quantity": "FDTD vs exact discrete R_disc, same grid (F5, s)",
+   "theory": "0.1028893834",
+   "measured": "0.1028885814",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "L2_F5_ppw40",
+   "note": "rel 7.8e-06; main vs aux_ref 1.2e-14"
+  },
+  {
+   "item": "2-1",
+   "quantity": "|R − R_TMM| (F5, p, default grid D6)",
+   "theory": "0.03810250",
+   "measured": "0.03781652",
+   "threshold": "< 0.001",
+   "passed": true,
+   "grid": "Δy_min=λ0/87.5, Δy_max=λ0/40, r_max=1.0909, Δx=λ0/20, Δt=0.00934579 T0",
+   "note": "Δ = -2.86e-04"
+  },
+  {
+   "item": "2-1",
+   "quantity": "|T − T_TMM| (F5, p, default grid D6)",
+   "theory": "0.96189750",
+   "measured": "0.96218266",
+   "threshold": "< 0.001",
+   "passed": true,
+   "grid": "Δy_min=λ0/87.5, Δy_max=λ0/40, r_max=1.0909, Δx=λ0/20, Δt=0.00934579 T0",
+   "note": "Δ = +2.85e-04"
+  },
+  {
+   "item": "2-2",
+   "quantity": "|R + T − 1| (F5, p)",
+   "theory": "0",
+   "measured": "-8.20e-07",
+   "threshold": "< 1e-05",
+   "passed": true,
+   "grid": "Δy_min=λ0/87.5, Δy_max=λ0/40, r_max=1.0909, Δx=λ0/20, Δt=0.00934579 T0",
+   "note": "R by 2-wave fit, T by substrate flux; S_y spread 1.2e-13"
+  },
+  {
+   "item": "2-7",
+   "quantity": "FDTD vs exact discrete R_disc, same grid (F5, p)",
+   "theory": "0.0378171758",
+   "measured": "0.0378165218",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "L2_F5_ppw40",
+   "note": "rel 1.7e-05; main vs aux_ref 1.3e-14"
+  },
+  {
+   "item": "2-3",
+   "quantity": "order of R vs Δy, aligned nonuniform (D10: bis1,2,4; F1, s)",
+   "theory": "2 (pred. 2.025)",
+   "measured": "2.026",
+   "threshold": "∈ [1.8, 2.2]",
+   "passed": true,
+   "grid": "L2_*_bis{1,2,4}, dt ∝ h, x/z λ0/20",
+   "note": "R = 0.23496064, 0.23565141, 0.23582097; R_∞(Δx) = 0.23587613"
+  },
+  {
+   "item": "2-3",
+   "quantity": "order of R vs Δy, aligned nonuniform (D10: bis1,2,4; F1, p)",
+   "theory": "2 (pred. 2.023)",
+   "measured": "2.024",
+   "threshold": "∈ [1.8, 2.2]",
+   "passed": true,
+   "grid": "L2_*_bis{1,2,4}, dt ∝ h, x/z λ0/20",
+   "note": "R = 0.10160845, 0.10218672, 0.10232886; R_∞(Δx) = 0.10237518"
+  },
+  {
+   "item": "2-3",
+   "quantity": "order of R vs Δy, aligned nonuniform (D10: bis1,2,4; F5, s)",
+   "theory": "2 (pred. 2.011)",
+   "measured": "2.010",
+   "threshold": "∈ [1.8, 2.2]",
+   "passed": true,
+   "grid": "L2_*_bis{1,2,4}, dt ∝ h, x/z λ0/20",
+   "note": "R = 0.10065920, 0.10272687, 0.10324006; R_∞(Δx) = 0.10340948"
+  },
+  {
+   "item": "2-3",
+   "quantity": "order of R vs Δy, aligned nonuniform (D10: bis1,2,4; F5, p)",
+   "theory": "2 (pred. 2.006)",
+   "measured": "2.005",
+   "threshold": "∈ [1.8, 2.2]",
+   "passed": true,
+   "grid": "L2_*_bis{1,2,4}, dt ∝ h, x/z λ0/20",
+   "note": "R = 0.03642456, 0.03768163, 0.03799482; R_∞(Δx) = 0.03809873"
+  },
+  {
+   "item": "2-4",
+   "quantity": "control: unaligned uniform grid, order of R (D11; F1, s)",
+   "theory": "1 (pred. 0.967)",
+   "measured": "0.966",
+   "threshold": "∈ [0.8, 1.2]",
+   "passed": true,
+   "grid": "L2_F1_ctrl_mh{4.5,9.5,18.5}",
+   "note": "errors -1.99e-02, -9.73e-03, -5.07e-03"
+  },
+  {
+   "item": "2-4",
+   "quantity": "control: unaligned uniform grid, order of R (D11; F1, p)",
+   "theory": "1 (pred. 0.962)",
+   "measured": "0.962",
+   "threshold": "∈ [0.8, 1.2]",
+   "passed": true,
+   "grid": "L2_F1_ctrl_mh{4.5,9.5,18.5}",
+   "note": "errors -1.42e-02, -7.00e-03, -3.65e-03"
+  },
+  {
+   "item": "2-5",
+   "quantity": "error budget (F1, s): total = y-discretization + transverse (K~t vs k_t)",
+   "theory": "total -7.41e-05",
+   "measured": "y +7.53e-05, transverse -1.49e-04",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "default grid / D10 limit",
+   "note": "x/z λ0/20→λ0/40 at fixed y grid: ΔR = +1.11e-04 (theory +1.11e-04)"
+  },
+  {
+   "item": "2-5",
+   "quantity": "error budget (F1, p): total = y-discretization + transverse (K~t vs k_t)",
+   "theory": "total +1.54e-04",
+   "measured": "y +2.18e-05, transverse +1.32e-04",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "default grid / D10 limit",
+   "note": "x/z λ0/20→λ0/40 at fixed y grid: ΔR = -9.20e-05 (theory -9.20e-05)"
+  },
+  {
+   "item": "2-5",
+   "quantity": "error budget (F5, s): total = y-discretization + transverse (K~t vs k_t)",
+   "theory": "total -7.54e-04",
+   "measured": "y -5.21e-04, transverse -2.33e-04",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "default grid / D10 limit",
+   "note": ""
+  },
+  {
+   "item": "2-5",
+   "quantity": "error budget (F5, p): total = y-discretization + transverse (K~t vs k_t)",
+   "theory": "total -2.86e-04",
+   "measured": "y -2.82e-04, transverse -3.77e-06",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "default grid / D10 limit",
+   "note": ""
+  },
+  {
+   "item": "2-6",
+   "quantity": "efficiency: same y-discretization error |R−R_∞(Δx)| (s): nonuniform default vs uniform aligned L2_F1_uniform_M24",
+   "theory": "target 7.53e-05",
+   "measured": "nonuniform 0.95M cells × 9630 steps, 346 s; uniform 5.20M cells × 31320 steps, 2524 s (err 7.25e-05)",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "F1",
+   "note": ""
+  },
+  {
+   "item": "2-6",
+   "quantity": "efficiency: same y-discretization error |R−R_∞(Δx)| (p): nonuniform default vs uniform aligned L2_F1_uniform_M40",
+   "theory": "target 2.18e-05",
+   "measured": "nonuniform 0.95M cells × 9630 steps, 340 s; uniform 8.59M cells × 52110 steps (exact discrete err 2.12e-05; FDTD not run: ~49x the work)",
+   "threshold": "INFO",
+   "passed": null,
+   "grid": "F1",
+   "note": ""
+  }
+ ],
+ "passed": true,
+ "measurements": {
+  "L2_F1_ppw40|s": {
+   "R": 0.23595142410653763,
+   "T": 0.7640466720521937,
+   "fit_res": 2.645495025516809e-14,
+   "S_var": 8.76440085063793e-14,
+   "R_flux": 0.235953327947806,
+   "dev_ref": 1.199041e-14,
+   "runtime": 346.0,
+   "cells": 948000,
+   "steps": 9630
+  },
+  "L2_F1_ppw40|p": {
+   "R": 0.10239698699538695,
+   "T": 0.8976015174927168,
+   "fit_res": 2.5799824602727327e-13,
+   "S_var": 9.932987630722991e-14,
+   "R_flux": 0.10239848250729022,
+   "dev_ref": 1.276756e-14,
+   "runtime": 340.0,
+   "cells": 948000,
+   "steps": 9630
+  },
+  "L2_F5_ppw40|s": {
+   "R": 0.10288858137790666,
+   "T": 0.8971101379826117,
+   "fit_res": 2.44000620029036e-13,
+   "S_var": 1.0099928599306566e-13,
+   "R_flux": 0.10288986201739203,
+   "dev_ref": 1.221245e-14,
+   "runtime": 349.0,
+   "cells": 1024800,
+   "steps": 9630
+  },
+  "L2_F5_ppw40|p": {
+   "R": 0.03781652181707299,
+   "T": 0.9621826578737149,
+   "fit_res": 1.019964685361965e-13,
+   "S_var": 1.2061484980163632e-13,
+   "R_flux": 0.0378173421262864,
+   "dev_ref": 1.2823080000000002e-14,
+   "runtime": 353.0,
+   "cells": 1024800,
+   "steps": 9630
+  },
+  "L2_F1_bis1|s": {
+   "R": 0.23496063758118332,
+   "T": 0.7650395442533613,
+   "fit_res": 1.68681752306336e-14,
+   "S_var": 4.283014202826209e-14,
+   "R_flux": 0.2349604557466376,
+   "dev_ref": 8.715250999999998e-15,
+   "runtime": 179.0,
+   "cells": 544800,
+   "steps": 6030
+  },
+  "L2_F1_bis2|s": {
+   "R": 0.23565141130149797,
+   "T": 0.7643486390461155,
+   "fit_res": 1.6109847111775385e-13,
+   "S_var": 1.3382712343361966e-13,
+   "R_flux": 0.23565136095388217,
+   "dev_ref": 1.287859e-14,
+   "runtime": 462.0,
+   "cells": 1087200,
+   "steps": 12060
+  },
+  "L2_F1_bis4|s": {
+   "R": 0.2358209714319002,
+   "T": 0.7641790371693912,
+   "fit_res": 2.1169889332620953e-12,
+   "S_var": 3.179466353368917e-13,
+   "R_flux": 0.23582096283060627,
+   "dev_ref": 1.94289e-14,
+   "runtime": 1351.0,
+   "cells": 2172000,
+   "steps": 24120
+  },
+  "L2_F1_bis1|p": {
+   "R": 0.10160844576811526,
+   "T": 0.8983915434670352,
+   "fit_res": 2.5713539112291405e-14,
+   "S_var": 4.590943328519596e-14,
+   "R_flux": 0.1016084565329638,
+   "dev_ref": 1.003364e-14,
+   "runtime": 178.0,
+   "cells": 544800,
+   "steps": 6030
+  },
+  "L2_F1_bis2|p": {
+   "R": 0.10218671966368982,
+   "T": 0.8978133023077435,
+   "fit_res": 7.04047157758187e-14,
+   "S_var": 1.3243598909439285e-13,
+   "R_flux": 0.10218669769225208,
+   "dev_ref": 1.498801e-14,
+   "runtime": 459.0,
+   "cells": 1087200,
+   "steps": 12060
+  },
+  "L2_F1_bis4|p": {
+   "R": 0.10232885970024028,
+   "T": 0.8976711449316044,
+   "fit_res": 2.617780672188085e-13,
+   "S_var": 3.185022432623385e-13,
+   "R_flux": 0.10232885506838951,
+   "dev_ref": 2.403633e-14,
+   "runtime": 927.0,
+   "cells": 2172000,
+   "steps": 24120
+  },
+  "L2_F5_bis1|s": {
+   "R": 0.10065919524470641,
+   "T": 0.8993415108764019,
+   "fit_res": 1.634456617804717e-14,
+   "S_var": 5.1928048014657626e-14,
+   "R_flux": 0.1006584891235981,
+   "dev_ref": 1.0935699999999997e-14,
+   "runtime": 60.0,
+   "cells": 592800,
+   "steps": 6030
+  },
+  "L2_F5_bis2|s": {
+   "R": 0.1027268735109814,
+   "T": 0.8972732257351065,
+   "fit_res": 3.5561158658494334e-14,
+   "S_var": 1.3786141301737743e-13,
+   "R_flux": 0.10272677426489507,
+   "dev_ref": 1.598721e-14,
+   "runtime": 238.0,
+   "cells": 1183200,
+   "steps": 12060
+  },
+  "L2_F5_bis4|s": {
+   "R": 0.10324005789704595,
+   "T": 0.8967599557665612,
+   "fit_res": 7.527931347076933e-13,
+   "S_var": 3.1933565515050854e-13,
+   "R_flux": 0.10324004423343802,
+   "dev_ref": 2.275957e-14,
+   "runtime": 903.0,
+   "cells": 2364000,
+   "steps": 24120
+  },
+  "L2_F5_bis1|p": {
+   "R": 0.03642455847959282,
+   "T": 0.9635759247630103,
+   "fit_res": 4.922578341265039e-14,
+   "S_var": 5.59871137624341e-14,
+   "R_flux": 0.036424075236985876,
+   "dev_ref": 9.436895999999999e-15,
+   "runtime": 60.0,
+   "cells": 592800,
+   "steps": 6030
+  },
+  "L2_F5_bis2|p": {
+   "R": 0.037681632814146736,
+   "T": 0.9623184340602008,
+   "fit_res": 1.2899667459308849e-13,
+   "S_var": 1.4453885784566617e-13,
+   "R_flux": 0.03768156593979832,
+   "dev_ref": 1.776357e-14,
+   "runtime": 237.0,
+   "cells": 1183200,
+   "steps": 12060
+  },
+  "L2_F5_bis4|p": {
+   "R": 0.03799481739079298,
+   "T": 0.962005191759614,
+   "fit_res": 3.8034479126555527e-13,
+   "S_var": 3.4517142368378156e-13,
+   "R_flux": 0.03799480824038404,
+   "dev_ref": 2.381428e-14,
+   "runtime": 904.0,
+   "cells": 2364000,
+   "steps": 24120
+  },
+  "L2_F1_ctrl_mh4.5|s": {
+   "R": 0.21599672386404864,
+   "T": 0.7840024339655179,
+   "fit_res": 2.691317108394291e-13,
+   "S_var": 5.712670872137792e-14,
+   "R_flux": 0.21599756603448328,
+   "dev_ref": 1.04361e-14,
+   "runtime": 121.0,
+   "cells": 1056000,
+   "steps": 6570
+  },
+  "L2_F1_ctrl_mh9.5|s": {
+   "R": 0.22614771346651447,
+   "T": 0.7738513431097629,
+   "fit_res": 1.7820183989664118e-12,
+   "S_var": 1.492844269367237e-13,
+   "R_flux": 0.2261486568902349,
+   "dev_ref": 1.487699e-14,
+   "runtime": 446.0,
+   "cells": 2121600,
+   "steps": 12690
+  },
+  "L2_F1_ctrl_mh18.5|s": {
+   "R": 0.23080691973235343,
+   "T": 0.769192086746358,
+   "fit_res": 6.408514050319243e-13,
+   "S_var": 3.230845051662427e-13,
+   "R_flux": 0.23080791325364536,
+   "dev_ref": 2.2204459999999995e-14,
+   "runtime": 1552.0,
+   "cells": 4039200,
+   "steps": 24300
+  },
+  "L2_F1_ctrl_mh4.5|p": {
+   "R": 0.0881396613504115,
+   "T": 0.9118597915313756,
+   "fit_res": 2.7601225962966316e-14,
+   "S_var": 6.894123485596947e-14,
+   "R_flux": 0.08814020846862569,
+   "dev_ref": 9.65894e-15,
+   "runtime": 124.0,
+   "cells": 1056000,
+   "steps": 6570
+  },
+  "L2_F1_ctrl_mh9.5|p": {
+   "R": 0.09537551545958033,
+   "T": 0.9046238656014157,
+   "fit_res": 2.1418431071530365e-12,
+   "S_var": 1.5831092717010704e-13,
+   "R_flux": 0.09537613439858883,
+   "dev_ref": 1.5952520000000005e-14,
+   "runtime": 441.0,
+   "cells": 2121600,
+   "steps": 12690
+  },
+  "L2_F1_ctrl_mh18.5|p": {
+   "R": 0.09872149942550419,
+   "T": 0.9012778438941029,
+   "fit_res": 1.5608856005017943e-11,
+   "S_var": 4.0916632433387077e-13,
+   "R_flux": 0.09872215610589752,
+   "dev_ref": 2.053913e-14,
+   "runtime": 1555.0,
+   "cells": 4039200,
+   "steps": 24300
+  }
+ }
+}

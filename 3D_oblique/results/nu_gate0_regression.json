@@ -1,0 +1,219 @@
+{
+ "gate": "gate0_regression",
+ "created_utc": "2026-09-26T19:01:53Z",
+ "table": [
+  {
+   "item": "0-1a",
+   "quantity": "s_vac, mesh=uniform: max over comps of max|ΔF|/max|F_ref| at n = [1, 10, 100, 1000, 5000]",
+   "theory": "0",
+   "measured": "0.0e+00, 0.0e+00, 0.0e+00, 0.0e+00, 0.0e+00",
+   "threshold": "< 1e-12",
+   "passed": true,
+   "grid": "Δ=λ0/20 uniform, P_uniform_nl20",
+   "note": "bit-identical"
+  },
+  {
+   "item": "0-1a",
+   "quantity": "s_vac, mesh=file (equal spacing): max over comps of max|ΔF|/max|F_ref| at n = [1, 10, 100, 1000, 5000]",
+   "theory": "0",
+   "measured": "0.0e+00, 0.0e+00, 4.2e-15, 4.5e-15, 1.9e-14",
+   "threshold": "< 1e-12",
+   "passed": true,
+   "grid": "Δ=λ0/20 uniform, P_uniform_nl20",
+   "note": ""
+  },
+  {
+   "item": "0-1a",
+   "quantity": "p_med, mesh=uniform: max over comps of max|ΔF|/max|F_ref| at n = [1, 10, 100, 1000, 5000]",
+   "theory": "0",
+   "measured": "0.0e+00, 0.0e+00, 0.0e+00, 0.0e+00, 0.0e+00",
+   "threshold": "< 1e-12",
+   "passed": true,
+   "grid": "Δ=λ0/20 uniform, P_uniform_nl20_med",
+   "note": "bit-identical"
+  },
+  {
+   "item": "0-1a",
+   "quantity": "p_med, mesh=file (equal spacing): max over comps of max|ΔF|/max|F_ref| at n = [1, 10, 100, 1000, 5000]",
+   "theory": "0",
+   "measured": "0.0e+00, 0.0e+00, 4.5e-15, 5.2e-15, 1.8e-14",
+   "threshold": "< 1e-12",
+   "passed": true,
+   "grid": "Δ=λ0/20 uniform, P_uniform_nl20_med",
+   "note": ""
+  },
+  {
+   "item": "0-1b",
+   "quantity": "legacy regression (run_all_regression.py --fresh, new binary, D7)",
+   "theory": "PASS",
+   "measured": "PASS",
+   "threshold": "PASS",
+   "passed": true,
+   "grid": "",
+   "note": "results/regression.log"
+  }
+ ],
+ "passed": true,
+ "detail": {
+  "s_vac|mesh=uniform|1": {
+   "Ex": 0.0,
+   "Ey": 0.0,
+   "Ez": 0.0,
+   "Hx": 0.0,
+   "Hy": 0.0,
+   "Hz": 0.0
+  },
+  "s_vac|mesh=uniform|10": {
+   "Ex": 0.0,
+   "Ey": 0.0,
+   "Ez": 0.0,
+   "Hx": 0.0,
+   "Hy": 0.0,
+   "Hz": 0.0
+  },
+  "s_vac|mesh=uniform|100": {
+   "Ex": 0.0,
+   "Ey": 0.0,
+   "Ez": 0.0,
+   "Hx": 0.0,
+   "Hy": 0.0,
+   "Hz": 0.0
+  },
+  "s_vac|mesh=uniform|1000": {
+   "Ex": 0.0,
+   "Ey": 0.0,
+   "Ez": 0.0,
+   "Hx": 0.0,
+   "Hy": 0.0,
+   "Hz": 0.0
+  },
+  "s_vac|mesh=uniform|5000": {
+   "Ex": 0.0,
+   "Ey": 0.0,
+   "Ez": 0.0,
+   "Hx": 0.0,
+   "Hy": 0.0,
+   "Hz": 0.0
+  },
+  "s_vac|mesh=file (equal spacing)|1": {
+   "Ex": 0.0,
+   "Ey": 0.0,
+   "Ez": 0.0,
+   "Hx": 0.0,
+   "Hy": 0.0,
+   "Hz": 0.0
+  },
+  "s_vac|mesh=file (equal spacing)|10": {
+   "Ex": 0.0,
+   "Ey": 0.0,
+   "Ez": 0.0,
+   "Hx": 0.0,
+   "Hy": 0.0,
+   "Hz": 0.0
+  },
+  "s_vac|mesh=file (equal spacing)|100": {
+   "Ex": 3.0169640816659725e-15,
+   "Ey": 2.563217314004019e-15,
+   "Ez": 4.177334882306731e-15,
+   "Hx": 3.255907705619885e-15,
+   "Hy": 2.441930779214914e-15,
+   "Hz": 2.3062679581474184e-15
+  },
+  "s_vac|mesh=file (equal spacing)|1000": {
+   "Ex": 2.3106977997635092e-15,
+   "Ey": 2.621195077541415e-15,
+   "Ez": 2.9708971711245117e-15,
+   "Hx": 4.468669970055685e-15,
+   "Hy": 2.744049421294796e-15,
+   "Hz": 3.325521838180975e-15
+  },
+  "s_vac|mesh=file (equal spacing)|5000": {
+   "Ex": 9.542054770967463e-15,
+   "Ey": 7.324408787264445e-15,
+   "Ez": 1.1477156787457368e-14,
+   "Hx": 1.874358566908868e-14,
+   "Hy": 1.7616465818163526e-14,
+   "Hz": 1.8117407974130262e-14
+  },
+  "p_med|mesh=uniform|1": {
+   "Ex": 0.0,
+   "Ey": 0.0,
+   "Ez": 0.0,
+   "Hx": 0.0,
+   "Hy": 0.0,
+   "Hz": 0.0
+  },
+  "p_med|mesh=uniform|10": {
+   "Ex": 0.0,
+   "Ey": 0.0,
+   "Ez": 0.0,
+   "Hx": 0.0,
+   "Hy": 0.0,
+   "Hz": 0.0
+  },
+  "p_med|mesh=uniform|100": {
+   "Ex": 0.0,
+   "Ey": 0.0,
+   "Ez": 0.0,
+   "Hx": 0.0,
+   "Hy": 0.0,
+   "Hz": 0.0
+  },
+  "p_med|mesh=uniform|1000": {
+   "Ex": 0.0,
+   "Ey": 0.0,
+   "Ez": 0.0,
+   "Hx": 0.0,
+   "Hy": 0.0,
+   "Hz": 0.0
+  },
+  "p_med|mesh=uniform|5000": {
+   "Ex": 0.0,
+   "Ey": 0.0,
+   "Ez": 0.0,
+   "Hx": 0.0,
+   "Hy": 0.0,
+   "Hz": 0.0
+  },
+  "p_med|mesh=file (equal spacing)|1": {
+   "Ex": 0.0,
+   "Ey": 0.0,
+   "Ez": 0.0,
+   "Hx": 0.0,
+   "Hy": 0.0,
+   "Hz": 0.0
+  },
+  "p_med|mesh=file (equal spacing)|10": {
+   "Ex": 0.0,
+   "Ey": 0.0,
+   "Ez": 0.0,
+   "Hx": 0.0,
+   "Hy": 0.0,
+   "Hz": 0.0
+  },
+  "p_med|mesh=file (equal spacing)|100": {
+   "Ex": 4.541971175871601e-15,
+   "Ey": 2.7576253567791865e-15,
+   "Ez": 3.0820518693414436e-15,
+   "Hx": 2.7758573559104818e-15,
+   "Hy": 2.1004553785781483e-15,
+   "Hz": 2.900149476324384e-15
+  },
+  "p_med|mesh=file (equal spacing)|1000": {
+   "Ex": 5.183350422019385e-15,
+   "Ey": 3.543305952552314e-15,
+   "Ez": 3.524678286973182e-15,
+   "Hx": 2.6447554014077874e-15,
+   "Hy": 2.1809492124454513e-15,
+   "Hz": 3.0579984328777542e-15
+  },
+  "p_med|mesh=file (equal spacing)|5000": {
+   "Ex": 1.751557588977058e-14,
+   "Ey": 1.4138632233056338e-14,
+   "Ez": 1.4324178587820856e-14,
+   "Hx": 8.167085333958345e-15,
+   "Hy": 8.522887505365731e-15,
+   "Hz": 9.217139162610132e-15
+  }
+ }
+}

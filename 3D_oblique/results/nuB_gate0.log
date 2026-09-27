@@ -1,0 +1,12 @@
+[B0-1] x nonuniform + inc=a is refused: theory=exit 2 + message measured=exit 2: ERROR: phasor aux line requires uniform x and z (x nonuniform=1, z nonuniform=0); use inc= thr=exact -> PASS 
+[B0-1] x nonuniform + inc=p + auxref=1 is refused: theory=exit 2 + message measured=exit 2: ERROR: phasor aux line requires uniform x and z (x nonuniform=1, z nonuniform=0); use inc= thr=exact -> PASS 
+[B0-2 (0-2)] adjointness, x and z graded, seed 1: theory=0 measured=7.41e-19 thr=< 1e-13 -> PASS 
+[B0-2 (0-2)] adjointness, x and z graded, seed 2: theory=0 measured=5.93e-19 thr=< 1e-13 -> PASS 
+[B0-2 (0-2)] C kernel vs Python operator, x and z graded: theory=0 measured=H 3.3e-16, E 2.8e-16 thr=< 1e-13 -> PASS 
+[B0-2 (0-3)] energy drift over 1e+05 steps, x and z graded: theory=0 measured=2.66e-15 thr=< 1e-10 -> PASS 
+[B0-2 (0-4)] Courant formula Δt ≤ Δt_max (power iteration), x and z graded: theory=0.01090368546 measured=0.01091781749 (1810 it) thr=Δt_C ≤ Δt_max -> PASS 
+[B0-2 (0-4)] 0.99 Δt_max stable / 1.02 Δt_max diverges (20000 steps): theory=stable / diverges measured=exit 0 / exit 2 thr=0 / non-finite -> PASS 
+[B0-2 (0-5)] divergence in the TF interior, x graded, inc=p: theory=0 measured=E 0.0e+00, H 4.1e-14 thr=< 1e-10 -> PASS control (uniform operator): 0.0e+00
+
+B_gate0: 9/9 gates PASS -> PASS
+exit=0
