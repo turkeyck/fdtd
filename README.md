@@ -100,7 +100,8 @@ Interfaces lie on primal nodes; tangential E at an interface node uses the lengt
 New solver keys: `mesh`, `grid`, `dt` (explicit Δt; the gates use Δt = T0/⌈T0/Δt_C⌉, an integer number of steps per
 period), `dtfac`, `auxref=1` (exact 1D reduction of the whole main grid; logs main vs aux_ref), `proj=1` (per-row x–z
 Floquet projection, `dft_proj.bin`), `planar=1` (per-plane phase residual), `dump_at=`, `init=r` + `seed`,
-`mode=e` (power iteration: λ_max and Δt_max), `divop=u` (control), `inc=p` (continuous plane wave sampled at the
+`mode=e` (power iteration: λ_max and Δt_max), `divop=u` (control), `inc=m` (exact transverse discrete-mode injection,
+one aux line per mode, writes `modes.json`; amendment D22), `inc=p` (continuous plane wave sampled at the
 component positions) and `inc=j` (current sheet, `jsrc`) for x/z-nonuniform grids — the phasor aux line (`inc=a`,
 `auxref=1`) is refused there with an explicit error.
 

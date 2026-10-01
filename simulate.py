@@ -283,7 +283,7 @@ def build(cfg, lam, vacuum=False):
                 dx_min_nm=float(geo.hx.min() * lam * 1e9), dz_nm=float(geo.hz[0] * lam * 1e9),
                 r_max=float(np.max(np.maximum(geo.hy[1:] / geo.hy[:-1], geo.hy[:-1] / geo.hy[1:]))),
                 dt_fs=dt * lam / C_LIGHT * 1e15, est_minutes=steps * max(1.5 * cells / CELL_STEPS_PER_S, 1e-3) / 60.0,
-                inc="a" if geo.uniform_xz() else "p", grating=grat is not None,
+                inc="a" if geo.uniform_xz() else "m", grating=grat is not None,
                 x_nonuniform=not bool(g["x"]["uniform"]))
     return g, geo, dt, info
 
@@ -397,10 +397,12 @@ def measure_grating(cfg, lam, out, meta, out_v, meta_v, geo, info, pol):
     if meta_v is None:                                            # inc = a: exact discrete incident flux
         E0, H0 = np.array(meta["E0"]), np.array(meta["H0"])
         S_inc = S_inc_d = 0.5 * math.cos(meta["ky"] * meta["Delta_a"] / 2) * (E0[2] * H0[0] - E0[0] * H0[2])
-    else:                                                         # inc = p: vacuum normalization run
+    else:                                                         # inc = m: vacuum normalization run
         Dv, _ = nc.load_dft(out_v, f"y{jI}", meta_v)
         Sv, _ = an.order_fluxes(Dv, used, kxs, kz)
-        S_inc, S_inc_d = Sv[P], an.plane_flux(Dv, used)
+        DvR, _ = nc.load_dft(out_v, f"y{jR}", meta_v)                 # injected power: TF-plane minus SF-plane flux
+        SvR, _ = an.order_fluxes(DvR, used, kxs, kz)
+        S_inc, S_inc_d = Sv[P] - SvR[P], an.plane_flux(Dv, used) - an.plane_flux(DvR, used)
     DR, _ = nc.load_dft(out, f"y{jR}", meta)
     DT, _ = nc.load_dft(out, f"y{jT}", meta)
     SR, _ = an.order_fluxes(DR, used, kxs, kz)
@@ -501,7 +503,7 @@ def spectrum_plot(cfg, rows, path):
 # ----------------------------------------------------------------------------- driver
 def describe(lam, info):
     L = [f"λ = {lam * 1e9:g} nm  mesh = {info['mesh']}  injection = "
-         f"{'aux line (exact)' if info['inc'] == 'a' else 'analytic plane wave (x nonuniform)'}",
+         f"{'aux line (exact)' if info['inc'] == 'a' else 'transverse-mode aux lines (exact, x nonuniform)'}",
          f"  angle: requested θ = {info['requested_angle_deg']:g}°, φ = {info['requested_azimuth_deg']:g}°; realized "
          f"θ = {info['angle_deg']:.4f}°, φ = {info['azimuth_deg']:.3f}° (m = {info['m']}, n = {info['n']}, "
          f"Lx = {info['Lx_nm']:.5g} nm, Lz = {info['Lz_nm']:.5g} nm)",
@@ -510,7 +512,7 @@ def describe(lam, info):
          f"Δz {info['dz_nm']:.4g} nm",
          f"  Δt = {info['dt_fs']:.4g} fs ({info['steps_per_period']} steps/period), {info['steps']} steps; "
          f"estimated {info['est_minutes']:.1f} min per run" + (" (+ a vacuum normalization run)"
-                                                              if info["grating"] and info["inc"] == "p" else "")]
+                                                              if info["grating"] and info["inc"] == "m" else "")]
     for q in info["layers"]:
         if abs(q["realized_nm"] - q["requested_nm"]) > 1e-9:
             L.append(f"  note: layer '{q['name']}' {q['requested_nm']:.4g} nm -> {q['realized_nm']:.4g} nm on the "
@@ -552,7 +554,7 @@ def main():
                 out = os.path.join(outdir, f"{tag}_{pol}")
                 meta = run_solver(out, g, **solver_args(cfg, info, dt, pol, geo, planes, fm))
                 out_v = meta_v = None
-                if info["inc"] == "p":
+                if info["inc"] == "m":                    # normalization: same grid in vacuum, same modal source
                     gv, _, _, _ = build(cfg, lam, vacuum=True)
                     out_v = os.path.join(outdir, f"{tag}_{pol}_vac")
                     meta_v = run_solver(out_v, gv, **solver_args(cfg, info, dt, pol, geo, planes))

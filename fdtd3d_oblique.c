@@ -505,6 +505,278 @@ static void aux_update_E(long n) {
     aEz[Aua] += acE[Aua] * inc_amp(3, ja - 1, (double)n, E0v, H0v, ky);
 }
 
+/* ------------------------------------------------------------------ inc=m: transverse discrete-mode injection (D22)
+   On a nonuniform periodic axis the sampled exp(i k x) is not a discrete eigenfunction: the operator D_d D_p
+   (D_p u = (u_{i+1} - u_i)/h_i at dual nodes, D_d g = (g_i - g_{i-1})/d_i at primal nodes, the weights of the main
+   update) splits the +-m pair into two real modes D_d D_p phi = -kappa^2 phi. A product mode phi_a(x) phi_b(z)
+   separates exactly: every transverse difference acts as i kappa when primal-node components carry phi and
+   dual-node components carry psi = D_p phi / (i kappa). Each product mode is fed by its own 1D aux line with
+   K~ = (kappa_x, K~y, kappa_z) and weighted by the projection of exp(i(kx x + kz z)) on it. A uniform axis keeps the
+   exact exponential (one mode, kappa = K~). The injected field is then an exact discrete solution. */
+typedef struct {
+    int nm;                          /* number of kept modes: 1 (uniform axis or m = 0) or 2 */
+    double kap[2], res[2], rest;     /* kappa, relative eigen-residual, power of exp(ikx) outside the kept modes */
+    double complex c[2];             /* weights <phi_q, exp(i k x)>_d (phi orthonormal under the d weights) */
+    double complex *pp[2], *pd[2];   /* profiles at primal / dual nodes */
+} AxisModes;
+static AxisModes MX, MZ;
+
+typedef struct {
+    double complex *Ex, *Ey, *Ez, *Hx, *Hy, *Hz;
+    double complex *ikxH, *ikzH, *ikxE, *ikzE;
+    double K[3], E0[3], H0[3], ky;
+    double complex w;                /* product weight c_a c_b */
+    double complex *T1, *T2;         /* w * profile at (x dual, z primal) [Ex, Hz] and (x primal, z dual) [Ez, Hx] */
+    int a, b;
+} MAux;
+static MAux MA[4];
+static int NMA;
+/* y geometry of the modal aux lines: the main-grid nodes up to j0, then uniform with the j0 spacing (j0 +- 5 is
+   uniform by the grid rules). The incident is then a pure forward discrete wave: reflections of the main grid's own
+   y grading beyond j0 belong to the scattered field (an aux copy of the whole main grid would carry them in the
+   "incident" and remove them from the SF region, biasing R measured there by ~2|r||echo|). */
+static double *acHm, *acEm;
+static double ghm(long j) { return j <= j0 ? gh(j) : hyv[j0]; }
+static double gdm(long j) {
+    double a = ghm(j - 1), b = ghm(j);
+    return a == b ? a : 0.5 * (a + b);
+}
+
+static void lu_factor(int N, double *A, int *piv) { /* in place, partial pivoting, row-major */
+    for (int c = 0; c < N; c++) {
+        int p = c;
+        for (int r = c + 1; r < N; r++) if (fabs(A[(size_t)r * N + c]) > fabs(A[(size_t)p * N + c])) p = r;
+        piv[c] = p;
+        if (p != c)
+            for (int q = 0; q < N; q++) {
+                double t = A[(size_t)c * N + q]; A[(size_t)c * N + q] = A[(size_t)p * N + q]; A[(size_t)p * N + q] = t;
+            }
+        double d = A[(size_t)c * N + c];
+        if (d == 0.0) die("inc=m: singular shifted mode matrix");
+        for (int r = c + 1; r < N; r++) {
+            double f = A[(size_t)r * N + c] / d;
+            A[(size_t)r * N + c] = f;
+            for (int q = c + 1; q < N; q++) A[(size_t)r * N + q] -= f * A[(size_t)c * N + q];
+        }
+    }
+}
+
+static void lu_solve(int N, const double *A, const int *piv, double *b) {
+    /* whole rows (with their multipliers) were swapped in lu_factor: permute first, then substitute */
+    for (int c = 0; c < N; c++)
+        if (piv[c] != c) { double t = b[c]; b[c] = b[piv[c]]; b[piv[c]] = t; }
+    for (int c = 0; c < N; c++)
+        for (int r = c + 1; r < N; r++) b[r] -= A[(size_t)r * N + c] * b[c];
+    for (int r = N - 1; r >= 0; r--) {
+        double s = b[r];
+        for (int q = r + 1; q < N; q++) s -= A[(size_t)r * N + q] * b[q];
+        b[r] = s / A[(size_t)r * N + r];
+    }
+}
+
+/* (A u)_i = -[(u_{i+1} - u_i)/h_i - (u_i - u_{i-1})/h_{i-1}] = -d_i (D_d D_p u)_i  (periodic) */
+static void apply_A(int N, const double *h, const double *u, double *out) {
+    for (int i = 0; i < N; i++) {
+        int ip = (i + 1) % N, im = (i + N - 1) % N;
+        out[i] = -((u[ip] - u[i]) / h[i] - (u[i] - u[im]) / h[im]);
+    }
+}
+
+static void axis_modes(int N, const double *h, const double *d, const double *xn, const double *xd, double L, int m,
+                       int nonuni, AxisModes *M) {
+    double k = 2.0 * PI * m / L;
+    for (int q = 0; q < 2; q++) { M->pp[q] = xcalloc(N, sizeof(double complex)); M->pd[q] = xcalloc(N, sizeof(double complex)); }
+    M->rest = 0.0;
+    if (!nonuni || m == 0) { /* exact: the discrete exponential (or the constant) is an eigenfunction */
+        M->nm = 1;
+        M->kap[0] = (m == 0) ? 0.0 : 2.0 / h[0] * sin(k * h[0] / 2.0);
+        M->c[0] = 1.0;
+        M->res[0] = 0.0;
+        for (int i = 0; i < N; i++) { M->pp[0][i] = cexp(I * k * xn[i]); M->pd[0][i] = cexp(I * k * xd[i]); }
+        return;
+    }
+    /* shift-invert subspace iteration on A v = lambda W v (W = diag d) for the pair nearest sigma = k^2 */
+    double sigma = k * k;
+    double *B = xcalloc((size_t)N * N, sizeof(double));
+    int *piv = xcalloc(N, sizeof(int));
+    for (int i = 0; i < N; i++) {
+        int ip = (i + 1) % N, im = (i + N - 1) % N;
+        B[(size_t)i * N + i] += 1.0 / h[i] + 1.0 / h[im] - sigma * d[i];
+        B[(size_t)i * N + ip] -= 1.0 / h[i];
+        B[(size_t)i * N + im] -= 1.0 / h[im];
+    }
+    lu_factor(N, B, piv);
+    double *V[2], *T = xcalloc(N, sizeof(double)), *AV[2], lam[2] = {0.0, 0.0};
+    for (int q = 0; q < 2; q++) { V[q] = xcalloc(N, sizeof(double)); AV[q] = xcalloc(N, sizeof(double)); }
+    for (int i = 0; i < N; i++) { V[0][i] = cos(k * xn[i]); V[1][i] = sin(k * xn[i]); }
+    for (int it = 0; it < 60; it++) {
+        for (int q = 0; q < 2; q++) {
+            for (int i = 0; i < N; i++) V[q][i] *= d[i];
+            lu_solve(N, B, piv, V[q]);
+        }
+        for (int q = 0; q < 2; q++) { /* W-orthonormalize (modified Gram-Schmidt, twice) */
+            for (int rep = 0; rep < 2; rep++)
+                for (int p = 0; p < q; p++) {
+                    double s = 0.0;
+                    for (int i = 0; i < N; i++) s += d[i] * V[p][i] * V[q][i];
+                    for (int i = 0; i < N; i++) V[q][i] -= s * V[p][i];
+                }
+            double nn = 0.0;
+            for (int i = 0; i < N; i++) nn += d[i] * V[q][i] * V[q][i];
+            nn = sqrt(nn);
+            for (int i = 0; i < N; i++) V[q][i] /= nn;
+        }
+        for (int q = 0; q < 2; q++) apply_A(N, h, V[q], AV[q]);
+        double a00 = 0.0, a01 = 0.0, a11 = 0.0; /* Rayleigh-Ritz in the 2D subspace */
+        for (int i = 0; i < N; i++) { a00 += V[0][i] * AV[0][i]; a01 += V[0][i] * AV[1][i]; a11 += V[1][i] * AV[1][i]; }
+        double th = 0.5 * atan2(2.0 * a01, a00 - a11), cs = cos(th), sn = sin(th);
+        for (int i = 0; i < N; i++) {
+            double v0 = V[0][i], v1 = V[1][i];
+            V[0][i] = cs * v0 + sn * v1; V[1][i] = -sn * v0 + cs * v1;
+        }
+        double rmax = 0.0;
+        for (int q = 0; q < 2; q++) {
+            apply_A(N, h, V[q], AV[q]);
+            double num = 0.0, den = 0.0;
+            for (int i = 0; i < N; i++) num += V[q][i] * AV[q][i];
+            lam[q] = num;                       /* V W-orthonormal */
+            double r = 0.0;
+            for (int i = 0; i < N; i++) { r = fmax(r, fabs(AV[q][i] - lam[q] * d[i] * V[q][i])); den = fmax(den, fabs(AV[q][i])); }
+            M->res[q] = r / den;
+            rmax = fmax(rmax, M->res[q]);
+        }
+        if (it >= 2 && rmax < 1e-13) break;
+    }
+    M->nm = 2;
+    double pw = 0.0;
+    for (int q = 0; q < 2; q++) {
+        if (!(lam[q] > 0.0)) die("inc=m: non-positive mode eigenvalue");
+        M->kap[q] = sqrt(lam[q]);
+        double complex cq = 0.0;
+        for (int i = 0; i < N; i++) cq += d[i] * V[q][i] * cexp(I * k * xn[i]);
+        M->c[q] = cq;
+        pw += creal(cq * conj(cq));
+        for (int i = 0; i < N; i++) {
+            M->pp[q][i] = V[q][i];
+            M->pd[q][i] = (V[q][(i + 1) % N] - V[q][i]) / h[i] / (I * M->kap[q]);
+        }
+    }
+    M->rest = 1.0 - pw / L;                     /* sum_i d_i |exp(ikx)|^2 = L */
+    for (int q = 0; q < 2; q++) { free(V[q]); free(AV[q]); }
+    free(T); free(B); free(piv);
+}
+
+static void modal_init(void) {
+    axis_modes(Nx, hxv, dxv, xn, xd, P.Lx, P.m, xnonuni, &MX);
+    axis_modes(Nz, hzv, dzv, zn, zd, P.Lz, P.n, znonuni, &MZ);
+    for (int q = 0; q < MX.nm; q++) if (MX.res[q] > 1e-10) die("inc=m: x mode solve did not converge");
+    for (int q = 0; q < MZ.nm; q++) if (MZ.res[q] > 1e-10) die("inc=m: z mode solve did not converge");
+    acHm = xcalloc(AL + 1, sizeof(double)); acEm = xcalloc(AL + 1, sizeof(double));
+    for (long u = 0; u <= AL; u++) { acHm[u] = dt / ghm(Ajlo + u); acEm[u] = dt / gdm(Ajlo + u); }
+    NMA = 0;
+    for (int a = 0; a < MX.nm; a++)
+        for (int b = 0; b < MZ.nm; b++) {
+            MAux *A = &MA[NMA++];
+            A->a = a; A->b = b;
+            A->K[0] = MX.kap[a]; A->K[2] = MZ.kap[b];
+            double q = pow(Da * wt / 2.0, 2) - pow(A->K[0] * Da / 2.0, 2) - pow(A->K[2] * Da / 2.0, 2);
+            if (!(q > 0.0 && q <= 1.0)) die("inc=m: no propagating discrete ky for a mode");
+            A->ky = 2.0 / Da * asin(sqrt(q));
+            A->K[1] = 2.0 / Da * sqrt(q);
+            double yh[3] = {0, 1, 0}, s[3], p[3];
+            cross(A->K, yh, s);
+            double ns = norm3(s);
+            if (ns == 0.0) die("normal incidence (m = n = 0) is not supported: s/p basis degenerate");
+            for (int c = 0; c < 3; c++) s[c] /= ns;
+            cross(s, A->K, p);
+            double np = norm3(p);
+            for (int c = 0; c < 3; c++) p[c] /= np;
+            for (int c = 0; c < 3; c++) A->E0[c] = (P.pol == 's') ? s[c] : p[c];
+            cross(A->K, A->E0, A->H0);
+            for (int c = 0; c < 3; c++) A->H0[c] /= wt;
+            A->w = MX.c[a] * MZ.c[b];
+            A->Ex = xcalloc(AL + 1, sizeof(double complex)); A->Ez = xcalloc(AL + 1, sizeof(double complex));
+            A->Hy = xcalloc(AL + 1, sizeof(double complex)); A->Ey = xcalloc(AL, sizeof(double complex));
+            A->Hx = xcalloc(AL, sizeof(double complex)); A->Hz = xcalloc(AL, sizeof(double complex));
+            A->ikxH = xcalloc(AL + 1, sizeof(double complex)); A->ikzH = xcalloc(AL + 1, sizeof(double complex));
+            A->ikxE = xcalloc(AL + 1, sizeof(double complex)); A->ikzE = xcalloc(AL + 1, sizeof(double complex));
+            for (long u = 0; u <= AL; u++) {
+                long j = Ajlo + u;
+                double h = ghm(j), dd = gdm(j);
+                A->ikxH[u] = I * A->K[0] * h; A->ikzH[u] = I * A->K[2] * h;
+                A->ikxE[u] = I * A->K[0] * dd; A->ikzE[u] = I * A->K[2] * dd;
+            }
+            A->T1 = xcalloc((size_t)Nx * Nz, sizeof(double complex));
+            A->T2 = xcalloc((size_t)Nx * Nz, sizeof(double complex));
+            for (int i = 0; i < Nx; i++)
+                for (int k = 0; k < Nz; k++) {
+                    A->T1[(size_t)i * Nz + k] = A->w * MX.pd[a][i] * MZ.pp[b][k];
+                    A->T2[(size_t)i * Nz + k] = A->w * MX.pp[a][i] * MZ.pd[b][k];
+                }
+        }
+}
+
+static void maux_update_H(MAux *A, long n) {
+    long lo = Aua - n - 3, hi = Aua + n + 3;
+    if (lo < 0) lo = 0;
+    if (hi > AL - 1) hi = AL - 1;
+    for (long u = lo; u <= hi; u++) {
+        A->Hx[u] -= acHm[u] * ((A->Ez[u + 1] - A->Ez[u]) - A->ikzH[u] * A->Ey[u]);
+        A->Hz[u] -= acHm[u] * (A->ikxH[u] * A->Ey[u] - (A->Ex[u + 1] - A->Ex[u]));
+    }
+    for (long u = lo; u <= hi + 1 && u <= AL; u++) A->Hy[u] -= acEm[u] * (A->ikzE[u] * A->Ex[u] - A->ikxE[u] * A->Ez[u]);
+    long ja = Ajlo + Aua;
+    A->Hx[Aua - 1] += acHm[Aua - 1] * inc_amp(2, ja, (double)n, A->E0, A->H0, A->ky);
+    A->Hz[Aua - 1] -= acHm[Aua - 1] * inc_amp(0, ja, (double)n, A->E0, A->H0, A->ky);
+}
+
+static void maux_update_E(MAux *A, long n) {
+    long lo = Aua - n - 3, hi = Aua + n + 3;
+    if (lo < 1) lo = 1;
+    if (hi > AL - 1) hi = AL - 1;
+    for (long u = lo; u <= hi; u++) {
+        A->Ex[u] += acEm[u] * ((A->Hz[u] - A->Hz[u - 1]) - A->ikzE[u] * A->Hy[u]);
+        A->Ez[u] += acEm[u] * (A->ikxE[u] * A->Hy[u] - (A->Hx[u] - A->Hx[u - 1]));
+    }
+    for (long u = lo - 1; u <= hi && u < AL; u++) A->Ey[u] += acHm[u] * (A->ikzH[u] * A->Hx[u] - A->ikxH[u] * A->Hz[u]);
+    long ja = Ajlo + Aua;
+    A->Ex[Aua] -= acEm[Aua] * inc_amp(5, ja - 1, (double)n, A->E0, A->H0, A->ky);
+    A->Ez[Aua] += acEm[Aua] * inc_amp(3, ja - 1, (double)n, A->E0, A->H0, A->ky);
+}
+
+static FILE *xfopen(const char *name, const char *mode);
+
+static void modal_write_axis(FILE *f, const char *name, const AxisModes *M, int N) {
+    fprintf(f, "  \"%s\": {\"nm\": %d, \"rest_power\": %.17g, \"modes\": [", name, M->nm, M->rest);
+    for (int q = 0; q < M->nm; q++) {
+        fprintf(f, "{\"kappa\": %.17g, \"residual\": %.3e, \"c\": [%.17g, %.17g], \"primal\": [", M->kap[q], M->res[q],
+                creal(M->c[q]), cimag(M->c[q]));
+        for (int i = 0; i < N; i++) fprintf(f, "[%.17g, %.17g]%s", creal(M->pp[q][i]), cimag(M->pp[q][i]), i < N - 1 ? ", " : "");
+        fprintf(f, "], \"dual\": [");
+        for (int i = 0; i < N; i++) fprintf(f, "[%.17g, %.17g]%s", creal(M->pd[q][i]), cimag(M->pd[q][i]), i < N - 1 ? ", " : "");
+        fprintf(f, "]}%s", q < M->nm - 1 ? ", " : "");
+    }
+    fprintf(f, "]}");
+}
+
+static void modal_write(void) { /* modes.json: profiles and per-product-mode aux data (B1-3 analysis) */
+    FILE *f = xfopen("modes.json", "w");
+    fprintf(f, "{\n");
+    modal_write_axis(f, "x", &MX, Nx);
+    fprintf(f, ",\n");
+    modal_write_axis(f, "z", &MZ, Nz);
+    fprintf(f, ",\n  \"product\": [");
+    for (int t = 0; t < NMA; t++) {
+        const MAux *A = &MA[t];
+        fprintf(f, "{\"a\": %d, \"b\": %d, \"K\": [%.17g, %.17g, %.17g], \"ky\": %.17g, \"w\": [%.17g, %.17g], "
+                   "\"E0\": [%.17g, %.17g, %.17g], \"H0\": [%.17g, %.17g, %.17g]}%s",
+                A->a, A->b, A->K[0], A->K[1], A->K[2], A->ky, creal(A->w), cimag(A->w), A->E0[0], A->E0[1], A->E0[2],
+                A->H0[0], A->H0[1], A->H0[2], t < NMA - 1 ? ", " : "");
+    }
+    fprintf(f, "]\n}\n");
+    fclose(f);
+}
+
 /* ------------------------------------------------------------------ aux_ref: exact 1D reduction of the main grid
    (same y nodes, eps, CPML; TF/SF at j0 fed by the aux line). Main field = Re[aux_ref * exp(i(kx x + kz z))]. */
 static double complex *rEx, *rEy, *rEz, *rHx, *rHy, *rHz, *rpEx, *rpEz, *rpHx, *rpHz;
@@ -889,6 +1161,7 @@ static void setup(void) {
     ExI = xcalloc(nq, sizeof(double)); EzI = xcalloc(nq, sizeof(double));
     HxI = xcalloc(nq, sizeof(double)); HzI = xcalloc(nq, sizeof(double));
     if (P.inc == 'a') aux_init();
+    if (P.inc == 'm') { aux_init(); modal_init(); } /* shared y geometry of the aux line, one line per product mode */
     if (P.auxref) auxref_init();
 }
 
@@ -1094,6 +1367,15 @@ static void energy_sum(double *Wt, double *Wp) {
 /* incident field on the TF/SF plane from complex amplitudes (derivation.md §6.2) */
 static void incident_E(long n) { /* Ex, Ez at j0, time n */
     double complex ax, az;
+    if (P.inc == 'm') { /* sum of the product modes: Re[aux_t(j0) * w_t * profile_t] */
+        for (int q = 0; q < Nx * Nz; q++) { ExI[q] = 0.0; EzI[q] = 0.0; }
+        for (int t = 0; t < NMA; t++) {
+            const MAux *A = &MA[t];
+            ax = A->Ex[j0 - Ajlo]; az = A->Ez[j0 - Ajlo];
+            for (int q = 0; q < Nx * Nz; q++) { ExI[q] += creal(ax * A->T1[q]); EzI[q] += creal(az * A->T2[q]); }
+        }
+        return;
+    }
     if (P.inc == 'a') { ax = aEx[j0 - Ajlo]; az = aEz[j0 - Ajlo]; }
     else { ax = inc_amp(0, j0, (double)n, E0v, H0v, ky); az = inc_amp(2, j0, (double)n, E0v, H0v, ky); }
     incEx = ax; incEz = az;
@@ -1105,6 +1387,15 @@ static void incident_E(long n) { /* Ex, Ez at j0, time n */
 
 static void incident_H(long n) { /* Hx, Hz at j0 - 1/2, time n + 1/2 */
     double complex ax, az;
+    if (P.inc == 'm') {
+        for (int q = 0; q < Nx * Nz; q++) { HxI[q] = 0.0; HzI[q] = 0.0; }
+        for (int t = 0; t < NMA; t++) {
+            const MAux *A = &MA[t];
+            ax = A->Hx[j0 - 1 - Ajlo]; az = A->Hz[j0 - 1 - Ajlo];
+            for (int q = 0; q < Nx * Nz; q++) { HxI[q] += creal(ax * A->T2[q]); HzI[q] += creal(az * A->T1[q]); }
+        }
+        return;
+    }
     if (P.inc == 'a') { ax = aHx[j0 - 1 - Ajlo]; az = aHz[j0 - 1 - Ajlo]; }
     else { ax = inc_amp(3, j0 - 1, (double)n, E0v, H0v, ky); az = inc_amp(5, j0 - 1, (double)n, E0v, H0v, ky); }
     incHx = ax; incHz = az;
@@ -1667,18 +1958,20 @@ int main(int argc, char **argv) {
     }
     long nsnap = 0;
     write_grid_used();
+    if (P.inc == 'm') modal_write();
 
     time_t w0 = time(NULL);
     for (long n = 0; n < P.nsteps; n++) {
         int doW = (P.energy_every > 0 && (n + 1) % P.energy_every == 0);
         /* H: n-1/2 -> n+1/2 */
-        int tfsf = (P.inc == 'a' || P.inc == 'n' || P.inc == 'p');
+        int tfsf = (P.inc == 'a' || P.inc == 'n' || P.inc == 'p' || P.inc == 'm');
         if (tfsf) incident_E(n);
         update_H(doW);
         double Wm = doW ? Wmod_acc : NAN;     /* energy at t = n dt */
         if (tfsf) tfsf_H();
         if (P.auxref) auxref_update_H();
         if (P.inc == 'a') aux_update_H(n);
+        if (P.inc == 'm') for (int t = 0; t < NMA; t++) maux_update_H(&MA[t], n);
         if (n >= P.dft0 && n < P.dft1) dft_accumulate(3, 5, (n + 0.5) * dt);
         /* E: n -> n+1 */
         if (tfsf) incident_H(n);
@@ -1687,6 +1980,7 @@ int main(int argc, char **argv) {
         if (P.inc == 'j') source_J(n);
         if (P.auxref) auxref_update_E();
         if (P.inc == 'a') aux_update_E(n);
+        if (P.inc == 'm') for (int t = 0; t < NMA; t++) maux_update_E(&MA[t], n);
         if (P.init == 'a') dirichlet_y((double)(n + 1));
         if (n + 1 >= P.dft0 && n + 1 < P.dft1) dft_accumulate(0, 2, (n + 1) * dt);
 

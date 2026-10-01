@@ -75,7 +75,8 @@ def level2(grid, pol, dt=None, tag="", **extra):
 
 
 def stageB(grid, pol, inc="p", tag="", periods=70, dft_periods=20, m=1, n=0, **extra):
-    """Stage-B run (x and/or z nonuniform): analytic injection inc=p or current sheet inc=j, weighted Floquet
+    """Stage-B run (x and/or z nonuniform): modal injection inc=m (D22), analytic injection inc=p or current sheet
+    inc=j, weighted Floquet
     projection of every y row, DFT window of the last `dft_periods` periods."""
     geo = nc.Geo(nc.load_grid(grid))
     dt = geo.dt_run()

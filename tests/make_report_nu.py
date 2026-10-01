@@ -100,7 +100,7 @@ def main():
             for f in F:
                 md.append(f"| {esc(f['gate'])} | {esc(f['symptom'])} | {esc(f['hypothesis'])} | {esc(f['experiment'])} | "
                           f"{esc(f['fix'])} | {esc(f['result'])} |")
-    md.append("\n## 規格變更紀錄（使用者決策 D1–D8，實作期間修正 D9–D19，使用者決策 D20–D21）\n")
+    md.append("\n## 規格變更紀錄（使用者決策 D1–D8，實作期間修正 D9–D19，使用者決策 D20–D22）\n")
     spec = open(os.path.join(ROOT, "SPEC_nonuniform.md"), encoding="utf-8").read()
     m = re.search(r"### 規格變更紀錄（實作期間）\n\n(.*?)\n\n以上都沒有改任何門檻數值", spec, re.S)
     if m:
