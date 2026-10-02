@@ -144,7 +144,7 @@ python3 simulate.py my_film.json                      # 3. 執行
   |---|---|---|---|
   | uniform，ppw 16（厚度 300 → 312.5 nm，RCWA 也用 312.5 nm） | 200（60） | 5.5e-3 | −1.6e-5 |
   | nonuniform，ppw 20，x/z λ/20（`inc=m`；舊的 `inc=p` 為 −7.0e-5） | 200（60） | 4.1e-3 | +4.6e-6 |
-  | nonuniform，ppw 40，z λ/40（驗證 B3） | 450（150） | 9.6e-4 | −1.2e-5 |
+  | nonuniform，ppw 40，z λ/40（驗證 B3，`inc=m`；舊的 `inc=p` 為 −1.2e-5） | 450（150） | 9.4e-4（p 偏振 8.9e-4） | +8.5e-7（p +6.4e-7） |
 
   非均勻網格從 ppw 20 到 40 的誤差比約 4，符合二階收斂。範例檔用 ppw 20、200 週期（每個偏振約 9 分鐘，含真空正規化執行）；要 1e-3 等級請用 ppw 40、`transverse` λ/40、450 週期（每個偏振約 2.5 小時）。
 - **穩態。** 光柵可能有導模共振、衰減很慢。驗證時（`examples/lamellar_grating.json` 的幾何）90 週期的能量誤差約 1e-3，450 週期（DFT 取最後 150）降到 1e-5 等級。若能量檢查超過 1e-3，程式會提醒；請增加 `run.periods` 與 `run.dft_periods`，看效率是否還在變。

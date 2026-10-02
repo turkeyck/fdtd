@@ -1,6 +1,6 @@
 {
  "gate": "B_gate1",
- "created_utc": "2026-09-26T19:03:42Z",
+ "created_utc": "2026-10-02T03:18:32Z",
  "table": [
   {
    "item": "B1-1",
@@ -64,13 +64,43 @@
   },
   {
    "item": "B1-3",
-   "quantity": "modal (transverse Bloch eigenmode) injection (iii)",
-   "theory": "optional",
-   "measured": "not implemented",
-   "threshold": "optional",
+   "quantity": "modal injection (iii) inc=m: max over modes |L_SF − b_TF|/|a| at k=1 (D22)",
+   "theory": "0",
+   "measured": "1.98e-13",
+   "threshold": "< 1e-10",
+   "passed": true,
+   "grid": "Δy_min=λ0/50, Δy_max=λ0/50, r_max=1.0000, Δx=λ0/29, Δt=0.0121951 T0",
+   "note": "modes κx = 3.139659, 3.138998; far-PML echo 8.3e-07 (crosses the TF/SF plane unchanged)"
+  },
+  {
+   "item": "B1-3",
+   "quantity": "modal injection (iii) inc=m: max over modes |L_SF − b_TF|/|a| at k=2 (D22)",
+   "theory": "0",
+   "measured": "2.55e-15",
+   "threshold": "< 1e-10",
+   "passed": true,
+   "grid": "Δy_min=λ0/100, Δy_max=λ0/100, r_max=1.0000, Δx=λ0/58, Δt=0.00613497 T0",
+   "note": "modes κx = 3.141055, 3.140968; far-PML echo 1.0e-07 (crosses the TF/SF plane unchanged)"
+  },
+  {
+   "item": "B1-3",
+   "quantity": "modal injection (iii) inc=m: max over modes |L_SF − b_TF|/|a| at k=4 (D22)",
+   "theory": "0",
+   "measured": "6.24e-16",
+   "threshold": "< 1e-10",
+   "passed": true,
+   "grid": "Δy_min=λ0/200, Δy_max=λ0/200, r_max=1.0000, Δx=λ0/115, Δt=0.00307692 T0",
+   "note": "modes κx = 3.141450, 3.141439; far-PML echo 1.3e-08 (crosses the TF/SF plane unchanged)"
+  },
+  {
+   "item": "B1-3",
+   "quantity": "inc=m vs inc=a on an x/z-uniform grid (P_uniform_nl10, p-pol), max |ΔF|/max|F| (D22)",
+   "theory": "0",
+   "measured": "6.8e-16",
+   "threshold": "INFO",
    "passed": null,
-   "grid": "",
-   "note": "SPEC: optional"
+   "grid": "P_uniform_nl10",
+   "note": ""
   },
   {
    "item": "B2-1",

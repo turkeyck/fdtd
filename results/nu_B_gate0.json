@@ -1,6 +1,6 @@
 {
  "gate": "B_gate0",
- "created_utc": "2026-09-26T19:03:42Z",
+ "created_utc": "2026-10-02T01:42:54Z",
  "table": [
   {
    "item": "B0-1",
@@ -56,7 +56,7 @@
    "item": "B0-2 (0-3)",
    "quantity": "energy drift over 1e+05 steps, x and z graded",
    "theory": "0",
-   "measured": "2.66e-15",
+   "measured": "2.89e-15",
    "threshold": "< 1e-10",
    "passed": true,
    "grid": "Δy_min=λ0/80, Δy_max=λ0/20, r_max=1.0968, Δx=λ0/30, Δt=0.00944287 T0",

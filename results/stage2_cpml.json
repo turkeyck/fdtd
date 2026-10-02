@@ -21,6 +21,6 @@
   "max_growth_per_step_total": 3.9370213195782322e-16,
   "max_growth_per_period_phys": -2.692164705987536e-10,
   "max_growth_per_step_phys": 0.0012685471339854784,
-  "runtime_s": 41.0,
+  "runtime_s": 43.0,
   "passed": true
 }
