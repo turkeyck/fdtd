@@ -279,7 +279,12 @@
   },
   "B1-3": {
    "max_rel": 1e-10,
-   "optional": true
+   "optional": false,
+   "measure": "x-y DFT slice; every row projected on each transverse mode profile (phi at primal x, psi = D_p phi/(i kappa) at dual x, quadrature weights); per mode: forward/backward fit with the mode's discrete ky in the uniform TF vacuum region, backward fit in the SF region; leak = max_q |L_SF,q - b_TF,q| / |a_q|",
+   "families": "B_vac_k{1,2,4}",
+   "superseded_D22": {
+    "optional": true
+   }
   },
   "B2-1": {
    "order_window": [
@@ -312,6 +317,16 @@
    "n": 2.0,
    "thickness": 0.3,
    "default_grid": "y as D6; x ridge lambda0/80, groove lambda0/40, r_max 1.1; z lambda0/40"
+  },
+  "B3_injection": {
+   "judged": "m",
+   "info": [
+    "p",
+    "j"
+   ],
+   "superseded_D22": {
+    "judged": "p"
+   }
   }
  },
  "amendments": {
@@ -384,6 +399,12 @@
    "decision": "user, 2026-09-26",
    "change": "energy judged on the discrete conserved real-space flux; per-order sum INFO",
    "reason": "Floquet orders are not orthogonal under the nonuniform-x quadrature (Gram off-diagonal up to 5.3e-4); the per-order partition differs from the conserved flux by 1-3e-5. Threshold 1e-5 unchanged."
+  },
+  "D22": {
+   "gate": "B1-3, B3-1, B3-2",
+   "decision": "user, 2026-10-01",
+   "change": "implement injection (iii) inc=m (transverse discrete-mode injection, one aux line per product mode); B1-3 judged (< 1e-10, per-mode measure); B3-1/B3-2 judged with inc=m (grating 450/150, vacuum normalization 90/30 also inc=m); (i) inc=p and (ii) inc=j INFO; INFO: inc=m vs inc=a on a uniform grid",
+   "reason": "failure protocol B3-2 (s): the deficit is the cross term of the analytic-injection O(Δ²) leakage with the order-0 reflection (2|r0||L| = 1.0e-5, unchanged at 900 periods); on the B3 x grid exp(i kx x) lies 99.999997% in the m = ±1 discrete modes whose kappa split by 2.5e-4/λ0, so the analytic wave is not a discrete solution. Decided before any inc=m run; thresholds unchanged."
   }
  }
 }

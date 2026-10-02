@@ -23,5 +23,6 @@
 | DFT | 半格分量在 j = Ny 不再累計，輸出 NaN（修正 bug）；新增 `proj`（每列對橫向 Floquet 相位的加權投影）與 `planar`（每個 y 平面的相位殘差） | 盤點表；D12 | — |
 | 輸出 | `meta.json` 追加欄位；新增 `grid_used.json`（所有座標、間距、ε），後處理唯一的座標來源；`fields_n<step>.bin`、`auxref_n<step>.bin` | SPEC §13.2 | — |
 | 階段 B | x 或 z 非均勻時，`inc=a` 或 `auxref=1` 以固定訊息中止；`inc=p`（在分量實際座標取樣連續平面波）、`inc=j`（電流片）；光柵材料 | SPEC §7.6 | §3 |
+| 模態注入（D22） | 新增 `inc=m`：每個非均勻週期軸解 A φ = κ² W φ（shift-invert 子空間迭代 + Rayleigh–Ritz，主網格的 h、d 權重），每個乘積模態一條 aux line（共用 y 幾何 `acH/acE`，自己的 K̃、ky、E0、H0），TF/SF 入射值 = Σ Re[aux_t · w_t · 剖面]；輸出 `modes.json`。`inc=a` 的程式碼與資料完全未動 | 失敗流程 B3-2 (s)；SPEC B1-3 | §3b |
 | 本徵模式 | `mode=e`：以求解器自己的更新核心做 power iteration，求 λ_max 與 Δt_max = 2/sqrt(λ_max)（CPML 關閉、PEC 牆） | gate 0-4 | §2 |
 | 無源執行 | mesh=file、inc=0、init≠a 時不建立平面波（kx = kz = 0），可用薄 x–z 格 | gate 0-3/0-4 | — |

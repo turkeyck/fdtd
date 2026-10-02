@@ -1,4 +1,4 @@
-"""Stage B gates B1-1, B1-2, B2-1, B2-2 (SPEC_nonuniform §20.5, amendment D16).
+"""Stage B gates B1-1, B1-2, B1-3, B2-1, B2-2 (SPEC_nonuniform §20.5, amendments D16, D20, D22).
 
 Families B_{vac,film}_k{1,2,4} (x graded, s-pol, classical incidence m=1, n=0). All quantities from the weighted
 Floquet projection (order 0) of every y row (dft_proj.bin) or from y-plane DFT slices.
@@ -7,9 +7,13 @@ B1-1 leakage of the analytic injection (i): backward amplitude in the SF region 
 B1-2 R, T by (i) TF/SF-analytic and (ii) current sheet + vacuum normalization run (amendment D20): at every level
       |R_i − R_ii| ≤ 2|r||L_i| + |L_i|² (R_i carries the coherent sum of the film reflection and (i)'s own SF leakage
       L_i); order of |T_i − T_ii| ≥ 1.8; |R_i − R_ii| after subtracting (i)'s leakage: INFO.
+B1-3 (amendment D22) leakage of the modal injection (iii) inc=m: x–y DFT slice, every row projected on each
+      transverse mode profile; per mode a forward/backward fit (the mode's discrete ky) in the TF region and a
+      backward fit in the SF region; leak = max_q |L_SF,q − b_TF,q| / |a_q|. INFO: inc=m vs inc=a on a uniform grid.
 B2-1 x–z phase residual (max over TF planes of the RMS phase residual vs the Floquet mode).
 B2-2 power in non-specular orders on a TF plane of the vacuum run (INFO + order).
 """
+import json
 import math
 import os
 import sys
@@ -54,6 +58,44 @@ def flux_rows(a, used, rows):
 
 def comp(a):
     return "Ez" if np.nanmax(np.abs(a["Ez"])) >= np.nanmax(np.abs(a["Ex"])) else "Ex"
+
+
+def modal_leak(out, geo):
+    """B1-3 (D22): per-mode leakage of the modal injection from the x–y DFT slice and modes.json."""
+    used, meta = nc.load_used(out), nc.load_meta(out)
+    F, _ = nc.load_dft(out, "xy", meta)
+    with open(os.path.join(out, "modes.json")) as fh:
+        M = json.load(fh)
+    c = "Ez" if np.nanmax(np.abs(F["Ez"])) >= np.nanmax(np.abs(F["Ex"])) else "Ex"
+    prim = c == "Ez"                                   # Ez: x primal (weights dx); Ex: x dual (weights hx)
+    w = used["dx"] if prim else used["hx"]
+    y = used["y"]
+    sf, tf, _ = regions(geo)
+    rows = []
+    for P in M["product"]:
+        pr = np.array(M["x"]["modes"][P["a"]]["primal" if prim else "dual"])
+        prof = pr[:, 0] + 1j * pr[:, 1]
+        u = (np.conj(prof) * w) @ F[c] / np.sum(w * np.abs(prof) ** 2)
+        a, b = two_wave(u[tf], y[tf], P["ky"])
+        L = fit_back(u[sf], y[sf], P["ky"])
+        rows.append(dict(kappa=P["K"][0], leak=abs(L - b) / abs(a), echo=abs(b) / abs(a)))
+    return rows
+
+
+def uniform_m_vs_a():
+    """D22 INFO: on an x/z-uniform grid the modal injection reduces to the aux line (one exact mode)."""
+    g = "P_uniform_nl10"
+    geo = nc.Geo(nc.load_grid(g))
+    dt = geo.dt_run()
+    Np = int(round(1.0 / dt))
+    F = {}
+    for inc in ("a", "m"):
+        out = os.path.join(nc.RUNS, "stageB", f"{g}_p_{inc}_cmp")
+        meta, _, _ = nc.run(out, grid=g, pol="p", inc=inc, m=1, n=1, dt=repr(dt), energy_every=0, nsteps=40 * Np,
+                            dft0=30 * Np, dft1=40 * Np, zk=0)
+        F[inc], _ = nc.load_dft(out, "xy", meta)
+    scale = max(np.nanmax(np.abs(F["a"][c])) for c in nc.COMPS)
+    return max(np.nanmax(np.abs(F["a"][c] - F["m"][c])) for c in nc.COMPS) / scale
 
 
 def regions(geo):
@@ -143,8 +185,20 @@ def main():
     T.row("B1-2", "|R_(i) − R_(ii)| with (i)'s own SF leakage subtracted", "→ 0",
           ", ".join(f"k={k}: {abs(res[k]['R_ic'] - res[k]['R_ii']):.1e}" for k in KS), "INFO", None,
           note="raw: " + ", ".join(f"{v:.2e}" for v in dR))
-    T.row("B1-3", "modal (transverse Bloch eigenmode) injection (iii)", "optional", "not implemented", "optional", None,
-          note="SPEC: optional")
+    th13 = TH["B1-3"]["max_rel"]
+    for k in KS:
+        gv = f"B_vac_k{k}"
+        geo = nc.Geo(nc.load_grid(gv))
+        o_m, m_m, _ = RN.stageB(gv, POL, "m", zk=0)
+        rows = modal_leak(o_m, geo)
+        lk = max(r["leak"] for r in rows)
+        T.row("B1-3", f"modal injection (iii) inc=m: max over modes |L_SF − b_TF|/|a| at k={k} (D22)", "0",
+              f"{lk:.2e}", f"< {th13:g}", lk < th13, grid=nc.grid_info(geo, m_m["dt"]),
+              note="modes κx = " + ", ".join(f"{r['kappa']:.6f}" for r in rows)
+                   + f"; far-PML echo {max(r['echo'] for r in rows):.1e} (crosses the TF/SF plane unchanged)")
+    dma = uniform_m_vs_a()
+    T.row("B1-3", "inc=m vs inc=a on an x/z-uniform grid (P_uniform_nl10, p-pol), max |ΔF|/max|F| (D22)", "0",
+          f"{dma:.1e}", "INFO", None, grid="P_uniform_nl10")
     orow("B2-1", "order of the x–z phase residual (max over TF planes, vacuum, inc=p)", [res[k]["planar"] for k in KS],
          TH["B2-1"]["order_window"])
     fr = [res[k]["floquet"] for k in KS]

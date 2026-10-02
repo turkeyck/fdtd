@@ -1,0 +1,485 @@
+===== frozen thresholds / predictions =====
+  tests/thresholds_nu.json: OK
+  results/nu_predictions.json: OK
+
+===== legacy regression (D7): tests/run_all_regression.py =====
+03; ours vs Fresnel +2.07e-03
+[L3-c] T, p-pol, Meep eps_averaging=True, Meep flux = phi: ours=0.984170 meep=0.984161 theory=0.982136 (Fresnel) thr=rel diff < 0.5% -> INFO rel diff 8.79e-06; Meep vs Fresnel +2.06e-03; ours vs Fresnel +2.07e-03
+[L3-c] R, T with Meep eps_averaging=False, p-pol: ours=0.015830, 0.984170 meep=0.020508, 0.979491 theory=— thr=attribution -> INFO R rel diff 2.96e-01: interface ε treatment differs (no averaging on the tangential interface plane)
+[L3-c] Meep R+T−1, p-pol (native add_flux / conserved Φ): ours=-3.5e-07 meep=-1.6e-06 / -1.6e-06 theory=0 thr=record -> INFO 
+
+LEVEL 3: 14/14 gates PASS -> PASS
+  reuse vac10_s
+  reuse vac10_p
+  reuse vac8_s
+  reuse vac8_p
+  reuse med_s_avg1
+  reuse med_s_avg0
+  reuse med_p_avg1
+  reuse med_p_avg0
+
+===== regression summary =====
+Level 0   exact injection          PASS           2 s
+Stage 1   C multistep exactness    PASS           4 s
+Stage 2   CPML stability           PASS          58 s
+Level 1-1 leakage                  PASS         649 s
+Level 1-2..8                       PASS        1105 s
+Level 2   Fresnel / Snell          PASS        1261 s
+Level 3   Meep comparison          PASS           4 s
+REGRESSION: PASS
+
+
+===== lint: coordinates from grid files: tests/nu_lint_coords.py =====
+nu_lint_coords: 23 files, 0 hits -> PASS
+
+===== unit tests: grid generator: tests/test_grid_gen.py =====
+[T-G1] PASS: F1: interfaces on primal nodes, layer thicknesses exact (<1e-15), film cells = 7
+[T-G1] PASS: F5: interfaces on primal nodes, layer thicknesses exact (<1e-15), film cells = 7
+[T-G2] PASS: all grids: max(adjacent ratio / r_max) = 1.000000000000
+[T-G3] PASS: j0 inside the taper rejected: ['TF/SF plane j0 +-5: cells [82,92) not uniform (max rel diff 5.6e-01)']
+[T-G3b] PASS: hand-edited spacing rejected by hash check
+[T-G3c] PASS: spacing above lambda0/(n ppw) rejected
+[T-L1] PASS: lint flags 'np.arange(n) * D'
+[T-L1b] PASS: lint passes on the nonuniform code base:
+nu_lint_coords: 23 files, 0 hits -> PASS
+test_grid_gen: PASS
+
+===== theory preflight (--check): tests/nu_predict.py =====
+T-TMM1 (s): |R_new - R_old_discrete| = 1.65e-15 (< 1e-12)
+T-TMM3 (s): |R_TMM - Fresnel| = 0.00e+00 (< 1e-14)
+T-TMM1 (p): |R_new - R_old_discrete| = 3.85e-16 (< 1e-12)
+T-TMM3 (p): |R_TMM - Fresnel| = 6.94e-18 (< 1e-14)
+T-A1: three-point ky error = 1.42e-14 (< 1e-13)
+
+T-A3 preflight (exact discrete field -> forward-wave estimator, D3: max |θm-θp|/|θp-θc| <= 0.1):
+  L1_taper_r1.1_base20     s: max ratio 4.499e-03 over 30 graded nodes, mean |θm-θc| = 9.420e-04 rad -> OK
+  L1_taper_r1.1_base20     p: max ratio 4.499e-03 over 30 graded nodes, mean |θm-θc| = 9.420e-04 rad -> OK
+  L1_taper_r1.1_base40     s: max ratio 2.272e-03 over 30 graded nodes, mean |θm-θc| = 7.131e-04 rad -> OK
+  L1_taper_r1.1_base40     p: max ratio 2.272e-03 over 30 graded nodes, mean |θm-θc| = 7.131e-04 rad -> OK
+  L1_taper_r1.1_base80     s: max ratio 6.563e-04 over 30 graded nodes, mean |θm-θc| = 6.583e-04 rad -> OK
+  L1_taper_r1.1_base80     p: max ratio 6.563e-04 over 30 graded nodes, mean |θm-θc| = 6.583e-04 rad -> OK
+  L1_taper_r1.1_base20_N10 s: max ratio 4.499e-03 over 30 graded nodes, mean |θm-θc| = 9.420e-04 rad -> OK
+  L1_taper_r1.1_base20_N10 p: max ratio 4.499e-03 over 30 graded nodes, mean |θm-θc| = 9.420e-04 rad -> OK
+  L1_taper_r1.1_base20_N20 s: max ratio 4.499e-03 over 30 graded nodes, mean |θm-θc| = 9.420e-04 rad -> OK
+  L1_taper_r1.1_base20_N20 p: max ratio 4.499e-03 over 30 graded nodes, mean |θm-θc| = 9.420e-04 rad -> OK
+  L1_taper_r1.1_base20_N30 s: max ratio 4.499e-03 over 30 graded nodes, mean |θm-θc| = 9.420e-04 rad -> OK
+  L1_taper_r1.1_base20_N30 p: max ratio 4.499e-03 over 30 graded nodes, mean |θm-θc| = 9.420e-04 rad -> OK
+  L1_taper_r1.1_base20_N60 s: max ratio 4.499e-03 over 30 graded nodes, mean |θm-θc| = 9.420e-04 rad -> OK
+  L1_taper_r1.1_base20_N60 p: max ratio 4.499e-03 over 30 graded nodes, mean |θm-θc| = 9.420e-04 rad -> OK
+  L1_taper_r1.1_base10_xz  s: max ratio 4.719e-03 over 30 graded nodes, mean |θm-θc| = 3.783e-03 rad -> OK
+  L1_taper_r1.1_base10_xz  p: max ratio 4.719e-03 over 30 graded nodes, mean |θm-θc| = 3.783e-03 rad -> OK
+  L1_taper_r1.1_base20_xz  s: max ratio 4.499e-03 over 30 graded nodes, mean |θm-θc| = 9.420e-04 rad -> OK
+  L1_taper_r1.1_base20_xz  p: max ratio 4.499e-03 over 30 graded nodes, mean |θm-θc| = 9.420e-04 rad -> OK
+  L1_taper_r1.1_base40_xz  s: max ratio 4.876e-03 over 30 graded nodes, mean |θm-θc| = 2.355e-04 rad -> OK
+  L1_taper_r1.1_base40_xz  p: max ratio 4.876e-03 over 30 graded nodes, mean |θm-θc| = 2.355e-04 rad -> OK
+  L1_taper_r1.1_base40_P3  s: max ratio 2.272e-03 over 30 graded nodes, mean |θm-θc| = 7.131e-04 rad -> OK
+  L1_taper_r1.1_base40_P3  p: max ratio 2.272e-03 over 30 graded nodes, mean |θm-θc| = 7.131e-04 rad -> OK
+  L1_taper_r1.1_base80_P3  s: max ratio 6.563e-04 over 30 graded nodes, mean |θm-θc| = 6.583e-04 rad -> OK
+  L1_taper_r1.1_base80_P3  p: max ratio 6.563e-04 over 30 graded nodes, mean |θm-θc| = 6.583e-04 rad -> OK
+  predicted 1-3b order (s): 2.003 (window [1.8, 2.2])
+  predicted 1-3b order (p): 2.003 (window [1.8, 2.2])
+
+Level 2 preflight (R8): default grid D6 and series, exact discrete vs continuous TMM:
+  L2_F1_ppw20                s: R_disc-R_TMM = -1.064e-03, T_disc-T_TMM = +1.064e-03
+  L2_F1_ppw20                p: R_disc-R_TMM = -6.337e-04, T_disc-T_TMM = +6.337e-04
+  L2_F1_ppw40                s: R_disc-R_TMM = -7.189e-05, T_disc-T_TMM = +7.189e-05  <- default grid (2-1) OK
+  L2_F1_ppw40                p: R_disc-R_TMM = +1.559e-04, T_disc-T_TMM = -1.559e-04  <- default grid (2-1) OK
+  L2_F1_ppw80                s: R_disc-R_TMM = -1.665e-04, T_disc-T_TMM = +1.665e-04
+  L2_F1_ppw80                p: R_disc-R_TMM = +1.033e-04, T_disc-T_TMM = -1.033e-04
+  L2_F1_ppw160               s: R_disc-R_TMM = -1.539e-04, T_disc-T_TMM = +1.539e-04
+  L2_F1_ppw160               p: R_disc-R_TMM = +1.245e-04, T_disc-T_TMM = -1.245e-04
+  L2_F5_ppw20                s: R_disc-R_TMM = -2.985e-03, T_disc-T_TMM = +2.985e-03
+  L2_F5_ppw20                p: R_disc-R_TMM = -1.679e-03, T_disc-T_TMM = +1.679e-03
+  L2_F5_ppw40                s: R_disc-R_TMM = -7.528e-04, T_disc-T_TMM = +7.528e-04  <- default grid (2-1) OK
+  L2_F5_ppw40                p: R_disc-R_TMM = -2.853e-04, T_disc-T_TMM = +2.853e-04  <- default grid (2-1) OK
+  L2_F5_ppw80                s: R_disc-R_TMM = -3.780e-04, T_disc-T_TMM = +3.780e-04
+  L2_F5_ppw80                p: R_disc-R_TMM = -8.241e-05, T_disc-T_TMM = +8.241e-05
+  L2_F5_ppw160               s: R_disc-R_TMM = -2.761e-04, T_disc-T_TMM = +2.761e-04
+  L2_F5_ppw160               p: R_disc-R_TMM = -2.712e-05, T_disc-T_TMM = +2.712e-05
+  L2_F1_ppw40_dxz40          s: R_disc-R_TMM = +3.951e-05, T_disc-T_TMM = -3.951e-05
+  L2_F1_ppw40_dxz40          p: R_disc-R_TMM = +6.393e-05, T_disc-T_TMM = -6.393e-05
+  L2_F1_ppw40_dxz80          s: R_disc-R_TMM = +6.812e-05, T_disc-T_TMM = -6.812e-05
+  L2_F1_ppw40_dxz80          p: R_disc-R_TMM = +5.271e-05, T_disc-T_TMM = -5.271e-05
+  L2_F5_ppw40_dxz40          s: R_disc-R_TMM = -6.226e-04, T_disc-T_TMM = +6.226e-04
+  L2_F5_ppw40_dxz40          p: R_disc-R_TMM = -2.984e-04, T_disc-T_TMM = +2.984e-04
+  L2_F5_ppw40_dxz80          s: R_disc-R_TMM = -6.519e-04, T_disc-T_TMM = +6.519e-04
+  L2_F5_ppw40_dxz80          p: R_disc-R_TMM = -3.243e-04, T_disc-T_TMM = +3.243e-04
+  L2_F1_bis1                 s: R_disc-R_TMM = -1.064e-03, T_disc-T_TMM = +1.064e-03
+  L2_F1_bis1                 p: R_disc-R_TMM = -6.337e-04, T_disc-T_TMM = +6.337e-04
+  L2_F1_bis2                 s: R_disc-R_TMM = -3.740e-04, T_disc-T_TMM = +3.740e-04
+  L2_F1_bis2                 p: R_disc-R_TMM = -5.598e-05, T_disc-T_TMM = +5.598e-05
+  L2_F1_bis4                 s: R_disc-R_TMM = -2.045e-04, T_disc-T_TMM = +2.045e-04
+  L2_F1_bis4                 p: R_disc-R_TMM = +8.612e-05, T_disc-T_TMM = -8.612e-05
+  L2_F1_bis8                 s: R_disc-R_TMM = -1.623e-04, T_disc-T_TMM = +1.623e-04
+  L2_F1_bis8                 p: R_disc-R_TMM = +1.215e-04, T_disc-T_TMM = -1.215e-04
+  L2_F5_bis1                 s: R_disc-R_TMM = -2.985e-03, T_disc-T_TMM = +2.985e-03
+  L2_F5_bis1                 p: R_disc-R_TMM = -1.679e-03, T_disc-T_TMM = +1.679e-03
+  L2_F5_bis2                 s: R_disc-R_TMM = -9.155e-04, T_disc-T_TMM = +9.155e-04
+  L2_F5_bis2                 p: R_disc-R_TMM = -4.210e-04, T_disc-T_TMM = +4.210e-04
+  L2_F5_bis4                 s: R_disc-R_TMM = -4.021e-04, T_disc-T_TMM = +4.021e-04
+  L2_F5_bis4                 p: R_disc-R_TMM = -1.077e-04, T_disc-T_TMM = +1.077e-04
+  L2_F5_bis8                 s: R_disc-R_TMM = -2.740e-04, T_disc-T_TMM = +2.740e-04
+  L2_F5_bis8                 p: R_disc-R_TMM = -2.946e-05, T_disc-T_TMM = +2.946e-05
+  L2_F1_ctrl_mh4.5           s: R_disc-R_TMM = -2.003e-02, T_disc-T_TMM = +2.003e-02
+  L2_F1_ctrl_mh4.5           p: R_disc-R_TMM = -1.410e-02, T_disc-T_TMM = +1.410e-02
+  L2_F1_ctrl_mh9.5           s: R_disc-R_TMM = -9.876e-03, T_disc-T_TMM = +9.876e-03
+  L2_F1_ctrl_mh9.5           p: R_disc-R_TMM = -6.866e-03, T_disc-T_TMM = +6.866e-03
+  L2_F1_ctrl_mh18.5          s: R_disc-R_TMM = -5.217e-03, T_disc-T_TMM = +5.217e-03
+  L2_F1_ctrl_mh18.5          p: R_disc-R_TMM = -3.520e-03, T_disc-T_TMM = +3.520e-03
+  L2_F1_ctrl_mh37.5          s: R_disc-R_TMM = -2.669e-03, T_disc-T_TMM = +2.669e-03
+  L2_F1_ctrl_mh37.5          p: R_disc-R_TMM = -1.685e-03, T_disc-T_TMM = +1.685e-03
+  L2_F1_bisxz1               s: R_disc-R_TMM = -1.064e-03, T_disc-T_TMM = +1.064e-03
+  L2_F1_bisxz1               p: R_disc-R_TMM = -6.337e-04, T_disc-T_TMM = +6.337e-04
+  L2_F1_bisxz2               s: R_disc-R_TMM = -2.626e-04, T_disc-T_TMM = +2.626e-04
+  L2_F1_bisxz2               p: R_disc-R_TMM = -1.556e-04, T_disc-T_TMM = +1.556e-04
+  L2_F5_bisxz1               s: R_disc-R_TMM = -2.985e-03, T_disc-T_TMM = +2.985e-03
+  L2_F5_bisxz1               p: R_disc-R_TMM = -1.679e-03, T_disc-T_TMM = +1.679e-03
+  L2_F5_bisxz2               s: R_disc-R_TMM = -7.419e-04, T_disc-T_TMM = +7.419e-04
+  L2_F5_bisxz2               p: R_disc-R_TMM = -4.181e-04, T_disc-T_TMM = +4.181e-04
+  predicted 2-3 order F1 s: 2.012 OK  (R_inf - R_TMM = -1.48e-04)
+  predicted 2-3 order F1 p: 2.012 OK  (R_inf - R_TMM = +1.33e-04)
+  predicted 2-3 order F5 s: 2.005 OK  (R_inf - R_TMM = -2.31e-04)
+  predicted 2-3 order F5 p: 2.003 OK  (R_inf - R_TMM = -3.37e-06)
+  predicted 2-3 order (3-level) F1 s: 2.025 OK
+  predicted 2-4 order (control, 3 levels) s: 0.967 OK
+  predicted 2-3 order (3-level) F1 p: 2.023 OK
+  predicted 2-4 order (control, 3 levels) p: 0.962 OK
+  predicted 2-3 order (3-level) F5 s: 2.011 OK
+  predicted 2-3 order (3-level) F5 p: 2.006 OK
+  predicted 3A-3 limit F1 s: R_inf - R_TMM = +4.59e-06 OK
+  predicted 3A-3 limit F1 p: R_inf - R_TMM = +3.70e-06 OK
+  predicted 3A-3 limit F5 s: R_inf - R_TMM = +5.69e-06 OK
+  predicted 3A-3 limit F5 p: R_inf - R_TMM = +2.22e-06 OK
+  predicted 2-4 order (control) s: 0.974 OK
+  predicted 2-4 order (control) p: 0.971 OK
+
+Stage B references:
+  B3-3 RCWA (s): 161->321 orders max change 2.47e-06 OK; sum R+T-1 = -6.6e-13
+  B3-3 RCWA (p): 161->321 orders max change 2.68e-06 OK; sum R+T-1 = +7.8e-13
+--check: max relative change vs stored predictions = 1.2e-06
+
+===== gate 0-1 regression parity: tests/nu_gate0_regression.py =====
+[0-1a] s_vac, mesh=uniform: max over comps of max|ΔF|/max|F_ref| at n = [1, 10, 100, 1000, 5000]: theory=0 measured=0.0e+00, 0.0e+00, 0.0e+00, 0.0e+00, 0.0e+00 thr=< 1e-12 -> PASS bit-identical
+[0-1a] s_vac, mesh=file (equal spacing): max over comps of max|ΔF|/max|F_ref| at n = [1, 10, 100, 1000, 5000]: theory=0 measured=0.0e+00, 0.0e+00, 4.2e-15, 4.5e-15, 1.9e-14 thr=< 1e-12 -> PASS 
+[0-1a] p_med, mesh=uniform: max over comps of max|ΔF|/max|F_ref| at n = [1, 10, 100, 1000, 5000]: theory=0 measured=0.0e+00, 0.0e+00, 0.0e+00, 0.0e+00, 0.0e+00 thr=< 1e-12 -> PASS bit-identical
+[0-1a] p_med, mesh=file (equal spacing): max over comps of max|ΔF|/max|F_ref| at n = [1, 10, 100, 1000, 5000]: theory=0 measured=0.0e+00, 0.0e+00, 4.5e-15, 5.2e-15, 1.8e-14 thr=< 1e-12 -> PASS 
+[0-1b] legacy regression (run_all_regression.py --fresh, new binary, D7): theory=PASS measured=PASS thr=PASS -> PASS results/regression.log
+
+gate0_regression: 5/5 gates PASS -> PASS
+
+===== gate 0-2 adjointness: tests/nu_gate0_adjoint.py =====
+[0-2] |<E,C_H H>_WE - <C_E E,H>_WH| / (|E| |C_H H|), seed 1: theory=0 measured=2.73e-18 thr=< 1e-13 -> PASS 
+[0-2] control: unit weights, seed 1: theory=≠ 0 measured=9.83e-03 thr=INFO -> INFO shows the weights are what makes C_E, C_H adjoint
+[0-2] |<E,C_H H>_WE - <C_E E,H>_WH| / (|E| |C_H H|), seed 2: theory=0 measured=9.16e-19 thr=< 1e-13 -> PASS 
+[0-2] control: unit weights, seed 2: theory=≠ 0 measured=2.13e-02 thr=INFO -> INFO shows the weights are what makes C_E, C_H adjoint
+[0-2] |<E,C_H H>_WE - <C_E E,H>_WH| / (|E| |C_H H|), seed 3: theory=0 measured=9.04e-19 thr=< 1e-13 -> PASS 
+[0-2] control: unit weights, seed 3: theory=≠ 0 measured=9.67e-03 thr=INFO -> INFO shows the weights are what makes C_E, C_H adjoint
+[0-2] C kernel vs Python operator (one H and one E update): theory=0 measured=H 3.5e-16, E 2.9e-16 thr=< 1e-13 -> PASS ties the tested operator to the solver
+[0-2] |<E,C_H H>_WE - <C_E E,H>_WH| / (|E| |C_H H|), seed 1: theory=0 measured=3.98e-18 thr=< 1e-13 -> PASS 
+[0-2] control: unit weights, seed 1: theory=≠ 0 measured=2.96e-03 thr=INFO -> INFO shows the weights are what makes C_E, C_H adjoint
+[0-2] |<E,C_H H>_WE - <C_E E,H>_WH| / (|E| |C_H H|), seed 2: theory=0 measured=1.99e-18 thr=< 1e-13 -> PASS 
+[0-2] control: unit weights, seed 2: theory=≠ 0 measured=4.85e-02 thr=INFO -> INFO shows the weights are what makes C_E, C_H adjoint
+[0-2] |<E,C_H H>_WE - <C_E E,H>_WH| / (|E| |C_H H|), seed 3: theory=0 measured=0.00e+00 thr=< 1e-13 -> PASS 
+[0-2] control: unit weights, seed 3: theory=≠ 0 measured=3.85e+00 thr=INFO -> INFO shows the weights are what makes C_E, C_H adjoint
+[0-2] C kernel vs Python operator (one H and one E update): theory=0 measured=H 3.7e-16, E 1.6e-16 thr=< 1e-13 -> PASS ties the tested operator to the solver
+
+gate0_adjoint: 8/8 gates PASS -> PASS
+
+===== gate 0-3/0-4 energy, stability: tests/nu_gate0_energy_stability.py =====
+[0-3] energy W_mod relative drift over 1e+05 steps (L1_taper_r1.1_base20, PEC): theory=0 measured=5.33e-15 thr=< 1e-10 -> PASS 
+[0-3] legacy-form energy ½Σ(εE^n·E^(n+1)+|H^(n+½)|²) drift (L1_taper_r1.1_base20): theory=0 measured=8.88e-16 thr=INFO -> INFO 
+[0-4] power iteration λ_max, Δt_max = 2/sqrt(λ_max) (L1_taper_r1.1_base20): theory=— measured=λ=28764.3243, Δt_max=0.01179241915 T0 (1483 it) thr=RQ change < 1e-10 -> PASS 
+[0-4] Courant formula Δt ≤ Δt_max (L1_taper_r1.1_base20): theory=0.01178511302 measured=Δt_max 0.01179241915 thr=Δt_C ≤ Δt_max -> PASS margin 0.06%
+[0-4] Δt cost of the smallest cell (L1_taper_r1.1_base20): theory=— measured=Δt(S=0.5) = 0.0102062 T0 vs 0.025 on the base grid: ×2.449 steps thr=INFO -> INFO 
+[0-4] 0.99 Δt_max: 20000 steps finite, energy drift (L1_taper_r1.1_base20): theory=stable measured=exit 0, drift 4.77e-15 thr=finite & drift < 1e-10 -> PASS 
+[0-4] 1.02 Δt_max: diverges within 20000 steps (L1_taper_r1.1_base20): theory=diverges measured=exit 2, step 900 thr=non-finite before the end -> PASS 
+[0-3] energy W_mod relative drift over 1e+05 steps (L1_abrupt_r4_base20, PEC): theory=0 measured=5.11e-15 thr=< 1e-10 -> PASS 
+[0-3] legacy-form energy ½Σ(εE^n·E^(n+1)+|H^(n+½)|²) drift (L1_abrupt_r4_base20): theory=0 measured=1.11e-15 thr=INFO -> INFO 
+[0-4] power iteration λ_max, Δt_max = 2/sqrt(λ_max) (L1_abrupt_r4_base20): theory=— measured=λ=28761.04604, Δt_max=0.0117930912 T0 (1389 it) thr=RQ change < 1e-10 -> PASS 
+[0-4] Courant formula Δt ≤ Δt_max (L1_abrupt_r4_base20): theory=0.01178511302 measured=Δt_max 0.0117930912 thr=Δt_C ≤ Δt_max -> PASS margin 0.07%
+[0-4] Δt cost of the smallest cell (L1_abrupt_r4_base20): theory=— measured=Δt(S=0.5) = 0.0102062 T0 vs 0.025 on the base grid: ×2.449 steps thr=INFO -> INFO 
+[0-4] 0.99 Δt_max: 20000 steps finite, energy drift (L1_abrupt_r4_base20): theory=stable measured=exit 0, drift 4.55e-15 thr=finite & drift < 1e-10 -> PASS 
+[0-4] 1.02 Δt_max: diverges within 20000 steps (L1_abrupt_r4_base20): theory=diverges measured=exit 2, step 900 thr=non-finite before the end -> PASS 
+
+gate0_energy_stability: 10/10 gates PASS -> PASS
+
+===== gate 1 vacuum (+ 0-5): tests/nu_gate1_vacuum.py =====
+[1-0] main field vs Re[aux_ref e^(i(kx x+kz z))], all y, every 10 T0 (L1_taper_r1.1_base20, s): theory=0 measured=E 1.8e-14, H·η0 1.5e-14 thr=< 1e-12 -> PASS 
+[1-1] SF leakage = |F − aux_ref scattered field|/E0, n ≤ 727 (L1_taper_r1.1_base20, s): theory=0 measured=E 5.4e-23, H·η0 1.0e-22 thr=< 1e-10 -> PASS D8
+[1-1] literal SF max / E0 (same window) (L1_taper_r1.1_base20, s): theory=— measured=9.76e-23 thr=INFO (D8) -> INFO includes the physical numerical reflection of the grid grading
+[1-1] whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base20, s): theory=0 / — measured=E 6.1e-15, H·η0 6.8e-15 / 9.11e-08 thr=INFO -> INFO the frozen window ends at t = 7.4 T0, where the ramped incident amplitude is only 4.3e-06; the whole-run value is the informative one
+[1-2] x–z planarity: max over TF planes of RMS phase residual vs kx·x+kz·z (L1_taper_r1.1_base20, s): theory=0 measured=3.32e-14 rad (Hx) thr=< 1e-08 rad -> PASS 167 planes, all non-zero components
+[1-3a] ky in sub-region tf_a (h=λ0/20) (L1_taper_r1.1_base20, s): theory=5.036552350917 /λ0 measured=5.036552350917 /λ0 thr=rel < 1e-06 -> PASS rel 4.2e-15; three-point over 38 nodes; imag residual 4.9e-17
+[1-3a] ky in sub-region hold (h=λ0/80) (L1_taper_r1.1_base20, s): theory=5.024079981391 /λ0 measured=5.024079981390 /λ0 thr=rel < 1e-06 -> PASS rel 1.1e-13; three-point over 39 nodes; imag residual 6.2e-17
+[1-3a] ky in sub-region tf_b (h=λ0/20) (L1_taper_r1.1_base20, s): theory=5.036552350917 /λ0 measured=5.036552350917 /λ0 thr=rel < 1e-06 -> PASS rel 1.1e-15; three-point over 59 nodes; imag residual 2.0e-18
+[1-3b] taper angle: max |θ_meas−θ_pred| / |θ_pred−θ_cont| over graded nodes (L1_taper_r1.1_base20, s): theory=0 measured=4.50e-03 thr=≤ 0.1 -> PASS 30 nodes; mean |θ_meas−θ_cont| = 9.420e-04 rad
+[1-5] time-averaged S_y over 167 TF planes, distance-weighted H (L1_taper_r1.1_base20, s): theory=constant measured=(max−min)/mean = 7.61e-14 thr=< 0.0001 -> PASS 
+[1-5] control: ½-average interpolation (L1_taper_r1.1_base20, s): theory=— measured=7.60e-14 thr=INFO -> INFO 
+[0-5] max|div E|, |div H| / (|K~| max|F|), TF j∈[42,206] (L1_taper_r1.1_base20, s, final step): theory=0 measured=E 6.6e-14, H 2.4e-13 (C log, all periods: E 6.8e-14) thr=< 1e-10 -> PASS 
+[0-5] control: uniform operator (every difference / Δx) on div H (s): theory=clearly ≠ 0 measured=E 6.58e-14, H 5.38e-01 thr=div H ≥ 1e-06 -> PASS div E is blind to the y metric here: its normal component Ey is identically 0
+[1-0] main field vs Re[aux_ref e^(i(kx x+kz z))], all y, every 10 T0 (L1_taper_r1.1_base20, p): theory=0 measured=E 1.7e-14, H·η0 1.7e-14 thr=< 1e-12 -> PASS 
+[1-1] SF leakage = |F − aux_ref scattered field|/E0, n ≤ 727 (L1_taper_r1.1_base20, p): theory=0 measured=E 8.6e-23, H·η0 6.9e-23 thr=< 1e-10 -> PASS D8
+[1-1] literal SF max / E0 (same window) (L1_taper_r1.1_base20, p): theory=— measured=8.74e-23 thr=INFO (D8) -> INFO includes the physical numerical reflection of the grid grading
+[1-1] whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base20, p): theory=0 / — measured=E 6.2e-15, H·η0 6.3e-15 / 9.11e-08 thr=INFO -> INFO the frozen window ends at t = 7.4 T0, where the ramped incident amplitude is only 4.3e-06; the whole-run value is the informative one
+[1-2] x–z planarity: max over TF planes of RMS phase residual vs kx·x+kz·z (L1_taper_r1.1_base20, p): theory=0 measured=3.79e-14 rad (Ex) thr=< 1e-08 rad -> PASS 167 planes, all non-zero components
+[1-3a] ky in sub-region tf_a (h=λ0/20) (L1_taper_r1.1_base20, p): theory=5.036552350917 /λ0 measured=5.036552350917 /λ0 thr=rel < 1e-06 -> PASS rel 2.5e-15; three-point over 38 nodes; imag residual 1.1e-16
+[1-3a] ky in sub-region hold (h=λ0/80) (L1_taper_r1.1_base20, p): theory=5.024079981391 /λ0 measured=5.024079981393 /λ0 thr=rel < 1e-06 -> PASS rel 3.4e-13; three-point over 39 nodes; imag residual 6.4e-16
+[1-3a] ky in sub-region tf_b (h=λ0/20) (L1_taper_r1.1_base20, p): theory=5.036552350917 /λ0 measured=5.036552350917 /λ0 thr=rel < 1e-06 -> PASS rel 1.4e-14; three-point over 59 nodes; imag residual 1.3e-17
+[1-3b] taper angle: max |θ_meas−θ_pred| / |θ_pred−θ_cont| over graded nodes (L1_taper_r1.1_base20, p): theory=0 measured=4.50e-03 thr=≤ 0.1 -> PASS 30 nodes; mean |θ_meas−θ_cont| = 9.420e-04 rad
+[1-5] time-averaged S_y over 167 TF planes, distance-weighted H (L1_taper_r1.1_base20, p): theory=constant measured=(max−min)/mean = 1.07e-13 thr=< 0.0001 -> PASS 
+[1-5] control: ½-average interpolation (L1_taper_r1.1_base20, p): theory=— measured=1.07e-13 thr=INFO -> INFO 
+[0-5] max|div E|, |div H| / (|K~| max|F|), TF j∈[42,206] (L1_taper_r1.1_base20, p, final step): theory=0 measured=E 2.0e-13, H 6.4e-14 (C log, all periods: E 2.1e-13) thr=< 1e-10 -> PASS 
+[0-5] control: uniform operator (every difference / Δx) on div E (p): theory=clearly ≠ 0 measured=E 5.38e-01, H 6.87e-14 thr=div E ≥ 1e-06 -> PASS div H is blind to the y metric here: its normal component Hy is identically 0
+[1-0] main field vs Re[aux_ref e^(i(kx x+kz z))], all y, every 10 T0 (L1_abrupt_r4_base20, s): theory=0 measured=E 1.5e-14, H·η0 1.5e-14 thr=< 1e-12 -> PASS 
+[1-1] SF leakage = |F − aux_ref scattered field|/E0, n ≤ 661 (L1_abrupt_r4_base20, s): theory=0 measured=E 1.9e-23, H·η0 3.0e-23 thr=< 1e-10 -> PASS D8
+[1-1] literal SF max / E0 (same window) (L1_abrupt_r4_base20, s): theory=— measured=2.98e-23 thr=INFO (D8) -> INFO includes the physical numerical reflection of the grid grading
+[1-1] whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_abrupt_r4_base20, s): theory=0 / — measured=E 6.2e-15, H·η0 7.6e-15 / 9.11e-08 thr=INFO -> INFO the frozen window ends at t = 6.7 T0, where the ramped incident amplitude is only 1.4e-06; the whole-run value is the informative one
+[1-2] x–z planarity: max over TF planes of RMS phase residual vs kx·x+kz·z (L1_abrupt_r4_base20, s): theory=0 measured=3.49e-14 rad (Hz) thr=< 1e-08 rad -> PASS 139 planes, all non-zero components
+[1-3a] ky in sub-region tf_a (h=λ0/20) (L1_abrupt_r4_base20, s): theory=5.036552350917 /λ0 measured=5.036552350917 /λ0 thr=rel < 1e-06 -> PASS rel 1.1e-15; three-point over 38 nodes; imag residual 4.5e-17
+[1-3a] ky in sub-region hold (h=λ0/80) (L1_abrupt_r4_base20, s): theory=5.024079981391 /λ0 measured=5.024079981392 /λ0 thr=rel < 1e-06 -> PASS rel 1.7e-13; three-point over 39 nodes; imag residual 5.8e-17
+[1-3a] ky in sub-region tf_b (h=λ0/20) (L1_abrupt_r4_base20, s): theory=5.036552350917 /λ0 measured=5.036552350917 /λ0 thr=rel < 1e-06 -> PASS rel 1.2e-14; three-point over 59 nodes; imag residual 2.9e-17
+[1-5] time-averaged S_y over 139 TF planes, distance-weighted H (L1_abrupt_r4_base20, s): theory=constant measured=(max−min)/mean = 9.42e-14 thr=< 0.0001 -> PASS 
+[1-5] control: ½-average interpolation (L1_abrupt_r4_base20, s): theory=— measured=9.43e-14 thr=INFO -> INFO 
+[1-0] main field vs Re[aux_ref e^(i(kx x+kz z))], all y, every 10 T0 (L1_abrupt_r4_base20, p): theory=0 measured=E 1.9e-14, H·η0 1.7e-14 thr=< 1e-12 -> PASS 
+[1-1] SF leakage = |F − aux_ref scattered field|/E0, n ≤ 661 (L1_abrupt_r4_base20, p): theory=0 measured=E 2.2e-23, H·η0 2.3e-23 thr=< 1e-10 -> PASS D8
+[1-1] literal SF max / E0 (same window) (L1_abrupt_r4_base20, p): theory=— measured=2.27e-23 thr=INFO (D8) -> INFO includes the physical numerical reflection of the grid grading
+[1-1] whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_abrupt_r4_base20, p): theory=0 / — measured=E 6.2e-15, H·η0 6.0e-15 / 9.11e-08 thr=INFO -> INFO the frozen window ends at t = 6.7 T0, where the ramped incident amplitude is only 1.4e-06; the whole-run value is the informative one
+[1-2] x–z planarity: max over TF planes of RMS phase residual vs kx·x+kz·z (L1_abrupt_r4_base20, p): theory=0 measured=3.21e-14 rad (Ex) thr=< 1e-08 rad -> PASS 139 planes, all non-zero components
+[1-3a] ky in sub-region tf_a (h=λ0/20) (L1_abrupt_r4_base20, p): theory=5.036552350917 /λ0 measured=5.036552350917 /λ0 thr=rel < 1e-06 -> PASS rel 4.2e-15; three-point over 38 nodes; imag residual 1.9e-16
+[1-3a] ky in sub-region hold (h=λ0/80) (L1_abrupt_r4_base20, p): theory=5.024079981391 /λ0 measured=5.024079981391 /λ0 thr=rel < 1e-06 -> PASS rel 7.1e-16; three-point over 39 nodes; imag residual 1.7e-16
+[1-3a] ky in sub-region tf_b (h=λ0/20) (L1_abrupt_r4_base20, p): theory=5.036552350917 /λ0 measured=5.036552350917 /λ0 thr=rel < 1e-06 -> PASS rel 1.1e-15; three-point over 59 nodes; imag residual 1.9e-16
+[1-5] time-averaged S_y over 139 TF planes, distance-weighted H (L1_abrupt_r4_base20, p): theory=constant measured=(max−min)/mean = 1.07e-13 thr=< 0.0001 -> PASS 
+[1-5] control: ½-average interpolation (L1_abrupt_r4_base20, p): theory=— measured=1.07e-13 thr=INFO -> INFO 
+
+gate0_divergence: 4/4 gates PASS -> PASS
+[1-0] main field vs Re[aux_ref e^(i(kx x+kz z))], all y, every 10 T0 (L1_taper_r1.1_base40, s): theory=0 measured=E 2.2e-14, H·η0 2.2e-14 thr=< 1e-12 -> PASS 
+[1-1] SF leakage = |F − aux_ref scattered field|/E0, n ≤ 1163 (L1_taper_r1.1_base40, s): theory=0 measured=E 1.2e-22, H·η0 1.4e-22 thr=< 1e-10 -> PASS D8
+[1-1] literal SF max / E0 (same window) (L1_taper_r1.1_base40, s): theory=— measured=1.36e-22 thr=INFO (D8) -> INFO includes the physical numerical reflection of the grid grading
+[1-1] whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base40, s): theory=0 / — measured=E 8.6e-15, H·η0 9.9e-15 / 8.08e-08 thr=INFO -> INFO the frozen window ends at t = 6.2 T0, where the ramped incident amplitude is only 5.2e-07; the whole-run value is the informative one
+[1-3a] ky in sub-region tf_a (h=λ0/40) (L1_taper_r1.1_base40, s): theory=5.027543096692 /λ0 measured=5.027543096692 /λ0 thr=rel < 1e-06 -> PASS rel 2.1e-14; three-point over 78 nodes; imag residual 1.9e-16
+[1-3a] ky in sub-region hold (h=λ0/160) (L1_taper_r1.1_base40, s): theory=5.024440895885 /λ0 measured=5.024440895882 /λ0 thr=rel < 1e-06 -> PASS rel 5.6e-13; three-point over 79 nodes; imag residual 1.2e-16
+[1-3a] ky in sub-region tf_b (h=λ0/40) (L1_taper_r1.1_base40, s): theory=5.027543096692 /λ0 measured=5.027543096691 /λ0 thr=rel < 1e-06 -> PASS rel 3.5e-14; three-point over 119 nodes; imag residual 1.8e-17
+[1-3b] taper angle: max |θ_meas−θ_pred| / |θ_pred−θ_cont| over graded nodes (L1_taper_r1.1_base40, s): theory=0 measured=2.27e-03 thr=≤ 0.1 -> PASS 30 nodes; mean |θ_meas−θ_cont| = 7.131e-04 rad
+[1-0] main field vs Re[aux_ref e^(i(kx x+kz z))], all y, every 10 T0 (L1_taper_r1.1_base40, p): theory=0 measured=E 2.6e-14, H·η0 2.2e-14 thr=< 1e-12 -> PASS 
+[1-1] SF leakage = |F − aux_ref scattered field|/E0, n ≤ 1163 (L1_taper_r1.1_base40, p): theory=0 measured=E 1.7e-22, H·η0 1.0e-22 thr=< 1e-10 -> PASS D8
+[1-1] literal SF max / E0 (same window) (L1_taper_r1.1_base40, p): theory=— measured=1.65e-22 thr=INFO (D8) -> INFO includes the physical numerical reflection of the grid grading
+[1-1] whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base40, p): theory=0 / — measured=E 8.7e-15, H·η0 8.4e-15 / 8.08e-08 thr=INFO -> INFO the frozen window ends at t = 6.2 T0, where the ramped incident amplitude is only 5.2e-07; the whole-run value is the informative one
+[1-3a] ky in sub-region tf_a (h=λ0/40) (L1_taper_r1.1_base40, p): theory=5.027543096692 /λ0 measured=5.027543096692 /λ0 thr=rel < 1e-06 -> PASS rel 1.4e-14; three-point over 78 nodes; imag residual 3.0e-16
+[1-3a] ky in sub-region hold (h=λ0/160) (L1_taper_r1.1_base40, p): theory=5.024440895885 /λ0 measured=5.024440895884 /λ0 thr=rel < 1e-06 -> PASS rel 1.1e-13; three-point over 79 nodes; imag residual 4.6e-16
+[1-3a] ky in sub-region tf_b (h=λ0/40) (L1_taper_r1.1_base40, p): theory=5.027543096692 /λ0 measured=5.027543096692 /λ0 thr=rel < 1e-06 -> PASS rel 0.0e+00; three-point over 119 nodes; imag residual 2.4e-16
+[1-3b] taper angle: max |θ_meas−θ_pred| / |θ_pred−θ_cont| over graded nodes (L1_taper_r1.1_base40, p): theory=0 measured=2.27e-03 thr=≤ 0.1 -> PASS 30 nodes; mean |θ_meas−θ_cont| = 7.131e-04 rad
+[1-0] main field vs Re[aux_ref e^(i(kx x+kz z))], all y, every 10 T0 (L1_taper_r1.1_base80, s): theory=0 measured=E 3.7e-14, H·η0 3.9e-14 thr=< 1e-12 -> PASS 
+[1-1] SF leakage = |F − aux_ref scattered field|/E0, n ≤ 2065 (L1_taper_r1.1_base80, s): theory=0 measured=E 1.3e-22, H·η0 1.7e-22 thr=< 1e-10 -> PASS D8
+[1-1] literal SF max / E0 (same window) (L1_taper_r1.1_base80, s): theory=— measured=1.69e-22 thr=INFO (D8) -> INFO includes the physical numerical reflection of the grid grading
+[1-1] whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base80, s): theory=0 / — measured=E 1.2e-14, H·η0 1.2e-14 / 7.81e-08 thr=INFO -> INFO the frozen window ends at t = 5.6 T0, where the ramped incident amplitude is only 1.7e-07; the whole-run value is the informative one
+[1-3a] ky in sub-region tf_a (h=λ0/80) (L1_taper_r1.1_base80, s): theory=5.025332415829 /λ0 measured=5.025332415829 /λ0 thr=rel < 1e-06 -> PASS rel 5.7e-14; three-point over 158 nodes; imag residual 1.5e-16
+[1-3a] ky in sub-region hold (h=λ0/320) (L1_taper_r1.1_base80, s): theory=5.024557837983 /λ0 measured=5.024557837967 /λ0 thr=rel < 1e-06 -> PASS rel 3.1e-12; three-point over 159 nodes; imag residual 2.7e-17
+[1-3a] ky in sub-region tf_b (h=λ0/80) (L1_taper_r1.1_base80, s): theory=5.025332415829 /λ0 measured=5.025332415829 /λ0 thr=rel < 1e-06 -> PASS rel 2.9e-14; three-point over 239 nodes; imag residual 9.1e-17
+[1-3b] taper angle: max |θ_meas−θ_pred| / |θ_pred−θ_cont| over graded nodes (L1_taper_r1.1_base80, s): theory=0 measured=6.56e-04 thr=≤ 0.1 -> PASS 30 nodes; mean |θ_meas−θ_cont| = 6.583e-04 rad
+[1-0] main field vs Re[aux_ref e^(i(kx x+kz z))], all y, every 10 T0 (L1_taper_r1.1_base80, p): theory=0 measured=E 3.6e-14, H·η0 3.5e-14 thr=< 1e-12 -> PASS 
+[1-1] SF leakage = |F − aux_ref scattered field|/E0, n ≤ 2065 (L1_taper_r1.1_base80, p): theory=0 measured=E 2.0e-22, H·η0 1.0e-22 thr=< 1e-10 -> PASS D8
+[1-1] literal SF max / E0 (same window) (L1_taper_r1.1_base80, p): theory=— measured=2.04e-22 thr=INFO (D8) -> INFO includes the physical numerical reflection of the grid grading
+[1-1] whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base80, p): theory=0 / — measured=E 1.3e-14, H·η0 1.3e-14 / 7.81e-08 thr=INFO -> INFO the frozen window ends at t = 5.6 T0, where the ramped incident amplitude is only 1.7e-07; the whole-run value is the informative one
+[1-3a] ky in sub-region tf_a (h=λ0/80) (L1_taper_r1.1_base80, p): theory=5.025332415829 /λ0 measured=5.025332415828 /λ0 thr=rel < 1e-06 -> PASS rel 2.0e-13; three-point over 158 nodes; imag residual 2.4e-16
+[1-3a] ky in sub-region hold (h=λ0/320) (L1_taper_r1.1_base80, p): theory=5.024557837983 /λ0 measured=5.024557837990 /λ0 thr=rel < 1e-06 -> PASS rel 1.4e-12; three-point over 159 nodes; imag residual 9.4e-17
+[1-3a] ky in sub-region tf_b (h=λ0/80) (L1_taper_r1.1_base80, p): theory=5.025332415829 /λ0 measured=5.025332415829 /λ0 thr=rel < 1e-06 -> PASS rel 8.8e-16; three-point over 239 nodes; imag residual 3.5e-17
+[1-3b] taper angle: max |θ_meas−θ_pred| / |θ_pred−θ_cont| over graded nodes (L1_taper_r1.1_base80, p): theory=0 measured=6.56e-04 thr=≤ 0.1 -> PASS 30 nodes; mean |θ_meas−θ_cont| = 6.583e-04 rad
+[1-0] main field vs Re[aux_ref e^(i(kx x+kz z))], all y, every 10 T0 (L1_taper_r1.1_base10_xz, s): theory=0 measured=E 1.0e-14, H·η0 1.1e-14 thr=< 1e-12 -> PASS 
+[1-1] SF leakage = |F − aux_ref scattered field|/E0, n ≤ 485 (L1_taper_r1.1_base10_xz, s): theory=0 measured=E 2.4e-23, H·η0 4.3e-23 thr=< 1e-10 -> PASS D8
+[1-1] literal SF max / E0 (same window) (L1_taper_r1.1_base10_xz, s): theory=— measured=4.22e-23 thr=INFO (D8) -> INFO includes the physical numerical reflection of the grid grading
+[1-1] whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base10_xz, s): theory=0 / — measured=E 4.0e-15, H·η0 4.4e-15 / 1.37e-07 thr=INFO -> INFO the frozen window ends at t = 9.9 T0, where the ramped incident amplitude is only 1.8e-04; the whole-run value is the informative one
+[1-3b] taper angle: max |θ_meas−θ_pred| / |θ_pred−θ_cont| over graded nodes (L1_taper_r1.1_base10_xz, s): theory=0 measured=4.72e-03 thr=≤ 0.1 -> PASS 30 nodes; mean |θ_meas−θ_cont| = 3.783e-03 rad
+[1-0] main field vs Re[aux_ref e^(i(kx x+kz z))], all y, every 10 T0 (L1_taper_r1.1_base10_xz, p): theory=0 measured=E 1.1e-14, H·η0 1.1e-14 thr=< 1e-12 -> PASS 
+[1-1] SF leakage = |F − aux_ref scattered field|/E0, n ≤ 485 (L1_taper_r1.1_base10_xz, p): theory=0 measured=E 2.3e-23, H·η0 3.1e-23 thr=< 1e-10 -> PASS D8
+[1-1] literal SF max / E0 (same window) (L1_taper_r1.1_base10_xz, p): theory=— measured=2.98e-23 thr=INFO (D8) -> INFO includes the physical numerical reflection of the grid grading
+[1-1] whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base10_xz, p): theory=0 / — measured=E 3.9e-15, H·η0 4.1e-15 / 1.37e-07 thr=INFO -> INFO the frozen window ends at t = 9.9 T0, where the ramped incident amplitude is only 1.8e-04; the whole-run value is the informative one
+[1-3b] taper angle: max |θ_meas−θ_pred| / |θ_pred−θ_cont| over graded nodes (L1_taper_r1.1_base10_xz, p): theory=0 measured=4.72e-03 thr=≤ 0.1 -> PASS 30 nodes; mean |θ_meas−θ_cont| = 3.783e-03 rad
+[1-0] main field vs Re[aux_ref e^(i(kx x+kz z))], all y, every 10 T0 (L1_taper_r1.1_base20_xz, s): theory=0 measured=E 1.8e-14, H·η0 1.5e-14 thr=< 1e-12 -> PASS 
+[1-1] SF leakage = |F − aux_ref scattered field|/E0, n ≤ 727 (L1_taper_r1.1_base20_xz, s): theory=0 measured=E 5.4e-23, H·η0 1.0e-22 thr=< 1e-10 -> PASS D8
+[1-1] literal SF max / E0 (same window) (L1_taper_r1.1_base20_xz, s): theory=— measured=9.76e-23 thr=INFO (D8) -> INFO includes the physical numerical reflection of the grid grading
+[1-1] whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base20_xz, s): theory=0 / — measured=E 6.1e-15, H·η0 6.8e-15 / 9.11e-08 thr=INFO -> INFO the frozen window ends at t = 7.4 T0, where the ramped incident amplitude is only 4.3e-06; the whole-run value is the informative one
+[1-3b] taper angle: max |θ_meas−θ_pred| / |θ_pred−θ_cont| over graded nodes (L1_taper_r1.1_base20_xz, s): theory=0 measured=4.50e-03 thr=≤ 0.1 -> PASS 30 nodes; mean |θ_meas−θ_cont| = 9.420e-04 rad
+[1-0] main field vs Re[aux_ref e^(i(kx x+kz z))], all y, every 10 T0 (L1_taper_r1.1_base20_xz, p): theory=0 measured=E 1.7e-14, H·η0 1.7e-14 thr=< 1e-12 -> PASS 
+[1-1] SF leakage = |F − aux_ref scattered field|/E0, n ≤ 727 (L1_taper_r1.1_base20_xz, p): theory=0 measured=E 8.6e-23, H·η0 6.9e-23 thr=< 1e-10 -> PASS D8
+[1-1] literal SF max / E0 (same window) (L1_taper_r1.1_base20_xz, p): theory=— measured=8.74e-23 thr=INFO (D8) -> INFO includes the physical numerical reflection of the grid grading
+[1-1] whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base20_xz, p): theory=0 / — measured=E 6.2e-15, H·η0 6.3e-15 / 9.11e-08 thr=INFO -> INFO the frozen window ends at t = 7.4 T0, where the ramped incident amplitude is only 4.3e-06; the whole-run value is the informative one
+[1-3b] taper angle: max |θ_meas−θ_pred| / |θ_pred−θ_cont| over graded nodes (L1_taper_r1.1_base20_xz, p): theory=0 measured=4.50e-03 thr=≤ 0.1 -> PASS 30 nodes; mean |θ_meas−θ_cont| = 9.420e-04 rad
+[1-0] main field vs Re[aux_ref e^(i(kx x+kz z))], all y, every 10 T0 (L1_taper_r1.1_base40_xz, s): theory=0 measured=E 2.6e-14, H·η0 2.3e-14 thr=< 1e-12 -> PASS 
+[1-1] SF leakage = |F − aux_ref scattered field|/E0, n ≤ 1212 (L1_taper_r1.1_base40_xz, s): theory=0 measured=E 1.5e-22, H·η0 2.0e-22 thr=< 1e-10 -> PASS D8
+[1-1] literal SF max / E0 (same window) (L1_taper_r1.1_base40_xz, s): theory=— measured=1.99e-22 thr=INFO (D8) -> INFO includes the physical numerical reflection of the grid grading
+[1-1] whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base40_xz, s): theory=0 / — measured=E 9.8e-15, H·η0 1.1e-14 / 8.08e-08 thr=INFO -> INFO the frozen window ends at t = 6.2 T0, where the ramped incident amplitude is only 5.2e-07; the whole-run value is the informative one
+[1-3b] taper angle: max |θ_meas−θ_pred| / |θ_pred−θ_cont| over graded nodes (L1_taper_r1.1_base40_xz, s): theory=0 measured=4.88e-03 thr=≤ 0.1 -> PASS 30 nodes; mean |θ_meas−θ_cont| = 2.355e-04 rad
+[1-0] main field vs Re[aux_ref e^(i(kx x+kz z))], all y, every 10 T0 (L1_taper_r1.1_base40_xz, p): theory=0 measured=E 2.5e-14, H·η0 2.6e-14 thr=< 1e-12 -> PASS 
+[1-1] SF leakage = |F − aux_ref scattered field|/E0, n ≤ 1212 (L1_taper_r1.1_base40_xz, p): theory=0 measured=E 1.2e-22, H·η0 2.2e-22 thr=< 1e-10 -> PASS D8
+[1-1] literal SF max / E0 (same window) (L1_taper_r1.1_base40_xz, p): theory=— measured=2.02e-22 thr=INFO (D8) -> INFO includes the physical numerical reflection of the grid grading
+[1-1] whole run (steady incident amplitude 1): D8 leakage / literal SF max (L1_taper_r1.1_base40_xz, p): theory=0 / — measured=E 8.7e-15, H·η0 1.0e-14 / 8.08e-08 thr=INFO -> INFO the frozen window ends at t = 6.2 T0, where the ramped incident amplitude is only 5.2e-07; the whole-run value is the informative one
+[1-3b] taper angle: max |θ_meas−θ_pred| / |θ_pred−θ_cont| over graded nodes (L1_taper_r1.1_base40_xz, p): theory=0 measured=4.88e-03 thr=≤ 0.1 -> PASS 30 nodes; mean |θ_meas−θ_cont| = 2.355e-04 rad
+[1-3b] order of mean|θ_meas−θ_cont| under Δ-doubling, D9 family 10/20/40 (s): theory=2 (pred. 2.003) measured=2.003 (errors 3.78e-03, 9.42e-04, 2.36e-04 rad) thr=∈ [1.8, 2.2] -> PASS amendment D9
+[1-3b] order of mean|θ_meas−θ_cont| under Δ-doubling, D9 family 10/20/40 (p): theory=2 (pred. 2.003) measured=2.003 (errors 3.78e-03, 9.42e-04, 2.36e-04 rad) thr=∈ [1.8, 2.2] -> PASS amendment D9
+[1-4a] abrupt r=4 reflectance vs exact discrete R_disc (s): theory=1.92671634e-05 measured=1.92664279e-05 thr=rel < 0.001 -> PASS rel 3.8e-05 (-47.2 dB amplitude); fit residual 1.3e-14; D1
+[1-4a] numerical-index Fresnel estimate of the fine slab (s): theory=2.1312e-06 measured=measured/estimate = 9.04 (power), 3.01 (amplitude) thr=INFO (D1) -> INFO 
+[1-4a] abrupt r=4 reflectance vs exact discrete R_disc (p): theory=1.92671634e-05 measured=1.92664279e-05 thr=rel < 0.001 -> PASS rel 3.8e-05 (-47.2 dB amplitude); fit residual 3.0e-14; D1
+[1-4a] numerical-index Fresnel estimate of the fine slab (p): theory=1.6621e-07 measured=measured/estimate = 115.91 (power), 10.77 (amplitude) thr=INFO (D1) -> INFO 
+[1-4b] r=1.1 taper reflectance vs R_disc, base λ0/20 (s): theory=1.33213110e-05 measured=1.33205134e-05 thr=rel < 0.001 -> PASS rel 6.0e-05; -48.8 dB (amplitude; −60 dB INFO: above)
+[1-4b] r=1.1 taper reflectance vs R_disc, base λ0/40 (s): theory=7.37563702e-07 measured=7.37568948e-07 thr=rel < 0.001 -> PASS rel 7.1e-06; -61.3 dB (amplitude; −60 dB INFO: below)
+[1-4b] r=1.1 taper reflectance vs R_disc, base λ0/80 (s): theory=2.30295000e-10 measured=2.30255200e-10 thr=rel < 0.001 -> PASS rel 1.7e-04; -96.4 dB (amplitude; −60 dB INFO: below)
+[1-4b] |R| strictly decreasing with refinement 20→40→80 (s): theory=decreasing measured=-48.8 dB → -61.3 dB → -96.4 dB thr=strict decrease -> PASS 
+[1-4b] r=1.1 taper reflectance vs R_disc, base λ0/20 (p): theory=1.33213110e-05 measured=1.33205134e-05 thr=rel < 0.001 -> PASS rel 6.0e-05; -48.8 dB (amplitude; −60 dB INFO: above)
+[1-4b] r=1.1 taper reflectance vs R_disc, base λ0/40 (p): theory=7.37563702e-07 measured=7.37568948e-07 thr=rel < 0.001 -> PASS rel 7.1e-06; -61.3 dB (amplitude; −60 dB INFO: below)
+[1-4b] r=1.1 taper reflectance vs R_disc, base λ0/80 (p): theory=2.30294998e-10 measured=2.30255199e-10 thr=rel < 0.001 -> PASS rel 1.7e-04; -96.4 dB (amplitude; −60 dB INFO: below)
+[1-4b] |R| strictly decreasing with refinement 20→40→80 (p): theory=decreasing measured=-48.8 dB → -61.3 dB → -96.4 dB thr=strict decrease -> PASS 
+[1-4c] reflectance vs r_max and base: r=1.05, base λ0/20 (s): theory=-67.05 dB measured=-67.05 dB thr=INFO -> INFO 
+[1-4c] reflectance vs r_max and base: r=1.05, base λ0/40 (s): theory=-60.32 dB measured=-60.32 dB thr=INFO -> INFO 
+[1-4c] reflectance vs r_max and base: r=1.05, base λ0/80 (s): theory=-73.63 dB measured=— thr=INFO -> INFO FDTD not run at base 80 for the scan (theory only)
+[1-4c] reflectance vs r_max and base: r=1.1, base λ0/20 (s): theory=-48.75 dB measured=-48.75 dB thr=INFO -> INFO 
+[1-4c] reflectance vs r_max and base: r=1.1, base λ0/40 (s): theory=-61.32 dB measured=-61.32 dB thr=INFO -> INFO 
+[1-4c] reflectance vs r_max and base: r=1.1, base λ0/80 (s): theory=-96.38 dB measured=-96.43 dB thr=INFO -> INFO 
+[1-4c] reflectance vs r_max and base: r=1.2, base λ0/20 (s): theory=-48.80 dB measured=-48.80 dB thr=INFO -> INFO 
+[1-4c] reflectance vs r_max and base: r=1.2, base λ0/40 (s): theory=-91.74 dB measured=-91.78 dB thr=INFO -> INFO 
+[1-4c] reflectance vs r_max and base: r=1.2, base λ0/80 (s): theory=-76.76 dB measured=— thr=INFO -> INFO FDTD not run at base 80 for the scan (theory only)
+[1-4c] reflectance vs r_max and base: r=1.5, base λ0/20 (s): theory=-66.00 dB measured=-66.00 dB thr=INFO -> INFO 
+[1-4c] reflectance vs r_max and base: r=1.5, base λ0/40 (s): theory=-64.00 dB measured=-64.00 dB thr=INFO -> INFO 
+[1-4c] reflectance vs r_max and base: r=1.5, base λ0/80 (s): theory=-73.26 dB measured=— thr=INFO -> INFO FDTD not run at base 80 for the scan (theory only)
+[1-4c] reflectance vs r_max and base: r=4, base λ0/20 (s): theory=-47.15 dB measured=-47.15 dB thr=INFO -> INFO 
+[1-4c] reflectance vs r_max and base: r=4, base λ0/40 (s): theory=-59.25 dB measured=-59.25 dB thr=INFO -> INFO 
+[1-4c] reflectance vs r_max and base: r=4, base λ0/80 (s): theory=-71.30 dB measured=— thr=INFO -> INFO FDTD not run at base 80 for the scan (theory only)
+[1-1] uniform control grid: literal SF max / E0, n ≤ 251 (s): theory=0 measured=1.12e-23 thr=< 1e-10 -> PASS 
+[1-1] uniform control grid: literal SF max / E0, n ≤ 251 (p): theory=0 measured=9.07e-24 thr=< 1e-10 -> PASS 
+[1-6] far-PML reflection, N_pml=20 (s): theory=legacy uniform -110.5 dB measured=-110.6 dB thr=|Δ| ≤ 3 dB and < −40 dB -> PASS 
+[1-6] far-PML reflection, N_pml=20 (p): theory=legacy uniform -110.5 dB measured=-110.6 dB thr=|Δ| ≤ 3 dB and < −40 dB -> PASS 
+[1-6] far-PML reflection vs N_pml (s): theory=— measured=N=10: -93.4 dB, N=20: -110.6 dB, N=30: -121.1 dB, N=60: -139.2 dB thr=INFO -> INFO 
+[1-7] 20000 steps; after switch-off: monotone decay from peak to < 1e-8 peak, no late growth: theory=decay measured=42 samples monotone to 5.0e-09; 2nd-half max/start 1.000000 thr=monotone & no growth -> PASS 
+
+gate1: 89/89 gates PASS -> PASS
+
+===== gate 2 film / stack: tests/nu_gate2_film.py =====
+[2-1] |R − R_TMM| (F1, s, default grid D6): theory=0.23602548 measured=0.23595142 thr=< 0.001 -> PASS Δ = -7.41e-05
+[2-1] |T − T_TMM| (F1, s, default grid D6): theory=0.76397452 measured=0.76404667 thr=< 0.001 -> PASS Δ = +7.21e-05
+[2-2] |R + T − 1| (F1, s): theory=0 measured=-1.90e-06 thr=< 1e-05 -> PASS R by 2-wave fit, T by substrate flux; S_y spread 8.8e-14
+[2-7] FDTD vs exact discrete R_disc, same grid (F1, s): theory=0.2359535843 measured=0.2359514241 thr=INFO -> INFO rel 9.2e-06; main vs aux_ref 1.2e-14
+[2-1] |R − R_TMM| (F1, p, default grid D6): theory=0.10224275 measured=0.10239699 thr=< 0.001 -> PASS Δ = +1.54e-04
+[2-1] |T − T_TMM| (F1, p, default grid D6): theory=0.89775725 measured=0.89760152 thr=< 0.001 -> PASS Δ = -1.56e-04
+[2-2] |R + T − 1| (F1, p): theory=0 measured=-1.50e-06 thr=< 1e-05 -> PASS R by 2-wave fit, T by substrate flux; S_y spread 9.9e-14
+[2-7] FDTD vs exact discrete R_disc, same grid (F1, p): theory=0.1023986682 measured=0.1023969870 thr=INFO -> INFO rel 1.6e-05; main vs aux_ref 1.3e-14
+[2-1] |R − R_TMM| (F5, s, default grid D6): theory=0.10364215 measured=0.10288858 thr=< 0.001 -> PASS Δ = -7.54e-04
+[2-1] |T − T_TMM| (F5, s, default grid D6): theory=0.89635785 measured=0.89711014 thr=< 0.001 -> PASS Δ = +7.52e-04
+[2-2] |R + T − 1| (F5, s): theory=0 measured=-1.28e-06 thr=< 1e-05 -> PASS R by 2-wave fit, T by substrate flux; S_y spread 1.0e-13
+[2-7] FDTD vs exact discrete R_disc, same grid (F5, s): theory=0.1028893834 measured=0.1028885814 thr=INFO -> INFO rel 7.8e-06; main vs aux_ref 1.2e-14
+[2-1] |R − R_TMM| (F5, p, default grid D6): theory=0.03810250 measured=0.03781652 thr=< 0.001 -> PASS Δ = -2.86e-04
+[2-1] |T − T_TMM| (F5, p, default grid D6): theory=0.96189750 measured=0.96218266 thr=< 0.001 -> PASS Δ = +2.85e-04
+[2-2] |R + T − 1| (F5, p): theory=0 measured=-8.20e-07 thr=< 1e-05 -> PASS R by 2-wave fit, T by substrate flux; S_y spread 1.2e-13
+[2-7] FDTD vs exact discrete R_disc, same grid (F5, p): theory=0.0378171758 measured=0.0378165218 thr=INFO -> INFO rel 1.7e-05; main vs aux_ref 1.3e-14
+[2-3] order of R vs Δy, aligned nonuniform (D10: bis1,2,4; F1, s): theory=2 (pred. 2.025) measured=2.026 thr=∈ [1.8, 2.2] -> PASS R = 0.23496064, 0.23565141, 0.23582097; R_∞(Δx) = 0.23587613
+[2-3] order of R vs Δy, aligned nonuniform (D10: bis1,2,4; F1, p): theory=2 (pred. 2.023) measured=2.024 thr=∈ [1.8, 2.2] -> PASS R = 0.10160845, 0.10218672, 0.10232886; R_∞(Δx) = 0.10237518
+[2-3] order of R vs Δy, aligned nonuniform (D10: bis1,2,4; F5, s): theory=2 (pred. 2.011) measured=2.010 thr=∈ [1.8, 2.2] -> PASS R = 0.10065920, 0.10272687, 0.10324006; R_∞(Δx) = 0.10340948
+[2-3] order of R vs Δy, aligned nonuniform (D10: bis1,2,4; F5, p): theory=2 (pred. 2.006) measured=2.005 thr=∈ [1.8, 2.2] -> PASS R = 0.03642456, 0.03768163, 0.03799482; R_∞(Δx) = 0.03809873
+[2-4] control: unaligned uniform grid, order of R (D11; F1, s): theory=1 (pred. 0.967) measured=0.966 thr=∈ [0.8, 1.2] -> PASS errors -1.99e-02, -9.73e-03, -5.07e-03
+[2-4] control: unaligned uniform grid, order of R (D11; F1, p): theory=1 (pred. 0.962) measured=0.962 thr=∈ [0.8, 1.2] -> PASS errors -1.42e-02, -7.00e-03, -3.65e-03
+[2-5] error budget (F1, s): total = y-discretization + transverse (K~t vs k_t): theory=total -7.41e-05 measured=y +7.53e-05, transverse -1.49e-04 thr=INFO -> INFO x/z λ0/20→λ0/40 at fixed y grid: ΔR = +1.11e-04 (theory +1.11e-04)
+[2-5] error budget (F1, p): total = y-discretization + transverse (K~t vs k_t): theory=total +1.54e-04 measured=y +2.18e-05, transverse +1.32e-04 thr=INFO -> INFO x/z λ0/20→λ0/40 at fixed y grid: ΔR = -9.20e-05 (theory -9.20e-05)
+[2-5] error budget (F5, s): total = y-discretization + transverse (K~t vs k_t): theory=total -7.54e-04 measured=y -5.21e-04, transverse -2.33e-04 thr=INFO -> INFO 
+[2-5] error budget (F5, p): total = y-discretization + transverse (K~t vs k_t): theory=total -2.86e-04 measured=y -2.82e-04, transverse -3.77e-06 thr=INFO -> INFO 
+[2-6] efficiency: same y-discretization error |R−R_∞(Δx)| (s): nonuniform default vs uniform aligned L2_F1_uniform_M24: theory=target 7.53e-05 measured=nonuniform 0.95M cells × 9630 steps, 161 s; uniform 5.20M cells × 31320 steps, 2614 s (err 7.25e-05) thr=INFO -> INFO 
+[2-6] efficiency: same y-discretization error |R−R_∞(Δx)| (p): nonuniform default vs uniform aligned L2_F1_uniform_M40: theory=target 2.18e-05 measured=nonuniform 0.95M cells × 9630 steps, 155 s; uniform 8.59M cells × 52110 steps (exact discrete err 2.12e-05; FDTD not run: ~49x the work) thr=INFO -> INFO 
+
+gate2: 18/18 gates PASS -> PASS
+
+===== gate 3 Meep: tests/nu_gate3_meep.py =====
+[3A-2] Meep Richardson limit vs TMM (F1, s), res [100, 200, 400]: theory=R 0.23602548, T 0.76397452 measured=R 0.23602641, T 0.76397545 thr=< 0.0001 -> PASS ΔR +9.3e-07, ΔT +9.2e-07; observed order 2.00; R(res) = 0.2353690, 0.2358625, 0.2359855
+[3A-3] own limit (D14: y + x/z halved, 2-level) vs Meep limit (F1, s): theory=0.23602641 measured=0.23603025 thr=< 0.0001 -> PASS own R(k=1,2) = 0.23496064, 0.23576285; own limit − TMM +4.8e-06 (pred. +4.6e-06)
+[3A-4] own default grid (D6) vs Meep limit (F1, s): theory=0.23602641 measured=0.23595142 thr=< 0.001 -> PASS 
+[3A-2] Meep Richardson limit vs TMM (F1, p), res [100, 200, 400]: theory=R 0.10224275, T 0.89775725 measured=R 0.10224330, T 0.89775861 thr=< 0.0001 -> PASS ΔR +5.5e-07, ΔT +1.4e-06; observed order 2.00; R(res) = 0.1017189, 0.1021125, 0.1022107
+[3A-3] own limit (D14: y + x/z halved, 2-level) vs Meep limit (F1, p): theory=0.10224330 measured=0.10224659 thr=< 0.0001 -> PASS own R(k=1,2) = 0.10160845, 0.10208705; own limit − TMM +3.8e-06 (pred. +3.7e-06)
+[3A-4] own default grid (D6) vs Meep limit (F1, p): theory=0.10224330 measured=0.10239699 thr=< 0.001 -> PASS 
+[3A-2] Meep Richardson limit vs TMM (F5, s), res [100, 200, 400]: theory=R 0.10364215, T 0.89635785 measured=R 0.10364286, T 0.89635855 thr=< 0.0001 -> PASS ΔR +7.0e-07, ΔT +7.0e-07; observed order 2.00; R(res) = 0.1030647, 0.1034983, 0.1036067
+[3A-3] own limit (D14: y + x/z halved, 2-level) vs Meep limit (F5, s): theory=0.10364286 measured=0.10364754 thr=< 0.0001 -> PASS own R(k=1,2) = 0.10065920, 0.10290045; own limit − TMM +5.4e-06 (pred. +5.7e-06)
+[3A-4] own default grid (D6) vs Meep limit (F5, s): theory=0.10364286 measured=0.10288858 thr=< 0.001 -> PASS 
+[3A-2] Meep Richardson limit vs TMM (F5, p), res [100, 200, 400]: theory=R 0.03810250, T 0.96189750 measured=R 0.03810293, T 0.96189851 thr=< 0.0001 -> PASS ΔR +4.3e-07, ΔT +1.0e-06; observed order 2.00; R(res) = 0.0377522, 0.0380151, 0.0380810
+[3A-3] own limit (D14: y + x/z halved, 2-level) vs Meep limit (F5, p): theory=0.03810293 measured=0.03810455 thr=< 0.0001 -> PASS own R(k=1,2) = 0.03642456, 0.03768455; own limit − TMM +2.0e-06 (pred. +2.2e-06)
+[3A-4] own default grid (D6) vs Meep limit (F5, p): theory=0.03810293 measured=0.03781652 thr=< 0.001 -> PASS 
+[3A-1] Meep thin Bloch cell vs full Lx×Lz cell, res 40 (F1, s): theory=R 0.2325339081 measured=R 0.2325339081 thr=< 1e-06 -> PASS D13 (resolution 40)
+[3B-1] tangential DFT profiles, own vs Meep (transformation optics, continuous metric; vac, s): theory=0 measured=rel L2 5.45e-04 thr=< 0.001 -> PASS Meep Courant 0.2041 (= Δt_own/Δu); position probe OK; conj False
+[3B-4] both runs finite (vac, s): theory=finite measured=own exit 0, Meep finite=True thr=finite -> PASS 
+[3B-3] discrete-metric variant (s = d/Δu at nodes, h/Δu at half nodes; vac, s): theory=— measured=rel L2 2.39e-04 (continuous metric 5.45e-04) thr=INFO -> INFO 
+[3B-1] tangential DFT profiles, own vs Meep (transformation optics, continuous metric; vac, p): theory=0 measured=rel L2 6.48e-04 thr=< 0.001 -> PASS Meep Courant 0.2041 (= Δt_own/Δu); position probe OK; conj False
+[3B-4] both runs finite (vac, p): theory=finite measured=own exit 0, Meep finite=True thr=finite -> PASS 
+[3B-3] discrete-metric variant (s = d/Δu at nodes, h/Δu at half nodes; vac, p): theory=— measured=rel L2 4.30e-04 (continuous metric 6.48e-04) thr=INFO -> INFO 
+[3B-3] metric sampling difference (vac): theory=O(Δu²) measured=max|s(u_j) − d_j/Δu| = 7.63e-04, max|s(u_j+½) − h_j/Δu| = 1.92e-04 thr=INFO -> INFO our dual nodes are primal midpoints, Meep's are f(u_{j+1/2}); d_j and h_j are cell averages of s
+[3B-2] tangential DFT profiles, own vs Meep (transformation optics, continuous metric; film, s): theory=0 measured=rel L2 8.64e-04 thr=< 0.001 -> PASS Meep Courant 0.2041 (= Δt_own/Δu); position probe OK; conj False
+[3B-4] both runs finite (film, s): theory=finite measured=own exit 0, Meep finite=True thr=finite -> PASS 
+[3B-3] discrete-metric variant (s = d/Δu at nodes, h/Δu at half nodes; film, s): theory=— measured=rel L2 2.46e-04 (continuous metric 8.64e-04) thr=INFO -> INFO 
+[3B-2] tangential DFT profiles, own vs Meep (transformation optics, continuous metric; film, p): theory=0 measured=rel L2 9.29e-04 thr=< 0.001 -> PASS Meep Courant 0.2041 (= Δt_own/Δu); position probe OK; conj False
+[3B-4] both runs finite (film, p): theory=finite measured=own exit 0, Meep finite=True thr=finite -> PASS 
+[3B-3] discrete-metric variant (s = d/Δu at nodes, h/Δu at half nodes; film, p): theory=— measured=rel L2 4.24e-04 (continuous metric 9.29e-04) thr=INFO -> INFO 
+[3B-3] metric sampling difference (film): theory=O(Δu²) measured=max|s(u_j) − d_j/Δu| = 7.63e-04, max|s(u_j+½) − h_j/Δu| = 1.92e-04 thr=INFO -> INFO our dual nodes are primal midpoints, Meep's are f(u_{j+1/2}); d_j and h_j are cell averages of s
+
+gate3: 21/21 gates PASS -> PASS
+
+===== stage B gate 0: tests/nuB_gate0.py =====
+[B0-1] x nonuniform + inc=a is refused: theory=exit 2 + message measured=exit 2: ERROR: phasor aux line requires uniform x and z (x nonuniform=1, z nonuniform=0); use inc= thr=exact -> PASS 
+[B0-1] x nonuniform + inc=p + auxref=1 is refused: theory=exit 2 + message measured=exit 2: ERROR: phasor aux line requires uniform x and z (x nonuniform=1, z nonuniform=0); use inc= thr=exact -> PASS 
+[B0-2 (0-2)] adjointness, x and z graded, seed 1: theory=0 measured=7.41e-19 thr=< 1e-13 -> PASS 
+[B0-2 (0-2)] adjointness, x and z graded, seed 2: theory=0 measured=5.93e-19 thr=< 1e-13 -> PASS 
+[B0-2 (0-2)] C kernel vs Python operator, x and z graded: theory=0 measured=H 3.3e-16, E 2.8e-16 thr=< 1e-13 -> PASS 
+[B0-2 (0-3)] energy drift over 1e+05 steps, x and z graded: theory=0 measured=2.89e-15 thr=< 1e-10 -> PASS 
+[B0-2 (0-4)] Courant formula Δt ≤ Δt_max (power iteration), x and z graded: theory=0.01090368546 measured=0.01091781749 (1810 it) thr=Δt_C ≤ Δt_max -> PASS 
+[B0-2 (0-4)] 0.99 Δt_max stable / 1.02 Δt_max diverges (20000 steps): theory=stable / diverges measured=exit 0 / exit 2 thr=0 / non-finite -> PASS 
+[B0-2 (0-5)] divergence in the TF interior, x graded, inc=p: theory=0 measured=E 0.0e+00, H 4.1e-14 thr=< 1e-10 -> PASS control (uniform operator): 0.0e+00
+
+B_gate0: 9/9 gates PASS -> PASS
+
+===== stage B B1/B2: tests/nuB_gate1.py =====
+1 {'leak': 8.018989052145245e-05, 'L_i': 7.961890199273618e-05, 'R_ic': 0.20920405938040165, 'R_i': 0.20918974991055803, 'T_i': 0.790794982161893, 'R_ii': 0.2092040560679185, 'T_ii': 0.7907952254589637, 'planar': 0.003031373881257272, 'floquet': 1.9934661278071084e-07, 'grid': 'Δy_min=λ0/50, Δy_max=λ0/50, r_max=1.0000, Δx=λ0/29, Δt=0.0121951 T0'}
+2 {'leak': 2.0563869639079772e-05, 'L_i': 2.04845216674607e-05, 'R_ic': 0.2112174705163216, 'R_i': 0.21121192645595355, 'T_i': 0.788782397533533, 'R_ii': 0.2112174583341498, 'T_ii': 0.788782413622006, 'planar': 0.0008029231477569714, 'floquet': 8.810075104959176e-09, 'grid': 'Δy_min=λ0/100, Δy_max=λ0/100, r_max=1.0000, Δx=λ0/58, Δt=0.00613497 T0'}
+4 {'leak': 5.25545874564283e-06, 'L_i': 5.24524557346574e-06, 'R_ic': 0.21171698848402778, 'R_i': 0.21171534099883754, 'T_i': 0.788282993296861, 'R_ii': 0.21171698719456009, 'T_ii': 0.7882829942615251, 'planar': 0.00020044761450785863, 'floquet': 4.708717534950048e-10, 'grid': 'Δy_min=λ0/200, Δy_max=λ0/200, r_max=1.0000, Δx=λ0/115, Δt=0.00307692 T0'}
+[B1-1] order of the analytic-injection leakage |L_SF − echo|/|a| (i): theory=2 measured=1.966 (values 8.02e-05, 2.06e-05, 5.26e-06) thr=∈ [1.8, 2.2] -> PASS 
+[B1-2] |R_(i) − R_(ii)| at k=1 vs the leakage bound 2|r||L_(i)| + |L_(i)|² (D20): theory=≤ 7.28e-05 measured=1.43e-05 thr=≤ bound -> PASS |L_(i)| = 7.96e-05
+[B1-2] |R_(i) − R_(ii)| at k=2 vs the leakage bound 2|r||L_(i)| + |L_(i)|² (D20): theory=≤ 1.88e-05 measured=5.53e-06 thr=≤ bound -> PASS |L_(i)| = 2.05e-05
+[B1-2] |R_(i) − R_(ii)| at k=4 vs the leakage bound 2|r||L_(i)| + |L_(i)|² (D20): theory=≤ 4.83e-06 measured=1.65e-06 thr=≤ bound -> PASS |L_(i)| = 5.25e-06
+[B1-2] order of |T_(i) − T_(ii)| (D20: lower bound only): theory=≥ 2 measured=3.989 (values 2.43e-07, 1.61e-08, 9.65e-10) thr=≥ 1.8 -> PASS 
+[B1-2] |R_(i) − R_(ii)| with (i)'s own SF leakage subtracted: theory=→ 0 measured=k=1: 3.3e-09, k=2: 1.2e-08, k=4: 1.3e-09 thr=INFO -> INFO raw: 1.43e-05, 5.53e-06, 1.65e-06
+[B1-3] modal injection (iii) inc=m: max over modes |L_SF − b_TF|/|a| at k=1 (D22): theory=0 measured=1.98e-13 thr=< 1e-10 -> PASS modes κx = 3.139659, 3.138998; far-PML echo 8.3e-07 (crosses the TF/SF plane unchanged)
+[B1-3] modal injection (iii) inc=m: max over modes |L_SF − b_TF|/|a| at k=2 (D22): theory=0 measured=2.55e-15 thr=< 1e-10 -> PASS modes κx = 3.141055, 3.140968; far-PML echo 1.0e-07 (crosses the TF/SF plane unchanged)
+[B1-3] modal injection (iii) inc=m: max over modes |L_SF − b_TF|/|a| at k=4 (D22): theory=0 measured=6.24e-16 thr=< 1e-10 -> PASS modes κx = 3.141450, 3.141439; far-PML echo 1.3e-08 (crosses the TF/SF plane unchanged)
+[B1-3] inc=m vs inc=a on an x/z-uniform grid (P_uniform_nl10, p-pol), max |ΔF|/max|F| (D22): theory=0 measured=6.8e-16 thr=INFO -> INFO 
+[B2-1] order of the x–z phase residual (max over TF planes, vacuum, inc=p): theory=2 measured=1.959 (values 3.03e-03, 8.03e-04, 2.00e-04) thr=∈ [1.8, 2.2] -> PASS 
+[B2-2] power fraction in non-specular propagating orders (vacuum, TF plane): theory=→ 0 measured=k=1: 1.99e-07, k=2: 8.81e-09, k=4: 4.71e-10 thr=INFO -> INFO order 4.36
+[B1-2] R, T at k=1 (s): (i) / (ii) vs TMM: theory=R 0.211883, T 0.788117 measured=(i) R 0.209190 T 0.790795; (ii) R 0.209204 T 0.790795 thr=INFO -> INFO R+T−1: (i) -1.5e-05, (ii) -7.2e-07
+[B1-2] R, T at k=2 (s): (i) / (ii) vs TMM: theory=R 0.211883, T 0.788117 measured=(i) R 0.211212 T 0.788782; (ii) R 0.211217 T 0.788782 thr=INFO -> INFO R+T−1: (i) -5.7e-06, (ii) -1.3e-07
+[B1-2] R, T at k=4 (s): (i) / (ii) vs TMM: theory=R 0.211883, T 0.788117 measured=(i) R 0.211715 T 0.788283; (ii) R 0.211717 T 0.788283 thr=INFO -> INFO R+T−1: (i) -1.7e-06, (ii) -1.9e-08
+
+B_gate1: 9/9 gates PASS -> PASS
+
+===== stage B B3 grating: tests/nuB_gate3_grating.py =====
+[B3-1] per-order efficiency |η_FDTD − η_RCWA|, max over propagating orders (s, injection (iii) inc=m, D22): theory=0 measured=9.40e-04 thr=< 0.001 -> PASS R_p: -2: 0.01595/0.01591, -1: 0.03302/0.03318, 0: 0.04119/0.04068; T_p: -3: 0.01337/0.01328, -2: 0.04684/0.04658, -1: 0.28185/0.28151, 0: 0.40343/0.40437, 1: 0.16437/0.16450
+[B3-2] (S_T − S_R)/S_inc − 1, discrete conserved real-space flux (s, (iii) inc=m) (D21, D22): theory=0 measured=+8.50e-07 thr=|·| < 1e-05 -> PASS 
+[B3-2] Σ R_p + Σ T_p − 1 from the Floquet partition (s, (iii)): theory=0 measured=+1.73e-05 thr=INFO -> INFO partition − conserved flux +1.6e-05; Gram max off-diagonal 5.3e-04
+[B3-1] injection (i) analytic plane wave inc=p, 450/150 (s): theory=RCWA measured=max |Δη| 9.64e-04; conserved-flux Σ−1 -1.23e-05 (partition +4.1e-06); max |η − η_(iii)| 2.38e-05 thr=INFO -> INFO 
+[B3-1] injection (ii) current sheet + normalization, 90/30 (s): theory=RCWA measured=max |Δη| 1.38e-03; conserved-flux Σ−1 -9.68e-04 (partition -9.8e-04); max |η − η_(iii)| 4.39e-04 thr=INFO -> INFO 
+[B3-1] per-order efficiency |η_FDTD − η_RCWA|, max over propagating orders (p, injection (iii) inc=m, D22): theory=0 measured=8.91e-04 thr=< 0.001 -> PASS R_p: -2: 0.00424/0.00425, -1: 0.01854/0.01851, 0: 0.00538/0.00532; T_p: -3: 0.01062/0.01048, -2: 0.03074/0.03056, -1: 0.27435/0.27376, 0: 0.44376/0.44465, 1: 0.21234/0.21248
+[B3-2] (S_T − S_R)/S_inc − 1, discrete conserved real-space flux (p, (iii) inc=m) (D21, D22): theory=0 measured=+6.37e-07 thr=|·| < 1e-05 -> PASS 
+[B3-2] Σ R_p + Σ T_p − 1 from the Floquet partition (p, (iii)): theory=0 measured=-2.31e-05 thr=INFO -> INFO partition − conserved flux -2.4e-05; Gram max off-diagonal 5.3e-04
+[B3-1] injection (i) analytic plane wave inc=p, 450/150 (p): theory=RCWA measured=max |Δη| 8.85e-04; conserved-flux Σ−1 -2.25e-06 (partition -2.6e-05); max |η − η_(iii)| 8.49e-06 thr=INFO -> INFO 
+[B3-1] injection (ii) current sheet + normalization, 90/30 (p): theory=RCWA measured=max |Δη| 1.07e-03; conserved-flux Σ−1 -2.79e-04 (partition -3.1e-04); max |η − η_(iii)| 1.79e-04 thr=INFO -> INFO 
+[B3-3] RCWA order convergence 161 → 321 orders (s) (D15): theory=< 1e-5 measured=2.47e-06 thr=< 1e-5 -> PASS 
+[B3-3] RCWA order convergence 161 → 321 orders (p) (D15): theory=< 1e-5 measured=2.68e-06 thr=< 1e-5 -> PASS 
+
+B_gate3: 6/6 gates PASS -> PASS
+
+===== nonuniform regression summary =====
+frozen hashes                            PASS            0 s
+legacy regression (D7)                   PASS         3082 s
+lint: coordinates from grid files        PASS            0 s
+unit tests: grid generator               PASS            1 s
+theory preflight (--check)               PASS           74 s
+gate 0-1 regression parity               PASS          479 s
+gate 0-2 adjointness                     PASS            1 s
+gate 0-3/0-4 energy, stability           PASS           33 s
+gate 1 vacuum (+ 0-5)                    PASS         9678 s
+gate 2 film / stack                      PASS        13268 s
+gate 3 Meep                              PASS         3680 s
+stage B gate 0                           PASS          461 s
+stage B B1/B2                            PASS         5738 s
+stage B B3 grating                       PASS        24402 s
+REGRESSION: PASS
+exit=0

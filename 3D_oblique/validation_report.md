@@ -1,6 +1,6 @@
 # 驗證報告：3D 斜入射 FDTD（均勻網格 Part I ＋ 非均勻網格 Part II）
 
-**Part II（非均勻網格）總結論：FAIL**　階段 A：PASS；階段 B：NOT PASS
+**Part II（非均勻網格）總結論：PASS**　階段 A：PASS；階段 B：PASS
 
 | 關卡 | 結果 |
 |---|---|
@@ -13,13 +13,10 @@
 | 第 3 關：與 Meep 比對 | PASS |
 | 階段 B：中止偵測與第 0 關 | PASS |
 | 階段 B：注入誤差、波前與 Floquet 純度 | PASS |
-| 階段 B：光柵 vs RCWA | FAIL |
+| 階段 B：光柵 vs RCWA | PASS |
 
 ## 未通過紀錄
 
-| 項目 | 量 | 理論值 | 量測值 | 門檻 | 判定 | 網格 | 備註 |
-|---|---|---|---|---|---|---|---|
-| B3-2 | (S_T − S_R)/S_inc − 1, discrete conserved real-space flux (s, (i)) (D21) | 0 | -1.17e-05 | \|·\| < 1e-05 | **FAIL** | B_grating_ppw40 |  |
 
 | 關卡 | 現象 | 假設 | 最小實驗 | 修正 | 結果 |
 |---|---|---|---|---|---|
@@ -30,9 +27,9 @@
 | B1-2 | order of \|R_(i) − R_(ii)\| = 1.56 (1.43e-5, 5.53e-6, 1.65e-6) and of \|T_(i) − T_(ii)\| = 3.99 (2.4e-7, 1.6e-8, 9.6e-10); window [1.8, 2.2] | R_(i) is measured in the SF region, where the O(Δ²) injection leakage of (i) (B1-1) adds coherently to the film reflection with a phase that drifts with refinement; T cancels to higher order because both methods normalize by their own vacuum run | subtract (i)'s own leakage (SF backward amplitude of its vacuum run): R_(i) − R_(ii) becomes 3e-9, 1.3e-8, 1e-9 (k = 1, 2, 4); R+T−1 of (i) goes from −1.5e-5/−5.7e-6/−1.7e-6 to −9.6e-7/−1.3e-7/−1.8e-8; the raw difference is bounded by 2\|r\|\|L\| = 7.3e-5, 1.9e-5, 4.8e-6 with \|L\| ∝ Δ^1.97 (B1-1) | none applied: the frozen order criterion is a test-design issue (the difference is not a smooth O(Δ²) quantity), not a code defect; changing it needs a user decision | resolved by user decision D20 (2026-09-26): \|R_i − R_ii\| within 2\|r\|\|L_i\| + \|L_i\|² at every level (1.43e-5 ≤ 7.28e-5, 5.53e-6 ≤ 1.88e-5, 1.65e-6 ≤ 4.83e-6), T order 3.99 ≥ 1.8; B_gate1 6/6 PASS |
 | B3 | grating, s: max \|Δη\| 1.39e-3 (T0), Σ R_p + Σ T_p − 1 = −7.3e-4 (i) / −9.8e-4 (ii); the two injections agree with each other to 2.7e-4 | not steady state: the flux imbalance between the R and T planes is impossible in a discrete steady state; a slowly ringing guided-mode resonance leaks into the 30-period DFT window | direct real-space flux gives the same deficit (not a Floquet-quadrature effect); RCWA frequency sweep: resonance near f = 1.039; (ii) with 180 periods / last 30: Σ−1 −3.2e-4, T0 −9.7e-4 (from −9.8e-4 / −1.38e-3) | D19: judged runs 450 periods with a 150-period DFT window; thresholds unchanged | D19 rerun: B3-1 PASS for s (9.64e-4) and p (8.84e-4); B3-2 PASS for s (+4.8e-6), FAIL for p (-2.54e-5). The D19 deficit (-1e-3) is gone; the p residual is the B3-2 (p) entry below |
 | B3-2 (p) | after D19: Σ R_p + Σ T_p − 1 = −2.54e-5 (p), threshold 1e-5; s = +4.8e-6 | measurement resolution, not energy loss: on the nonuniform x nodes the Floquet orders are not orthogonal under the quadrature weights, so the per-order flux partition carries cross-order terms of ~1e-5 | Gram matrix of exp(i k_p x) with the dx/hx weights: off-diagonal up to 5.3e-4 (primal) / 2.7e-4 (dual), exactly 0 on a uniform grid. T plane, direct conserved flux − Σ propagating-order fluxes: −1.45e-5 (s), +2.49e-5 (p); R plane −1.9e-6 / −1.1e-6. Direct conserved-flux balance: p −1.6e-6, s −1.17e-5. 81-order least-squares partition: s −1.6e-5, p +3.3e-5. Method spread 3–6e-5 > threshold | none adopted: changing the judged measurement after the result would be choosing the measurement, and neither alternative passes both polarizations (direct flux: s −1.17e-5). Needs a user decision (proposal: judge B3-2 on the discrete conserved real-space flux, and make the order partition an INFO row with its Gram bound) | resolved by user decision D21 (2026-09-26): judged on the conserved flux, p = −1.57e-6 PASS; under D21 s = −1.17e-5 FAIL, see the B3-2 (s) entry |
-| B3-2 (s) | under D21 (conserved real-space flux): (S_T − S_R)/S_inc − 1 = −1.17e-5 (s), threshold 1e-5; p −1.57e-6 | H1: residual ring-down of the guided-mode resonance in the 150-period window; H2: the O(Δ²) leakage of the analytic injection (i) on the nonuniform x grid interferes with the order-0 reflection (source work on the scattered field), bounded by 2\|r0\|\|L_inj\| | vacuum run, TF two-wave fit: the SF backward order-0 amplitude 8.1e-4 is almost all echo from the graded y cells (8.4e-4 in the TF region, energy-neutral); injection leakage \|L_SF − echo\|/\|a\| = 2.5e-5 (s), 2.6e-5 (p) → 2\|r0\|\|L\| = 1.0e-5 (s, \|r0\| = 0.203), 3.8e-6 (p, \|r0\| = 0.073), the same size as the deficits. (ii) current sheet at 450/150: −3.13e-4, explained by the normalization subtraction: the vacuum grid echo (8.4e-4) leaves a cross term 2\|r0\|\|echo\| = 3.4e-4; (ii) therefore cannot separate H1/H2. Decisive run: (i) s at 900 periods, DFT over the last 300 (diagnostic, grants no release); result: (i) s 450/150 −1.166e-5, 900/300 −1.157e-5 — time-converged to < 1%, H1 (ringing) rejected; the deficit is a steady-state property of injection (i) on the default grid, consistent with H2 (2\|r0\|\|L_inj\| = 1.0e-5) | none available within the rules: the default grid is fixed (§20.5), the threshold is frozen, and (i) is the judged injection. Needs a user decision (options: accept; judge \|Σ − 1\| ≤ 1e-5 + 2\|r0\|\|L_inj\| + \|L_inj\|² in the spirit of D20; or refine the grid) | B3-2 (s) remains FAIL (−1.17e-5 vs 1e-5), explained; stage B gate 3 NOT PASS |
+| B3-2 (s) | under D21 (conserved real-space flux): (S_T − S_R)/S_inc − 1 = −1.17e-5 (s), threshold 1e-5; p −1.57e-6 | H1: residual ring-down of the guided-mode resonance in the 150-period window; H2: the O(Δ²) leakage of the analytic injection (i) on the nonuniform x grid interferes with the order-0 reflection (source work on the scattered field), bounded by 2\|r0\|\|L_inj\| | vacuum run, TF two-wave fit: the SF backward order-0 amplitude 8.1e-4 is almost all echo from the graded y cells (8.4e-4 in the TF region, energy-neutral); injection leakage \|L_SF − echo\|/\|a\| = 2.5e-5 (s), 2.6e-5 (p) → 2\|r0\|\|L\| = 1.0e-5 (s, \|r0\| = 0.203), 3.8e-6 (p, \|r0\| = 0.073), the same size as the deficits. (ii) current sheet at 450/150: −3.13e-4, explained by the normalization subtraction: the vacuum grid echo (8.4e-4) leaves a cross term 2\|r0\|\|echo\| = 3.4e-4; (ii) therefore cannot separate H1/H2. Decisive run: (i) s at 900 periods, DFT over the last 300 (diagnostic, grants no release); result: (i) s 450/150 −1.166e-5, 900/300 −1.157e-5 — time-converged to < 1%, H1 (ringing) rejected; the deficit is a steady-state property of injection (i) on the default grid, consistent with H2 (2\|r0\|\|L_inj\| = 1.0e-5) | user decision D22 (2026-10-01): implement injection (iii) inc=m (exact transverse discrete modes, one aux line per mode) and judge B3 with it; thresholds unchanged. Implementation note: the modal aux lines follow the main grid only up to j0 (a full copy carries the grid's own y-grading echo in the 'incident' and biases R in the SF region by ~2\|r\|\|echo\|; flat-interface test R+T−1 +5.6e-4 -> +2.9e-7) | full regression on the final binary: B3-2 (iii) s +8.50e-7, p +6.37e-7 PASS; B3-1 (iii) s 9.40e-4, p 8.91e-4 PASS; (i) inc=p as INFO: s −1.23e-5, p −2.25e-6; B1-3 leakage 2.0e-13 / 2.6e-15 / 6.2e-16. REGRESSION: PASS |
 
-## 規格變更紀錄（使用者決策 D1–D8，實作期間修正 D9–D19，使用者決策 D20–D21）
+## 規格變更紀錄（使用者決策 D1–D8，實作期間修正 D9–D19，使用者決策 D20–D22）
 
 | 編號 | 日期 | 內容 | 依據 | 狀態 |
 |---|---|---|---|---|
@@ -48,6 +45,8 @@
 | D19 | 2026-09-26 | B3 判定用的光柵執行（注入 (i)）延長為 450 週期，DFT 取最後 150 週期（真空正規化仍 90／30；(ii) 以 90／30 列 INFO），門檻不變 | 失敗流程：90／30 時兩種注入的 Σ−1 都約 −1e-3、T0 差 −1.4e-3；RCWA 顯示 f ≈ 1.039 有導模共振，慢衰減的振鈴洩漏進 30 週期的 DFT 窗；180／30 已降到 −3.2e-4 | 已採用（失敗流程） |
 | D20 | 2026-09-26 | B1-2 判準改為：每個細化層 \|R_(i) − R_(ii)\| ≤ 2\|r\|\|L_(i)\| + \|L_(i)\|²；\|T_(i) − T_(ii)\| 收斂階數 ≥ 1.8（只保留下界）；扣除洩漏後的一致性列 INFO | 失敗流程（results/nu_failures.json）：R_(i) 在 SF 區量測，(i) 的 O(Δ²) 注入洩漏與薄膜反射同調相加，相位隨細化漂移，差值不是平滑的 O(Δ²) 量（階數 1.56）；扣除洩漏後兩法一致到 ≤ 1.3e-8。T 差值以 4 階收斂（3.99），只違反視窗上界。R 部分為使用者核可的提議；T 的下界解讀由 Claude 提出，待使用者確認 | 使用者決策（2026-09-26） |
 | D21 | 2026-09-26 | B3-2 改以離散守恆實空間通量判定（門檻 1e-5 不變）；各階通量加總與 Gram 非正交量列 INFO | 失敗流程：非均勻 x 節點上 Floquet 各階在求積權重下不正交（Gram 非對角最大 5.3e-4），各階通量加總與守恆通量相差 1–3e-5（T 平面：s −1.45e-5、p +2.49e-5），量測解析度低於門檻 | 使用者決策（2026-09-26） |
+| D22 | 2026-10-01 | 實作注入 (iii) `inc=m`（橫向離散模態注入：每個非均勻週期軸解 D_d D_p φ = −κ²φ，m ≠ 0 的 ±m 對分裂成兩個實模態；每個乘積模態一條 1D aux line，用自己的 (κx, K̃y, κz)；x 方向主節點用 φ、對偶節點用 ψ = D_p φ/(iκ)；權重為 e^{i(kx x + kz z)} 在模態上的投影）。B1-3 由選做改為判定（門檻 < 1e-10 不變，量測定義見 B1-3 列）。B3-1、B3-2 改以 (iii) 判定（光柵 450／150 週期、真空正規化 90／30 也用 inc=m），(i) inc=p、(ii) inc=j 列 INFO；另列 INFO：均勻網格上 inc=m 與 inc=a 的場差 | 失敗流程 B3-2 (s)：根因是 (i) 解析注入的 O(Δ²) 洩漏與 0 階反射的交叉項（2\|r0\|\|L\| = 1.0e-5；900 週期仍 −1.157e-5）。B3 x 網格上 e^{ikx x} 在 m = ±1 兩個離散模態占 99.999997%，兩者 κ 分裂 2.5e-4/λ0，解析平面波不是離散解；(iii) 注入精確離散解。於任何 inc=m 執行前決定，門檻不變 | 使用者決策（2026-10-01） |
+| 實作註（D22） | 2026-10-02 | `inc=m` 的 aux line 只在 j ≤ j0 使用主網格 y 節點，j0 之後以 j0 的間距均勻延伸（j0 ± 5 依網格規則為均勻）；TF/SF 注入的正規化改為真空執行的 TF 面通量減 SF 面通量（注入功率） | 實作測試（任何判定執行前）：aux 若複製整個主網格，主網格自身 y 漸變的回波（B3 真空網格 ppw 20 為 2.0e-3）會被算進「入射場」，在 SF 區被扣掉，使 SF 面量到的 R = \|r − e\|²：平坦介面（x 非均勻）R+T−1 = +5.6e-4。改後入射為純前行離散波，R = 0.0605470 對精確離散解 0.0605466，R+T−1 = +2.9e-7（s）、+1.4e-7（p）；B1-3 洩漏不受影響 | 已採用 |
 | D12（實作註） | 2026-09-25 | 所有非均勻執行使用 Δt = T0/⌈T0/Δt_C⌉（每週期整數步，≤ §7.5 的 Courant 公式值，S_eff ≤ 0.5），與舊碼每週期 40 步的作法相同；理論值以此 Δt 重算（`v2/` 前綴），在任何量測前凍結。另加 `proj=1`：每一 y 列對橫向 Floquet 相位投影後的 DFT | 非整數週期的 DFT 窗會讓實數場的負頻映像以約 3e-3 洩漏進相量，遠大於 1-2（1e-8 rad）與 1-3a（1e-6）的門檻 | 已採用 |
 | 實作註 | 2026-09-26 | 0-5 的「錯誤均勻算子」對照改為依偏振取法向分量不為 0 的場（s：div H；p：div E），並兩種偏振都判定；主判準（兩種算子外的正確算子 < 1e-10）不變 | s 偏振 Ey ≡ 0，div E 對 y 度規完全不敏感（實測兩種算子同為 6.6e-14），不能用來證明敏感度 | 已採用 |
 | 實作註 | 2026-09-26 | 2-6（INFO）的「相同誤差」改以 y 離散誤差 \|R − R_∞(Δx)\| 比較（兩種網格共用 x/z = λ0/20，橫向誤差相同） | F1 預設網格的總誤差 7.4e-5 來自 y 誤差（+7.5e-5）與橫向誤差（−1.5e-4）相消；任何均勻網格的橫向誤差底限都高於此值，比較失去意義 | 已採用 |
@@ -61,14 +60,14 @@
 
 | 項目 | 值 |
 |---|---|
-| 平台 | Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.39 |
+| 平台 | Linux-6.18.40.1-microsoft-standard-WSL2-x86_64-with-glibc2.39 |
 | C 編譯器 | gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0 |
 | 編譯選項 | `-O3 -march=native -std=c99 -fopenmp` |
 | Python | 3.12.3 (numpy, matplotlib) |
 
 ## 第 0 關 0-1：回歸 parity 與舊驗證
 
-結果：**PASS**（2026-09-26T19:01:53Z）
+結果：**PASS**（2026-10-01T18:10:53Z）
 
 | 項目 | 量 | 理論值 | 量測值 | 門檻 | 判定 | 網格 | 備註 |
 |---|---|---|---|---|---|---|---|
@@ -80,7 +79,7 @@
 
 ## 第 0 關 0-2：伴隨性
 
-結果：**PASS**（2026-09-26T19:01:54Z）
+結果：**PASS**（2026-10-01T18:10:54Z）
 
 | 項目 | 量 | 理論值 | 量測值 | 門檻 | 判定 | 網格 | 備註 |
 |---|---|---|---|---|---|---|---|
@@ -101,7 +100,7 @@
 
 ## 第 0 關 0-3、0-4：能量守恆與穩定邊界
 
-結果：**PASS**（2026-09-26T19:02:03Z）
+結果：**PASS**（2026-10-01T18:11:27Z）
 
 | 項目 | 量 | 理論值 | 量測值 | 門檻 | 判定 | 網格 | 備註 |
 |---|---|---|---|---|---|---|---|
@@ -122,7 +121,7 @@
 
 ## 第 0 關 0-5：散度
 
-結果：**PASS**（2026-09-26T19:02:05Z）
+結果：**PASS**（2026-10-01T18:20:01Z）
 
 | 項目 | 量 | 理論值 | 量測值 | 門檻 | 判定 | 網格 | 備註 |
 |---|---|---|---|---|---|---|---|
@@ -133,7 +132,7 @@
 
 ## 第 1 關（階段 A）：真空自我驗證
 
-結果：**PASS**（2026-09-26T19:02:11Z）
+結果：**PASS**（2026-10-01T20:52:45Z）
 
 | 項目 | 量 | 理論值 | 量測值 | 門檻 | 判定 | 網格 | 備註 |
 |---|---|---|---|---|---|---|---|
@@ -279,7 +278,7 @@
 
 ## 第 2 關（階段 A）：薄膜與 5 層堆疊 vs TMM
 
-結果：**PASS**（2026-09-26T19:02:23Z）
+結果：**PASS**（2026-10-02T00:33:53Z）
 
 | 項目 | 量 | 理論值 | 量測值 | 門檻 | 判定 | 網格 | 備註 |
 |---|---|---|---|---|---|---|---|
@@ -309,12 +308,12 @@
 | 2-5 | error budget (F1, p): total = y-discretization + transverse (K~t vs k_t) | total +1.54e-04 | y +2.18e-05, transverse +1.32e-04 | INFO | INFO | default grid / D10 limit | x/z λ0/20→λ0/40 at fixed y grid: ΔR = -9.20e-05 (theory -9.20e-05) |
 | 2-5 | error budget (F5, s): total = y-discretization + transverse (K~t vs k_t) | total -7.54e-04 | y -5.21e-04, transverse -2.33e-04 | INFO | INFO | default grid / D10 limit |  |
 | 2-5 | error budget (F5, p): total = y-discretization + transverse (K~t vs k_t) | total -2.86e-04 | y -2.82e-04, transverse -3.77e-06 | INFO | INFO | default grid / D10 limit |  |
-| 2-6 | efficiency: same y-discretization error \|R−R_∞(Δx)\| (s): nonuniform default vs uniform aligned L2_F1_uniform_M24 | target 7.53e-05 | nonuniform 0.95M cells × 9630 steps, 346 s; uniform 5.20M cells × 31320 steps, 2524 s (err 7.25e-05) | INFO | INFO | F1 |  |
-| 2-6 | efficiency: same y-discretization error \|R−R_∞(Δx)\| (p): nonuniform default vs uniform aligned L2_F1_uniform_M40 | target 2.18e-05 | nonuniform 0.95M cells × 9630 steps, 340 s; uniform 8.59M cells × 52110 steps (exact discrete err 2.12e-05; FDTD not run: ~49x the work) | INFO | INFO | F1 |  |
+| 2-6 | efficiency: same y-discretization error \|R−R_∞(Δx)\| (s): nonuniform default vs uniform aligned L2_F1_uniform_M24 | target 7.53e-05 | nonuniform 0.95M cells × 9630 steps, 161 s; uniform 5.20M cells × 31320 steps, 2614 s (err 7.25e-05) | INFO | INFO | F1 |  |
+| 2-6 | efficiency: same y-discretization error \|R−R_∞(Δx)\| (p): nonuniform default vs uniform aligned L2_F1_uniform_M40 | target 2.18e-05 | nonuniform 0.95M cells × 9630 steps, 155 s; uniform 8.59M cells × 52110 steps (exact discrete err 2.12e-05; FDTD not run: ~49x the work) | INFO | INFO | F1 |  |
 
 ## 第 3 關：與 Meep 比對
 
-結果：**PASS**（2026-09-26T19:02:28Z）
+結果：**PASS**（2026-10-02T01:35:13Z）
 
 | 項目 | 量 | 理論值 | 量測值 | 門檻 | 判定 | 網格 | 備註 |
 |---|---|---|---|---|---|---|---|
@@ -348,7 +347,7 @@
 
 ## 階段 B：中止偵測與第 0 關
 
-結果：**PASS**（2026-09-26T19:03:42Z）
+結果：**PASS**（2026-10-02T01:42:54Z）
 
 | 項目 | 量 | 理論值 | 量測值 | 門檻 | 判定 | 網格 | 備註 |
 |---|---|---|---|---|---|---|---|
@@ -357,14 +356,14 @@
 | B0-2 (0-2) | adjointness, x and z graded, seed 1 | 0 | 7.41e-19 | < 1e-13 | **PASS** | B_ops_xz_graded_pec |  |
 | B0-2 (0-2) | adjointness, x and z graded, seed 2 | 0 | 5.93e-19 | < 1e-13 | **PASS** | B_ops_xz_graded_pec |  |
 | B0-2 (0-2) | C kernel vs Python operator, x and z graded | 0 | H 3.3e-16, E 2.8e-16 | < 1e-13 | **PASS** | B_ops_xz_graded_pec |  |
-| B0-2 (0-3) | energy drift over 1e+05 steps, x and z graded | 0 | 2.66e-15 | < 1e-10 | **PASS** | Δy_min=λ0/80, Δy_max=λ0/20, r_max=1.0968, Δx=λ0/30, Δt=0.00944287 T0 |  |
+| B0-2 (0-3) | energy drift over 1e+05 steps, x and z graded | 0 | 2.89e-15 | < 1e-10 | **PASS** | Δy_min=λ0/80, Δy_max=λ0/20, r_max=1.0968, Δx=λ0/30, Δt=0.00944287 T0 |  |
 | B0-2 (0-4) | Courant formula Δt ≤ Δt_max (power iteration), x and z graded | 0.01090368546 | 0.01091781749 (1810 it) | Δt_C ≤ Δt_max | **PASS** | B_ops_xz_graded_pec |  |
 | B0-2 (0-4) | 0.99 Δt_max stable / 1.02 Δt_max diverges (20000 steps) | stable / diverges | exit 0 / exit 2 | 0 / non-finite | **PASS** | B_ops_xz_graded_pec |  |
 | B0-2 (0-5) | divergence in the TF interior, x graded, inc=p | 0 | E 0.0e+00, H 4.1e-14 | < 1e-10 | **PASS** | B_vac_k1 | control (uniform operator): 0.0e+00 |
 
 ## 階段 B：注入誤差、波前與 Floquet 純度
 
-結果：**PASS**（2026-09-26T19:03:42Z）
+結果：**PASS**（2026-10-02T03:18:32Z）
 
 | 項目 | 量 | 理論值 | 量測值 | 門檻 | 判定 | 網格 | 備註 |
 |---|---|---|---|---|---|---|---|
@@ -374,7 +373,10 @@
 | B1-2 | \|R_(i) − R_(ii)\| at k=4 vs the leakage bound 2\|r\|\|L_(i)\| + \|L_(i)\|² (D20) | ≤ 4.83e-06 | 1.65e-06 | ≤ bound | **PASS** | Δy_min=λ0/200, Δy_max=λ0/200, r_max=1.0000, Δx=λ0/115, Δt=0.00307692 T0 | \|L_(i)\| = 5.25e-06 |
 | B1-2 | order of \|T_(i) − T_(ii)\| (D20: lower bound only) | ≥ 2 | 3.989 (values 2.43e-07, 1.61e-08, 9.65e-10) | ≥ 1.8 | **PASS** | B_{vac,film}_k{1,2,4} (x graded; k = refinement) |  |
 | B1-2 | \|R_(i) − R_(ii)\| with (i)'s own SF leakage subtracted | → 0 | k=1: 3.3e-09, k=2: 1.2e-08, k=4: 1.3e-09 | INFO | INFO |  | raw: 1.43e-05, 5.53e-06, 1.65e-06 |
-| B1-3 | modal (transverse Bloch eigenmode) injection (iii) | optional | not implemented | optional | INFO |  | SPEC: optional |
+| B1-3 | modal injection (iii) inc=m: max over modes \|L_SF − b_TF\|/\|a\| at k=1 (D22) | 0 | 1.98e-13 | < 1e-10 | **PASS** | Δy_min=λ0/50, Δy_max=λ0/50, r_max=1.0000, Δx=λ0/29, Δt=0.0121951 T0 | modes κx = 3.139659, 3.138998; far-PML echo 8.3e-07 (crosses the TF/SF plane unchanged) |
+| B1-3 | modal injection (iii) inc=m: max over modes \|L_SF − b_TF\|/\|a\| at k=2 (D22) | 0 | 2.55e-15 | < 1e-10 | **PASS** | Δy_min=λ0/100, Δy_max=λ0/100, r_max=1.0000, Δx=λ0/58, Δt=0.00613497 T0 | modes κx = 3.141055, 3.140968; far-PML echo 1.0e-07 (crosses the TF/SF plane unchanged) |
+| B1-3 | modal injection (iii) inc=m: max over modes \|L_SF − b_TF\|/\|a\| at k=4 (D22) | 0 | 6.24e-16 | < 1e-10 | **PASS** | Δy_min=λ0/200, Δy_max=λ0/200, r_max=1.0000, Δx=λ0/115, Δt=0.00307692 T0 | modes κx = 3.141450, 3.141439; far-PML echo 1.3e-08 (crosses the TF/SF plane unchanged) |
+| B1-3 | inc=m vs inc=a on an x/z-uniform grid (P_uniform_nl10, p-pol), max \|ΔF\|/max\|F\| (D22) | 0 | 6.8e-16 | INFO | INFO | P_uniform_nl10 |  |
 | B2-1 | order of the x–z phase residual (max over TF planes, vacuum, inc=p) | 2 | 1.959 (values 3.03e-03, 8.03e-04, 2.00e-04) | ∈ [1.8, 2.2] | **PASS** | B_{vac,film}_k{1,2,4} (x graded; k = refinement) |  |
 | B2-2 | power fraction in non-specular propagating orders (vacuum, TF plane) | → 0 | k=1: 1.99e-07, k=2: 8.81e-09, k=4: 4.71e-10 | INFO | INFO |  | order 4.36 |
 | B1-2 | R, T at k=1 (s): (i) / (ii) vs TMM | R 0.211883, T 0.788117 | (i) R 0.209190 T 0.790795; (ii) R 0.209204 T 0.790795 | INFO | INFO | Δy_min=λ0/50, Δy_max=λ0/50, r_max=1.0000, Δx=λ0/29, Δt=0.0121951 T0 | R+T−1: (i) -1.5e-05, (ii) -7.2e-07 |
@@ -383,18 +385,20 @@
 
 ## 階段 B：光柵 vs RCWA
 
-結果：**FAIL**（2026-09-26T19:03:44Z）
+結果：**PASS**（2026-10-02T10:05:14Z）
 
 | 項目 | 量 | 理論值 | 量測值 | 門檻 | 判定 | 網格 | 備註 |
 |---|---|---|---|---|---|---|---|
-| B3-1 | per-order efficiency \|η_FDTD − η_RCWA\|, max over propagating orders (s, injection (i)) | 0 | 9.64e-04 | < 0.001 | **PASS** | Δy_min=λ0/80, Δy_max=λ0/40, r_max=1.0905, Δx=λ0/80, Δt=0.00719424 T0 | R_p: -2: 0.01595/0.01591, -1: 0.03302/0.03318, 0: 0.04118/0.04068; T_p: -3: 0.01337/0.01328, -2: 0.04684/0.04658, -1: 0.28187/0.28151, 0: 0.40340/0.40437, 1: 0.16437/0.16450 |
-| B3-2 | (S_T − S_R)/S_inc − 1, discrete conserved real-space flux (s, (i)) (D21) | 0 | -1.17e-05 | \|·\| < 1e-05 | **FAIL** | B_grating_ppw40 |  |
-| B3-2 | Σ R_p + Σ T_p − 1 from the Floquet partition (s, (i)) | 0 | +4.77e-06 | INFO | INFO | B_grating_ppw40 | partition − conserved flux +1.6e-05; Gram max off-diagonal 5.3e-04 |
-| B3-1 | injection (ii) current sheet + normalization (s) | RCWA | max \|Δη\| 1.38e-03; Σ−1 -9.8e-04 (conserved flux -9.7e-04); max \|η_(i) − η_(ii)\| 4.15e-04 | INFO | INFO | B_grating_ppw40 |  |
-| B3-1 | per-order efficiency \|η_FDTD − η_RCWA\|, max over propagating orders (p, injection (i)) | 0 | 8.84e-04 | < 0.001 | **PASS** | Δy_min=λ0/80, Δy_max=λ0/40, r_max=1.0905, Δx=λ0/80, Δt=0.00719424 T0 | R_p: -2: 0.00424/0.00425, -1: 0.01854/0.01851, 0: 0.00538/0.00532; T_p: -3: 0.01062/0.01048, -2: 0.03073/0.03056, -1: 0.27434/0.27376, 0: 0.44377/0.44465, 1: 0.21235/0.21248 |
-| B3-2 | (S_T − S_R)/S_inc − 1, discrete conserved real-space flux (p, (i)) (D21) | 0 | -1.57e-06 | \|·\| < 1e-05 | **PASS** | B_grating_ppw40 |  |
-| B3-2 | Σ R_p + Σ T_p − 1 from the Floquet partition (p, (i)) | 0 | -2.54e-05 | INFO | INFO | B_grating_ppw40 | partition − conserved flux -2.4e-05; Gram max off-diagonal 5.3e-04 |
-| B3-1 | injection (ii) current sheet + normalization (p) | RCWA | max \|Δη\| 1.07e-03; Σ−1 -3.1e-04 (conserved flux -2.8e-04); max \|η_(i) − η_(ii)\| 1.86e-04 | INFO | INFO | B_grating_ppw40 |  |
+| B3-1 | per-order efficiency \|η_FDTD − η_RCWA\|, max over propagating orders (s, injection (iii) inc=m, D22) | 0 | 9.40e-04 | < 0.001 | **PASS** | Δy_min=λ0/80, Δy_max=λ0/40, r_max=1.0905, Δx=λ0/80, Δt=0.00719424 T0 | R_p: -2: 0.01595/0.01591, -1: 0.03302/0.03318, 0: 0.04119/0.04068; T_p: -3: 0.01337/0.01328, -2: 0.04684/0.04658, -1: 0.28185/0.28151, 0: 0.40343/0.40437, 1: 0.16437/0.16450 |
+| B3-2 | (S_T − S_R)/S_inc − 1, discrete conserved real-space flux (s, (iii) inc=m) (D21, D22) | 0 | +8.50e-07 | \|·\| < 1e-05 | **PASS** | B_grating_ppw40 |  |
+| B3-2 | Σ R_p + Σ T_p − 1 from the Floquet partition (s, (iii)) | 0 | +1.73e-05 | INFO | INFO | B_grating_ppw40 | partition − conserved flux +1.6e-05; Gram max off-diagonal 5.3e-04 |
+| B3-1 | injection (i) analytic plane wave inc=p, 450/150 (s) | RCWA | max \|Δη\| 9.64e-04; conserved-flux Σ−1 -1.23e-05 (partition +4.1e-06); max \|η − η_(iii)\| 2.38e-05 | INFO | INFO | B_grating_ppw40 |  |
+| B3-1 | injection (ii) current sheet + normalization, 90/30 (s) | RCWA | max \|Δη\| 1.38e-03; conserved-flux Σ−1 -9.68e-04 (partition -9.8e-04); max \|η − η_(iii)\| 4.39e-04 | INFO | INFO | B_grating_ppw40 |  |
+| B3-1 | per-order efficiency \|η_FDTD − η_RCWA\|, max over propagating orders (p, injection (iii) inc=m, D22) | 0 | 8.91e-04 | < 0.001 | **PASS** | Δy_min=λ0/80, Δy_max=λ0/40, r_max=1.0905, Δx=λ0/80, Δt=0.00719424 T0 | R_p: -2: 0.00424/0.00425, -1: 0.01854/0.01851, 0: 0.00538/0.00532; T_p: -3: 0.01062/0.01048, -2: 0.03074/0.03056, -1: 0.27435/0.27376, 0: 0.44376/0.44465, 1: 0.21234/0.21248 |
+| B3-2 | (S_T − S_R)/S_inc − 1, discrete conserved real-space flux (p, (iii) inc=m) (D21, D22) | 0 | +6.37e-07 | \|·\| < 1e-05 | **PASS** | B_grating_ppw40 |  |
+| B3-2 | Σ R_p + Σ T_p − 1 from the Floquet partition (p, (iii)) | 0 | -2.31e-05 | INFO | INFO | B_grating_ppw40 | partition − conserved flux -2.4e-05; Gram max off-diagonal 5.3e-04 |
+| B3-1 | injection (i) analytic plane wave inc=p, 450/150 (p) | RCWA | max \|Δη\| 8.85e-04; conserved-flux Σ−1 -2.25e-06 (partition -2.6e-05); max \|η − η_(iii)\| 8.49e-06 | INFO | INFO | B_grating_ppw40 |  |
+| B3-1 | injection (ii) current sheet + normalization, 90/30 (p) | RCWA | max \|Δη\| 1.07e-03; conserved-flux Σ−1 -2.79e-04 (partition -3.1e-04); max \|η − η_(iii)\| 1.79e-04 | INFO | INFO | B_grating_ppw40 |  |
 | B3-3 | RCWA order convergence 161 → 321 orders (s) (D15) | < 1e-5 | 2.47e-06 | < 1e-5 | **PASS** | rcwa.py |  |
 | B3-3 | RCWA order convergence 161 → 321 orders (p) (D15) | < 1e-5 | 2.68e-06 | < 1e-5 | **PASS** | rcwa.py |  |
 
@@ -679,6 +683,23 @@ TF/SF 修正只讀 aux 在 j0 與 j0 − ½ 的值，所以 aux 至少要在 [j_
 - 每個 y 平面上相位對 kx x + kz z 精確線性（殘差只有捨入）。
 - aux 更新式：y 差分乘 Δt/h（H）或 Δt/d（E），相量項乘 Δt·iK̃x、Δt·iK̃z，不可共用 c。
 
+#### 3b. x/z 非均勻時的精確注入：橫向離散模態（`inc=m`，修正案 D22）
+
+令週期軸（以 x 為例）的主節點差分 (D_p u)_{i+½} = (u_{i+1} − u_i)/h_i、對偶節點差分 (D_d g)_i = (g_{i+½} − g_{i−½})/d_i，
+d_i = (h_{i−1} + h_i)/2（週期接縫同理），正是主網格更新式所用的權重。令 A = D_pᵀ diag(h) D_p、W = diag(d)，則
+D_d D_p = −W⁻¹A，A 對稱半正定，所以廣義特徵問題 A φ = κ² W φ 有 W 正交的實特徵向量。
+
+- **模態剖面**：主節點分量用 φ，對偶節點分量用 ψ = D_p φ / (iκ)。於是 D_p φ = iκ ψ，D_d ψ = D_d D_p φ/(iκ) = iκ φ：
+  每一個 x 差分都恰好等於「乘以 iκ」。均勻軸上 φ = e^{ikx x}、κ = K̃x，ψ = e^{ikx x_{i+½}}，回到 §3。
+- **乘積模態**：x、z 各取一個模態，F_c = Re[f_c(y, t) · P_c(x) · Q_c(z)]（P、Q 依分量的主／對偶位置取 φ 或 ψ），
+  3D 格式精確約化成 §3 的 1D 複數格式，只是 K̃x、K̃z 換成 κx、κz。每個乘積模態用自己的 aux line（自己的 ky 與 s/p 基底）。
+- **權重**：c_q = ⟨φ_q, e^{ikx x}⟩_W（φ_q 以 W 正規化），注入場 Σ c_q φ_q 是 e^{ikx x} 在保留模態上的投影。
+  m ≠ 0 時 ±m 在非均勻網格上分裂成兩個實模態（不再簡併），兩個都保留；m = 0 時常數是精確特徵向量。
+- **求解**：以 σ = kx² 的 shift-invert 子空間迭代（密集 LU，部分樞紐）加 2×2 Rayleigh–Ritz；殘差 < 1e-10 才執行，
+  否則中止。B3 的 x 網格：κ = 3.141259、3.141007（κ 分裂 2.5e-4/λ0），e^{ikx x} 在保留模態外的功率 3.1e-8。
+- **aux 的 y 幾何**：模態 aux line 在 j ≤ j0 用主網格節點，j0 之後以 j0 的間距均勻延伸。TF/SF 修正只讀 j0、j0 − ½ 的入射值，而 j0 ± 5 均勻，所以注入仍精確；入射場是純前行離散波，主網格自身 y 漸變造成的回波屬於散射場，會穿過 SF 面被量到。若 aux 複製整個主網格（`inc=a` 的作法），回波會算進入射場、在 SF 區被扣掉，SF 面量到的反射變成 \|r − e\|²。
+- **結論 3b**：注入場是精確離散解，TF/SF 洩漏只剩捨入（B1-3 實測 2e-13）。x/z 均勻時 `inc=m` 與 `inc=a` 相同到 1e-15。
+
 #### 4. TF/SF 修正係數
 
 主網格 j0（TF 側第一個主節點）：
@@ -764,6 +785,7 @@ aux 源（j_a，1D TF/SF）：
 | DFT | 半格分量在 j = Ny 不再累計，輸出 NaN（修正 bug）；新增 `proj`（每列對橫向 Floquet 相位的加權投影）與 `planar`（每個 y 平面的相位殘差） | 盤點表；D12 | — |
 | 輸出 | `meta.json` 追加欄位；新增 `grid_used.json`（所有座標、間距、ε），後處理唯一的座標來源；`fields_n<step>.bin`、`auxref_n<step>.bin` | SPEC §13.2 | — |
 | 階段 B | x 或 z 非均勻時，`inc=a` 或 `auxref=1` 以固定訊息中止；`inc=p`（在分量實際座標取樣連續平面波）、`inc=j`（電流片）；光柵材料 | SPEC §7.6 | §3 |
+| 模態注入（D22） | 新增 `inc=m`：每個非均勻週期軸解 A φ = κ² W φ（shift-invert 子空間迭代 + Rayleigh–Ritz，主網格的 h、d 權重），每個乘積模態一條 aux line（共用 y 幾何 `acH/acE`，自己的 K̃、ky、E0、H0），TF/SF 入射值 = Σ Re[aux_t · w_t · 剖面]；輸出 `modes.json`。`inc=a` 的程式碼與資料完全未動 | 失敗流程 B3-2 (s)；SPEC B1-3 | §3b |
 | 本徵模式 | `mode=e`：以求解器自己的更新核心做 power iteration，求 λ_max 與 Δt_max = 2/sqrt(λ_max)（CPML 關閉、PEC 牆） | gate 0-4 | §2 |
 | 無源執行 | mesh=file、inc=0、init≠a 時不建立平面波（kx = kz = 0），可用薄 x–z 格 | gate 0-3/0-4 | — |
 
@@ -796,7 +818,7 @@ aux 源（j_a，1D TF/SF）：
 
 | 項目 | 值 |
 |---|---|
-| 平台 | WSL2 Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.39 |
+| 平台 | WSL2 Linux-6.18.40.1-microsoft-standard-WSL2-x86_64-with-glibc2.39 |
 | C 編譯器 | gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0 |
 | 編譯選項 | `-O3 -march=native -std=c99 -fopenmp` |
 | Python | 3.12.3（numpy + matplotlib） |

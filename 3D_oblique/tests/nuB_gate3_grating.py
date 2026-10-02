@@ -1,12 +1,16 @@
 """Stage B gate B3: lamellar grating (x nonuniform, nodes on the ridge edges), conical incidence (A2), vs RCWA.
-SPEC_nonuniform §20.5 + amendment D15.
+SPEC_nonuniform §20.5 + amendments D15, D19, D21, D22.
 
 Per-order efficiencies from y-plane DFT slices (E at y_j, H at y_{j+1/2}: discrete-conserved pairing), Floquet
 coefficients with the quadrature weights of the nonuniform x nodes:
   (i)  inc=p (TF/SF with the analytic continuous wave): R_p on an SF plane (scattered field), T_p on a substrate plane;
   (ii) inc=j (current sheet): R_p from (run − vacuum normalization run) between source and grating, T_p in the substrate.
-Incident flux: the order-0 flux of the vacuum normalization run (same grid, same source) on a TF plane.
-Judged: (i). (ii) and |(i) − (ii)| reported.
+Incident flux: the order-0 flux of the vacuum normalization run (same grid, same source) on a TF plane; for the TF/SF
+injections minus the SF-plane flux of that run (the power the source injects; the vacuum grid's own y-grading echo
+leaves through the SF plane).
+  (iii) inc=m (amendment D22, judged): TF/SF fed by the exact discrete transverse modes (one aux line per mode);
+       R_p on the SF plane, T_p on the substrate plane, normalization by its own vacuum run.
+Judged: (iii) (D22; was (i)). (i) and (ii) and their differences to (iii) reported as INFO.
 B3-2 (amendment D21): energy from the discretely conserved real-space flux (an.plane_flux) on the same planes,
 (S_T − S_R)/S_inc − 1; the per-order sum and the Gram non-orthogonality of the Floquet basis are INFO.
 """
@@ -49,8 +53,8 @@ def main():
         oR = nc.pred(f"B/rcwa/{pol}/orders_R")
         oT = nc.pred(f"B/rcwa/{pol}/orders_T")
         eff = {}
-        for inc in ("p", "j"):
-            if inc == "p":     # D19: the grating rings (guided-mode resonance near f = 1.039): long run, long window
+        for inc in ("m", "p", "j"):
+            if inc in ("m", "p"):  # D19: the grating rings (guided-mode resonance near f = 1.039): long run, long window
                 o_g, m_g, _ = RN.stageB(G, pol, inc, tag="_long450", m=1, n=1, periods=450, dft_periods=150, yplanes=yp)
             else:
                 o_g, m_g, _ = RN.stageB(G, pol, inc, m=1, n=1, periods=90, dft_periods=30, yplanes=yp)
@@ -66,7 +70,12 @@ def main():
             Sv, _ = an.order_fluxes(Dv, used, kxs, m_g["kz"])
             S_inc = Sv[idx[0]]
             S_inc_d = an.plane_flux(Dv, used)
-            if inc == "p":
+            if inc in ("m", "p"):  # TF/SF: power injected in vacuum = TF-plane flux − SF-plane flux (grid echoes exit via SF)
+                DvR, _ = nc.load_dft(o_v, f"y{jR_i}", m_v)
+                SvR, _ = an.order_fluxes(DvR, used, kxs, m_g["kz"])
+                S_inc -= SvR[idx[0]]
+                S_inc_d -= an.plane_flux(DvR, used)
+            if inc in ("m", "p"):
                 DR, _ = nc.load_dft(o_g, f"y{jR_i}", m_g)
             else:
                 Dg, _ = nc.load_dft(o_g, f"y{jR_j}", m_g)
@@ -83,22 +92,23 @@ def main():
                             evan=float(np.sum(np.abs(allR)) + np.sum(np.abs(allT)) - sum(abs(v) for v in R.values())
                                        - sum(abs(v) for v in Tt.values())), runtime=m_g["runtime_s"])
         out[pol] = eff
-        e = eff["p"]
+        e = eff["m"]
         dmax = max([abs(e["R"][p] - rc_R[q]) for q, p in enumerate(oR)] + [abs(e["T"][p] - rc_T[q]) for q, p in enumerate(oT)])
-        T.row("B3-1", f"per-order efficiency |η_FDTD − η_RCWA|, max over propagating orders ({pol}, injection (i))",
+        T.row("B3-1", f"per-order efficiency |η_FDTD − η_RCWA|, max over propagating orders ({pol}, injection (iii) inc=m, D22)",
               "0", f"{dmax:.2e}", f"< {TH['B3-1']['abs']:g}", dmax < TH["B3-1"]["abs"], grid=nc.grid_info(geo, geo.dt_run()),
               note="R_p: " + ", ".join(f"{p}: {e['R'][p]:.5f}/{rc_R[q]:.5f}" for q, p in enumerate(oR))
                    + "; T_p: " + ", ".join(f"{p}: {e['T'][p]:.5f}/{rc_T[q]:.5f}" for q, p in enumerate(oT)))
-        T.row("B3-2", f"(S_T − S_R)/S_inc − 1, discrete conserved real-space flux ({pol}, (i)) (D21)", "0",
+        T.row("B3-2", f"(S_T − S_R)/S_inc − 1, discrete conserved real-space flux ({pol}, (iii) inc=m) (D21, D22)", "0",
               f"{e['direct'] - 1:+.2e}", f"|·| < {TH['B3-2']['abs']:g}", abs(e["direct"] - 1) < TH["B3-2"]["abs"], grid=G)
-        T.row("B3-2", f"Σ R_p + Σ T_p − 1 from the Floquet partition ({pol}, (i))", "0", f"{e['sum'] - 1:+.2e}", "INFO",
+        T.row("B3-2", f"Σ R_p + Σ T_p − 1 from the Floquet partition ({pol}, (iii))", "0", f"{e['sum'] - 1:+.2e}", "INFO",
               None, grid=G, note=f"partition − conserved flux {e['sum'] - e['direct']:+.1e}; Gram max off-diagonal "
                                  f"{gram:.1e}")
-        e2 = eff["j"]
-        d2 = max([abs(e2["R"][p] - rc_R[q]) for q, p in enumerate(oR)] + [abs(e2["T"][p] - rc_T[q]) for q, p in enumerate(oT)])
-        dij = max([abs(e2["R"][p] - e["R"][p]) for p in oR] + [abs(e2["T"][p] - e["T"][p]) for p in oT])
-        T.row("B3-1", f"injection (ii) current sheet + normalization ({pol})", "RCWA", f"max |Δη| {d2:.2e}; Σ−1 "
-              f"{e2['sum'] - 1:+.1e} (conserved flux {e2['direct'] - 1:+.1e}); max |η_(i) − η_(ii)| {dij:.2e}", "INFO", None, grid=G)
+        for inc, lab in (("p", "(i) analytic plane wave inc=p, 450/150"), ("j", "(ii) current sheet + normalization, 90/30")):
+            e2 = eff[inc]
+            d2 = max([abs(e2["R"][p] - rc_R[q]) for q, p in enumerate(oR)] + [abs(e2["T"][p] - rc_T[q]) for q, p in enumerate(oT)])
+            dmi = max([abs(e2["R"][p] - e["R"][p]) for p in oR] + [abs(e2["T"][p] - e["T"][p]) for p in oT])
+            T.row("B3-1", f"injection {lab} ({pol})", "RCWA", f"max |Δη| {d2:.2e}; conserved-flux Σ−1 "
+                  f"{e2['direct'] - 1:+.2e} (partition {e2['sum'] - 1:+.1e}); max |η − η_(iii)| {dmi:.2e}", "INFO", None, grid=G)
     for pol in ("s", "p"):
         T.row("B3-3", f"RCWA order convergence 161 → 321 orders ({pol}) (D15)", "< 1e-5",
               f"{nc.pred(f'B/rcwa/{pol}/maxdiff_321'):.2e}", "< 1e-5", nc.pred(f"B/rcwa/{pol}/maxdiff_321") < 1e-5,
@@ -114,9 +124,9 @@ def main():
         xr = np.arange(len(oR))
         xt = np.arange(len(oT)) + len(oR) + 1
         ax.bar(xr - 0.2, rc_R, 0.4, color="#475569", label="RCWA (321 orders)")
-        ax.bar(xr + 0.2, [out[pol]["p"]["R"][p] for p in oR], 0.4, color="#1d4ed8", label="FDTD (i)")
+        ax.bar(xr + 0.2, [out[pol]["m"]["R"][p] for p in oR], 0.4, color="#1d4ed8", label="FDTD (iii) inc=m")
         ax.bar(xt - 0.2, rc_T, 0.4, color="#475569")
-        ax.bar(xt + 0.2, [out[pol]["p"]["T"][p] for p in oT], 0.4, color="#1d4ed8")
+        ax.bar(xt + 0.2, [out[pol]["m"]["T"][p] for p in oT], 0.4, color="#1d4ed8")
         ax.set_xticks(list(xr) + list(xt))
         ax.set_xticklabels([f"R{p}" for p in oR] + [f"T{p}" for p in oT], fontsize=7)
         ax.set_title(f"lamellar grating, conical A2, {pol}-pol", fontsize=9)
