@@ -78,6 +78,13 @@ typedef struct {
                                against kx x + kz z + const written to dft_planar.bin (gate 1-2) */
     long eig_maxit;
     double eig_tol;
+    /* Bloch PBC and broadband pulse (docs/PULSE_BLOCH.md) */
+    int bloch;              /* 1: complex Bloch fields (two real copies coupled by the x/z ghost phase) */
+    double kxn, kzn;        /* bloch=1: kx/k0, kz/k0 (k0 = 2 pi / lambda0); NAN -> 2 pi m/Lx, 2 pi n/Lz */
+    char src;               /* 'c': CW / ramp envelope (legacy), 'g': Gaussian pulse (soft current in the aux line) */
+    double fc, fw, pt0;     /* pulse centre frequency, spectral std dev (units c/lambda0), delay (periods T0; <0: 6/(2 pi fw)) */
+    int nfreq;              /* >0: spectra of projected rows and aux line at nfreq frequencies in [fmin, fmax] */
+    double fmin, fmax;
 } Params;
 
 /* ------------------------------------------------------------------ globals */
@@ -107,6 +114,15 @@ static double *cosP1, *sinP1, *cosP2, *sinP2, *cosP3, *sinP3, *cosP4, *sinP4;
 /* P1: (x_{i+1/2}, z_k) Ex,Hz; P2: (x_i, z_{k+1/2}) Ez,Hx; P3: (x_i, z_k) Ey; P4: (x_{i+1/2}, z_{k+1/2}) Hy */
 static double *ExI, *EzI, *HxI, *HzI;
 static double complex incEx, incEz, incHx, incHz;
+/* Bloch PBC (docs/PULSE_BLOCH.md): complex field F = F_re + i F_im held as two real copies that share every
+   coefficient and are coupled only through the ghost layers, F(x + Lx) = e^{i kx Lx} F(x), F(z + Lz) = e^{i kz Lz} F(z).
+   Copy 0 is the legacy state; the update kernels act on whichever copy use_copy() selected. */
+#define NCP 14
+static double *CPY[2][NCP];          /* Ex Ey Ez Hx Hy Hz psiExy psiEzy psiHxy psiHzy ExI EzI HxI HzI */
+static double bxc = 1.0, bxs = 0.0, bzc = 1.0, bzs = 0.0; /* e^{i kx Lx}, e^{i kz Lz} */
+static double Ju[3];                 /* src=g: unit direction of the soft sheet current in the aux line */
+static double *SPW;                  /* nfreq angular frequencies */
+static double complex *spP, *spA;    /* spectra [c][f][j], j = 0..Ny: x-z projected main rows, aux line */
 
 #define ID(i, j, k) ((((size_t)(i) + 1) * (size_t)SY + (size_t)(j)) * (size_t)SZ + (size_t)(k) + 1)
 
@@ -155,6 +171,8 @@ static void parse_args(int argc, char **argv) {
     p.init = '0'; p.energy_every = 10; p.snap_every = 0; strcpy(p.snapcomp, "Ez"); p.dump = 0;
     strcpy(p.out, "out");
     p.mode = 't'; p.jsrc = -1; p.eig_maxit = 200000; p.eig_tol = 1e-10;
+    p.bloch = 0; p.kxn = NAN; p.kzn = NAN; p.src = 'c'; p.fc = 1.0; p.fw = 0.15; p.pt0 = -1.0;
+    p.nfreq = 0; p.fmin = 0.5; p.fmax = 1.5;
     p.mesh = 'u'; p.dtfac = 1.0; p.dt_set = 0.0; p.auxref = 0; p.ref_every = 0; p.seed = 12345; p.divop = 'n';
     int got_eps = 0;
     for (int a = 1; a < argc; a++) {
@@ -216,9 +234,26 @@ static void parse_args(int argc, char **argv) {
         else if (!strcmp(k, "planar")) p.planar = atoi(v);
         else if (!strcmp(k, "eig_maxit")) p.eig_maxit = atol(v);
         else if (!strcmp(k, "eig_tol")) p.eig_tol = atof(v);
+        else if (!strcmp(k, "bloch")) p.bloch = atoi(v);
+        else if (!strcmp(k, "kxn")) p.kxn = atof(v);
+        else if (!strcmp(k, "kzn")) p.kzn = atof(v);
+        else if (!strcmp(k, "src")) p.src = v[0];
+        else if (!strcmp(k, "fc")) p.fc = atof(v);
+        else if (!strcmp(k, "fw")) p.fw = atof(v);
+        else if (!strcmp(k, "pt0")) p.pt0 = atof(v);
+        else if (!strcmp(k, "nfreq")) p.nfreq = atoi(v);
+        else if (!strcmp(k, "fmin")) p.fmin = atof(v);
+        else if (!strcmp(k, "fmax")) p.fmax = atof(v);
         else { fprintf(stderr, "unknown key %s\n", k); exit(2); }
     }
     if (p.planar) p.proj = 1;
+    if (!p.bloch && (!isnan(p.kxn) || !isnan(p.kzn))) die("kxn/kzn need bloch=1 (without Bloch, kx = 2 pi m/Lx)");
+    if (p.src != 'c' && p.src != 'g') die("src must be c (CW) or g (Gaussian pulse)");
+    if (p.src == 'g' && p.inc != 'a') die("src=g (pulse) needs inc=a (aux line)");
+    if (p.src == 'g' && !(p.fw > 0.0 && p.fc > 0.0)) die("src=g needs fc > 0 and fw > 0");
+    if (p.bloch && p.inc != 'a' && p.inc != '0') die("bloch=1 supports inc=a or inc=0 only");
+    if (p.bloch && (p.auxref || p.mode == 'e' || p.planar)) die("bloch=1 cannot be combined with auxref, mode=e or planar");
+    if (p.nfreq < 0 || (p.nfreq > 0 && !(p.fmax >= p.fmin && p.fmin > 0.0))) die("nfreq needs 0 < fmin <= fmax");
     if (p.mesh == 'f' && !p.grid[0]) die("mesh=file needs grid=<path.json>");
     if (p.mesh == 'f' && got_eps) die("eps2/y1 cannot be combined with mesh=file (materials come from the grid file)");
     P = p;
@@ -397,7 +432,10 @@ static void amplitudes(double kyy, double *K, double *E, double *H) {
     K[2] = 2.0 / hzv[0] * sin(kz * hzv[0] / 2.0);
     cross(K, yh, s);
     double ns = norm3(s);
-    if (ns == 0.0) die("normal incidence (m = n = 0) is not supported: s/p basis degenerate");
+    if (ns == 0.0) {
+        if (P.src != 'g') die("normal incidence (m = n = 0) is not supported: s/p basis degenerate");
+        s[0] = 0.0; s[1] = 0.0; s[2] = 1.0; ns = 1.0; /* src=g: limit kz = 0, kx -> 0+ (s = z, p tangential along x) */
+    }
     for (int c = 0; c < 3; c++) s[c] /= ns;
     cross(s, K, p);
     double np = norm3(p);
@@ -421,6 +459,13 @@ static double envelope(double t) {
     double g = ramp_on(t);
     if (P.off_t >= 0.0) g *= 1.0 - ramp_on(t - P.off_t);
     return g;
+}
+
+/* src=g: J(t) = exp(-(t - t0)^2 / (2 tau^2)) e^{-i 2 pi fc t}, tau = 1/(2 pi fw): |J(f)| is a Gaussian centred at fc with
+   standard deviation fw; the negative-frequency content is ~exp(-(fc/fw)^2/2) */
+static double complex pulse_g(double t) {
+    double tau = 1.0 / (2.0 * PI * P.fw), u = (t - P.pt0) / tau;
+    return exp(-0.5 * u * u) * cexp(-I * 2.0 * PI * P.fc * t);
 }
 
 /* global y geometry, extended uniformly beyond [0, Ny] with the end spacings (aux line, §7.2) */
@@ -485,6 +530,7 @@ static void aux_update_H(long n) {
         aHz[u] -= acH[u] * (ikxH[u] * aEy[u] - (aEx[u + 1] - aEx[u]));
     }
     for (long u = lo; u <= hi + 1 && u <= AL; u++) aHy[u] -= acE[u] * (ikzE[u] * aEx[u] - ikxE[u] * aEz[u]);
+    if (P.src == 'g') return; /* pulse: soft sheet current in aux_update_E instead of the 1D TF/SF */
     /* 1D TF/SF at j_a (derivation.md §3 (a), (b)); the source region is uniform, spacing Da */
     long ja = Ajlo + Aua;
     aHx[Aua - 1] += acH[Aua - 1] * inc_amp(2, ja, (double)n, E0v, H0v, ky);
@@ -500,6 +546,12 @@ static void aux_update_E(long n) {
         aEz[u] += acE[u] * (ikxE[u] * aHy[u] - (aHx[u] - aHx[u - 1]));
     }
     for (long u = lo - 1; u <= hi && u < AL; u++) aEy[u] += acH[u] * (ikzH[u] * aHx[u] - ikxH[u] * aHz[u]);
+    if (P.src == 'g') { /* E^{n+1} = ... - dt J^{n+1/2} / d: analytic Gaussian, one-sided spectrum around +fc */
+        double complex g = pulse_g((n + 0.5) * dt);
+        aEx[Aua] -= acE[Aua] * Ju[0] * g;
+        aEz[Aua] -= acE[Aua] * Ju[2] * g;
+        return;
+    }
     long ja = Ajlo + Aua;
     aEx[Aua] -= acE[Aua] * inc_amp(5, ja - 1, (double)n, E0v, H0v, ky);
     aEz[Aua] += acE[Aua] * inc_amp(3, ja - 1, (double)n, E0v, H0v, ky);
@@ -1025,8 +1077,19 @@ static void setup(void) {
     int wave = !(P.mesh == 'f' && P.inc == '0' && P.init != 'a');   /* legacy mesh=uniform runs unchanged */
     kx = wave ? 2.0 * PI * P.m / P.Lx : 0.0;
     kz = wave ? 2.0 * PI * P.n / P.Lz : 0.0;
+    if (P.bloch && !isnan(P.kxn)) kx = W0 * P.kxn;
+    if (P.bloch && !isnan(P.kzn)) kz = W0 * P.kzn;
     double kt = hypot(kx, kz);
     if (wave && kt >= 0.95 * W0) die("|k_t| >= 0.95 k0: insufficient propagation margin");
+    if (P.bloch) { /* Bloch phases over the actual periods; an integer number of 2 pi is taken as exactly 1 */
+        double lx = 0.0, lz = 0.0;
+        for (int i = 0; i < Nx; i++) lx += hxv[i];
+        for (int k = 0; k < Nz; k++) lz += hzv[k];
+        double ax = kx * lx / (2.0 * PI), az = kz * lz / (2.0 * PI);
+        if (fabs(ax - round(ax)) > 1e-12) { bxc = cos(kx * lx); bxs = sin(kx * lx); }
+        if (fabs(az - round(az)) > 1e-12) { bzc = cos(kz * lz); bzs = sin(kz * lz); }
+        if (P.init == 'a') die("bloch=1 cannot be combined with init=a");
+    }
     wt = 2.0 / dt * sin(W0 * dt / 2.0);
     Da = gh(JA);
     ky = ky_local(Da, 1.0);
@@ -1051,6 +1114,18 @@ static void setup(void) {
         ky = kyc;
     }
     if (P.pol != 's' && P.pol != 'p') die("pol must be s or p");
+    if (P.src == 'g') { /* tangential part of the s/p unit vector: a sheet current along it radiates only that pol */
+        double nn = hypot(E0v[0], E0v[2]);
+        if (!(nn > 0.0)) die("src=g: polarization vector has no tangential part");
+        Ju[0] = E0v[0] / nn; Ju[1] = 0.0; Ju[2] = E0v[2] / nn;
+        if (P.pt0 < 0.0) P.pt0 = 6.0 / (2.0 * PI * P.fw);
+        /* fixed (kx, kz): f_cut = |k_t| / 2 pi is a cutoff of the 1D reduced system; energy there rings with a
+           ~t^-1/2 tail that a finite DFT window truncates (spectral leakage into the whole band, docs/PULSE_BLOCH.md) */
+        double fcut = hypot(kx, kz) / (2.0 * PI), a = exp(-0.5 * pow((P.fc - fcut) / P.fw, 2));
+        if (fcut > 0.0 && a > 1e-3)
+            fprintf(stderr, "WARNING: pulse amplitude at the cutoff f_cut = %.4g is %.2g of the peak (> 1e-3): "
+                            "expect DFT leakage; narrow fw or move fc away from f_cut\n", fcut, a);
+    }
     if (P.mesh == 'u' && P.tf < 10 * P.nl) fprintf(stderr, "WARNING: TF length %d cells < 10 lambda0\n", P.tf);
     if (P.inc != '0' && P.init == 'a') die("init=analytic is a debug mode without a source");
     if (P.inc != '0' && (j0 - NPlo < 2 || Ny - NPhi - j0 < 2)) die("sf and tf must be >= 2 cells");
@@ -1160,6 +1235,22 @@ static void setup(void) {
         }
     ExI = xcalloc(nq, sizeof(double)); EzI = xcalloc(nq, sizeof(double));
     HxI = xcalloc(nq, sizeof(double)); HzI = xcalloc(nq, sizeof(double));
+    {
+        double *c0[NCP] = {Ex, Ey, Ez, Hx, Hy, Hz, psiExy, psiEzy, psiHxy, psiHzy, ExI, EzI, HxI, HzI};
+        for (int q = 0; q < NCP; q++) CPY[0][q] = c0[q];
+        if (P.bloch) {
+            for (int q = 0; q < 6; q++) CPY[1][q] = xcalloc(NTOT, sizeof(double));
+            for (int q = 6; q < 10; q++) CPY[1][q] = xcalloc(np, sizeof(double));
+            for (int q = 10; q < 14; q++) CPY[1][q] = xcalloc(nq, sizeof(double));
+        }
+    }
+    if (P.nfreq > 0) {
+        SPW = xcalloc(P.nfreq, sizeof(double));
+        for (int f = 0; f < P.nfreq; f++)
+            SPW[f] = 2.0 * PI * (P.nfreq == 1 ? P.fmin : P.fmin + (P.fmax - P.fmin) * f / (P.nfreq - 1));
+        spP = xcalloc((size_t)6 * P.nfreq * SY, sizeof(double complex));
+        if (P.inc == 'a') spA = xcalloc((size_t)6 * P.nfreq * SY, sizeof(double complex));
+    }
     if (P.inc == 'a') aux_init();
     if (P.inc == 'm') { aux_init(); modal_init(); } /* shared y geometry of the aux line, one line per product mode */
     if (P.auxref) auxref_init();
@@ -1218,13 +1309,38 @@ static void ghost_bwd(double *F) { /* F[-1] <- F[Nx-1], F[.][.][-1] <- F[.][.][N
         for (int j = 0; j <= Ny; j++) F[ID(i, j, -1)] = F[ID(i, j, Nz - 1)];
 }
 
+/* Bloch ghost layers: forward ghosts F[Nx] = e^{i kx Lx} F[0], F[Nz] = e^{i kz Lz} F[0]; backward ghosts
+   F[-1] = e^{-i kx Lx} F[Nx-1], F[-1] = e^{-i kz Lz} F[Nz-1] (complex F = copy 0 + i copy 1) */
+static void ghost_bloch(int c, int fwd) {
+    double *R = CPY[0][c], *M = CPY[1][c];
+    double sx = fwd ? bxs : -bxs, sz = fwd ? bzs : -bzs;
+    int is = fwd ? 0 : Nx - 1, id = fwd ? Nx : -1, ks = fwd ? 0 : Nz - 1, kd = fwd ? Nz : -1;
+    for (int j = 0; j <= Ny; j++)
+        for (int k = 0; k < Nz; k++) {
+            double a = R[ID(is, j, k)], b = M[ID(is, j, k)];
+            R[ID(id, j, k)] = bxc * a - sx * b;
+            M[ID(id, j, k)] = sx * a + bxc * b;
+        }
+    for (int i = 0; i < Nx; i++)
+        for (int j = 0; j <= Ny; j++) {
+            double a = R[ID(i, j, ks)], b = M[ID(i, j, ks)];
+            R[ID(i, j, kd)] = bzc * a - sz * b;
+            M[ID(i, j, kd)] = sz * a + bzc * b;
+        }
+}
+
+static void use_copy(int cp) {
+    double **g[NCP] = {&Ex, &Ey, &Ez, &Hx, &Hy, &Hz, &psiExy, &psiEzy, &psiHxy, &psiHzy, &ExI, &EzI, &HxI, &HzI};
+    for (int q = 0; q < NCP; q++) *g[q] = CPY[cp][q];
+}
+
 /* ------------------------------------------------------------------ updates (derivation_nonuniform §1)
    If doW, update_H also accumulates the conserved energy of derivation_nonuniform §2 at t = n dt:
    W_mod = 1/2 sum( eps W_E |E^n|^2 + mu W_H H^{n+1/2}.H^{n-1/2} ). */
 static double Wmod_acc;
 static void update_H(int doW) {
     const size_t sI = (size_t)SY * SZ, sJ = SZ;
-    ghost_fwd(Ex); ghost_fwd(Ey); ghost_fwd(Ez);
+    if (!P.bloch) { ghost_fwd(Ex); ghost_fwd(Ey); ghost_fwd(Ez); } /* bloch: ghost_bloch() before both copies */
     double wsum = 0.0;
 #pragma omp parallel for schedule(static) reduction(+ : wsum)
     for (int i = 0; i < Nx; i++) {
@@ -1289,7 +1405,7 @@ static void update_H(int doW) {
 static double *partT, *partP;
 static void update_E(int doW) {
     const size_t sI = (size_t)SY * SZ, sJ = SZ;
-    ghost_bwd(Hx); ghost_bwd(Hy); ghost_bwd(Hz);
+    if (!P.bloch) { ghost_bwd(Hx); ghost_bwd(Hy); ghost_bwd(Hz); }
 #pragma omp parallel for schedule(static)
     for (int i = 0; i < Nx; i++) {
         double wT = 0.0, wP = 0.0;
@@ -1383,6 +1499,13 @@ static void incident_E(long n) { /* Ex, Ez at j0, time n */
         ExI[q] = creal(ax) * cosP1[q] - cimag(ax) * sinP1[q];
         EzI[q] = creal(az) * cosP2[q] - cimag(az) * sinP2[q];
     }
+    if (P.bloch) { /* copy 1 is fed Im[a e^{i phi}] */
+        double *X = CPY[1][10], *Z = CPY[1][11];
+        for (int q = 0; q < Nx * Nz; q++) {
+            X[q] = cimag(ax) * cosP1[q] + creal(ax) * sinP1[q];
+            Z[q] = cimag(az) * cosP2[q] + creal(az) * sinP2[q];
+        }
+    }
 }
 
 static void incident_H(long n) { /* Hx, Hz at j0 - 1/2, time n + 1/2 */
@@ -1402,6 +1525,13 @@ static void incident_H(long n) { /* Hx, Hz at j0 - 1/2, time n + 1/2 */
     for (int q = 0; q < Nx * Nz; q++) {
         HxI[q] = creal(ax) * cosP2[q] - cimag(ax) * sinP2[q];
         HzI[q] = creal(az) * cosP1[q] - cimag(az) * sinP1[q];
+    }
+    if (P.bloch) {
+        double *X = CPY[1][12], *Z = CPY[1][13];
+        for (int q = 0; q < Nx * Nz; q++) {
+            X[q] = cimag(ax) * cosP2[q] + creal(ax) * sinP2[q];
+            Z[q] = cimag(az) * cosP1[q] + creal(az) * sinP1[q];
+        }
     }
 }
 
@@ -1561,6 +1691,70 @@ static void dft_accumulate(int first, int last, double tsec) {
                         M[q] += f * ci;
                     }
         }
+}
+
+/* broadband spectra (nfreq > 0): every y row of the main grid projected on its transverse Floquet phase,
+   a_c(j, t) = s/(Lx Lz) sum_xz w F e^{-i phi_c} (s = 1 for the complex Bloch field, 2 for a real field), and the aux line;
+   S(j, w) = sum_n a(j, t_n) e^{i w t_n} dt, t_n at each component's own time level (whole run, from n = 0) */
+static void spec_accumulate(int first, int last, double tsec) {
+    static double complex *ef = NULL, *row = NULL;
+    static double sc = 0.0;
+    int nf = P.nfreq;
+    if (!ef) {
+        ef = xcalloc(nf, sizeof *ef);
+        row = xcalloc(SY, sizeof *row);
+        double lx = 0.0, lz = 0.0;
+        for (int i = 0; i < Nx; i++) lx += hxv[i];
+        for (int k = 0; k < Nz; k++) lz += hzv[k];
+        sc = (P.bloch ? 1.0 : 2.0) / (lx * lz);
+    }
+    for (int f = 0; f < nf; f++) ef[f] = cexp(I * SPW[f] * tsec) * dt;
+    const double *cp[6] = {cosP1, cosP3, cosP2, cosP2, cosP4, cosP1}, *sp[6] = {sinP1, sinP3, sinP2, sinP2, sinP4, sinP1};
+    for (int c = first; c <= last; c++) {
+        const double *R = CPY[0][c], *M = P.bloch ? CPY[1][c] : NULL;
+        const double *wx = (OFF[c][0] == 0.0) ? dxv : hxv, *wz = (OFF[c][2] == 0.0) ? dzv : hzv;
+#pragma omp parallel for schedule(static)
+        for (int j = 0; j <= Ny; j++) {
+            double sr = 0.0, si = 0.0;
+            for (int i = 0; i < Nx; i++)
+                for (int k = 0; k < Nz; k++) {
+                    size_t q = (size_t)i * Nz + k, id = ID(i, j, k);
+                    double w = wx[i] * wz[k], co = cp[c][q], sn = sp[c][q];
+                    double a = R[id] * w, b = M ? M[id] * w : 0.0; /* (a + i b)(cos - i sin) */
+                    sr += a * co + b * sn;
+                    si += b * co - a * sn;
+                }
+            row[j] = sc * (sr + I * si);
+        }
+        double complex *S = spP + (size_t)c * nf * SY;
+#pragma omp parallel for schedule(static)
+        for (int f = 0; f < nf; f++)
+            for (int j = 0; j <= Ny; j++) S[(size_t)f * SY + j] += row[j] * ef[f];
+        if (spA) {
+            double complex *arr[6] = {aEx, aEy, aEz, aHx, aHy, aHz};
+            long top = (OFF[c][1] == 0.0) ? AL : AL - 1;
+            double complex *A = spA + (size_t)c * nf * SY;
+            for (int j = 0; j <= Ny; j++) {
+                long u = j - Ajlo;
+                if (u < 0 || u > top) continue;
+                for (int f = 0; f < nf; f++) A[(size_t)f * SY + j] += arr[c][u] * ef[f];
+            }
+        }
+    }
+}
+
+static void write_spec(void) {
+    if (P.nfreq <= 0) return;
+    for (int s = 0; s < 2; s++) {
+        double complex *S = s ? spA : spP;
+        if (!S) continue;
+        FILE *f = xfopen(s ? "spec_aux.bin" : "spec_proj.bin", "wb");
+        for (size_t q = 0; q < (size_t)6 * P.nfreq * SY; q++) {
+            double v[2] = {creal(S[q]), cimag(S[q])};
+            fwrite(v, sizeof(double), 2, f);
+        }
+        fclose(f);
+    }
 }
 
 /* ------------------------------------------------------------------ diagnostics */
@@ -1803,6 +1997,12 @@ static void write_meta(double runtime, long nsnap) {
             grating, P.jsrc);
     fprintf(f, "  \"inc\": \"%c\", \"ky_mode\": \"%s\", \"ramp\": \"%c\", \"ramp_T\": %g, \"erf_t0\": %g, \"erf_tau\": %g, \"off_t\": %g, \"na\": %d,\n",
             P.inc, P.ky_cont ? "continuous" : "discrete", P.ramp, P.ramp_T, P.erf_t0, P.erf_tau, P.off_t, j0 - JA);
+    fprintf(f, "  \"bloch\": %d, \"bloch_phase_x\": [%.17g, %.17g], \"bloch_phase_z\": [%.17g, %.17g],\n",
+            P.bloch, bxc, bxs, bzc, bzs);
+    fprintf(f, "  \"src\": \"%c\", \"pulse\": {\"fc\": %.17g, \"fw\": %.17g, \"t0\": %.17g, \"J\": [%.17g, %.17g, %.17g]},\n",
+            P.src, P.fc, P.fw, P.pt0, Ju[0], Ju[1], Ju[2]);
+    fprintf(f, "  \"spec\": {\"nfreq\": %d, \"fmin\": %.17g, \"fmax\": %.17g, \"layout\": \"[comp][freq][j=0..Ny] complex128\", "
+               "\"aux\": %d},\n", P.nfreq, P.fmin, P.fmax, spA != NULL);
     fprintf(f, "  \"init\": \"%c\", \"nsteps\": %ld, \"dft0\": %ld, \"dft1\": %ld,\n", P.init, P.nsteps, P.dft0, P.dft1);
     fprintf(f, "  \"aux\": {\"jlo\": %ld, \"L\": %ld, \"ja\": %ld, \"dft_jlo\": %ld, \"dft_jhi\": %ld},\n",
             P.inc == 'a' ? Ajlo : 0, P.inc == 'a' ? AL : 0, P.inc == 'a' ? Ajlo + Aua : 0,
@@ -1945,6 +2145,24 @@ int main(int argc, char **argv) {
         }
     }
 
+    if (P.bloch && P.init == 'r') { /* copy 1 random as well (continues the same generator) */
+        unsigned long long s = 0x9E3779B97F4A7C15ULL ^ (unsigned long long)(P.seed * 2654435761UL + 1UL);
+        use_copy(1);
+        for (int c = 0; c < 6; c++) {
+            double *F = comp_ptr(c);
+            int half = (OFF[c][1] != 0.0);
+            for (int i = 0; i < Nx; i++)
+                for (int j = 0; j <= Ny; j++)
+                    for (int k = 0; k < Nz; k++) {
+                        double v = urand(&s);
+                        if (half && j == Ny) v = 0.0;
+                        if ((c == 0 || c == 2) && (j == 0 || j == Ny)) v = 0.0;
+                        F[ID(i, j, k)] = v;
+                    }
+        }
+        use_copy(0);
+    }
+    const int ncopy = P.bloch ? 2 : 1;
     partT = xcalloc(Nx, sizeof(double));
     partP = xcalloc(Nx, sizeof(double));
     FILE *lg = xfopen("log.csv", "w");
@@ -1966,28 +2184,56 @@ int main(int argc, char **argv) {
         /* H: n-1/2 -> n+1/2 */
         int tfsf = (P.inc == 'a' || P.inc == 'n' || P.inc == 'p' || P.inc == 'm');
         if (tfsf) incident_E(n);
-        update_H(doW);
-        double Wm = doW ? Wmod_acc : NAN;     /* energy at t = n dt */
-        if (tfsf) tfsf_H();
+        if (P.bloch) for (int c = 0; c < 3; c++) ghost_bloch(c, 1);
+        double Wm = NAN;                      /* energy at t = n dt (bloch: sum over both copies = |F|^2) */
+        for (int cp = 0; cp < ncopy; cp++) {
+            if (P.bloch) use_copy(cp);
+            update_H(doW);
+            if (doW) Wm = (cp ? Wm : 0.0) + Wmod_acc;
+            if (tfsf) tfsf_H();
+        }
+        if (P.bloch) use_copy(0);
         if (P.auxref) auxref_update_H();
         if (P.inc == 'a') aux_update_H(n);
         if (P.inc == 'm') for (int t = 0; t < NMA; t++) maux_update_H(&MA[t], n);
         if (n >= P.dft0 && n < P.dft1) dft_accumulate(3, 5, (n + 0.5) * dt);
+        if (P.nfreq > 0) spec_accumulate(3, 5, (n + 0.5) * dt);
         /* E: n -> n+1 */
         if (tfsf) incident_H(n);
-        update_E(doW);
-        if (tfsf) tfsf_E();
+        if (P.bloch) for (int c = 3; c < 6; c++) ghost_bloch(c, 0);
+        double Wt = NAN, Wp = NAN;
+        for (int cp = 0; cp < ncopy; cp++) {
+            if (P.bloch) use_copy(cp);
+            update_E(doW);
+            if (doW) { /* W at t = (n + 1/2) dt */
+                double a, b;
+                energy_sum(&a, &b);
+                Wt = (cp ? Wt : 0.0) + a;
+                Wp = (cp ? Wp : 0.0) + b;
+            }
+            if (tfsf) tfsf_E();
+        }
+        if (P.bloch) use_copy(0);
         if (P.inc == 'j') source_J(n);
         if (P.auxref) auxref_update_E();
         if (P.inc == 'a') aux_update_E(n);
         if (P.inc == 'm') for (int t = 0; t < NMA; t++) maux_update_E(&MA[t], n);
         if (P.init == 'a') dirichlet_y((double)(n + 1));
         if (n + 1 >= P.dft0 && n + 1 < P.dft1) dft_accumulate(0, 2, (n + 1) * dt);
+        if (P.nfreq > 0) spec_accumulate(0, 2, (n + 1) * dt);
 
-        double mE, mH, Wt = NAN, Wp = NAN, dvE = NAN, dvH = NAN, lE = NAN, lH = NAN, gE = NAN, gH = NAN;
+        double mE, mH, dvE = NAN, dvH = NAN, lE = NAN, lH = NAN, gE = NAN, gH = NAN;
         sf_max(&mE, &mH);
-        if (doW) energy_sum(&Wt, &Wp); /* W at t = (n + 1/2) dt */
         if (P.div_every > 0 && (n + 1) % P.div_every == 0) div_max(&dvE, &dvH);
+        if (P.bloch) { /* SF maximum and divergence: worst of the two copies */
+            double a, b, c2 = NAN, d2 = NAN;
+            use_copy(1);
+            sf_max(&a, &b);
+            if (P.div_every > 0 && (n + 1) % P.div_every == 0) div_max(&c2, &d2);
+            use_copy(0);
+            mE = fmax(mE, a); mH = fmax(mH, b);
+            if (!isnan(c2)) { dvE = fmax(dvE, c2); dvH = fmax(dvH, d2); }
+        }
         if (P.auxref) {
             ref_dev(NPlo, j0 - 1, &lE, &lH);   /* scattered-field region (half-y rows up to j0 - 1/2) */
             if (P.ref_every > 0 && (n + 1) % P.ref_every == 0) ref_dev(0, Ny, &gE, &gH);
@@ -2020,7 +2266,9 @@ int main(int argc, char **argv) {
     if (sn) fclose(sn);
     double runtime = difftime(time(NULL), w0);
     write_dft();
+    write_spec();
     if (P.dump) dump_fields("fields_final.bin");
+    if (P.dump && P.bloch) { use_copy(1); dump_fields("fields_final_im.bin"); use_copy(0); }
     write_meta(runtime, nsnap);
     fprintf(stderr, "done: %ld steps, grid %d x %d x %d, %.0f s\n", P.nsteps, Nx, Ny + 1, Nz, runtime);
     return 0;

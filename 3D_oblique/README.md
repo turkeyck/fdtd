@@ -81,6 +81,22 @@ Outputs in `out/`: `meta.json` (grid, Δ, Δt, Yee offsets, k, E0/H0, all parame
 (complex128 phasors, six components, F with f(t) = Re[F e^{-iω0 t}]), `dft_aux.bin`, `log.csv` (SF max field, Yee energy,
 divergence), optional `snapshots.bin`, `fields_final.bin`.
 
+## Bloch periodic boundaries and broadband pulse — [`docs/PULSE_BLOCH.md`](docs/PULSE_BLOCH.md)
+
+Boundary conditions: CPML at both ends of y (propagation direction); x and z (transverse) are periodic. With
+`bloch=1` the x/z boundaries carry a Bloch phase e^{i kx Lx}, e^{i kz Lz}: any kx, kz (`kxn`, `kzn` = k/k0) on a cell
+of any size (a few cells suffice for layered media). `src=g` launches a Gaussian pulse (`fc`, `fw`) at fixed (kx, kz).
+`nfreq`/`fmin`/`fmax` write the projected spectra `spec_proj.bin` and `spec_aux.bin`. `pulse_analysis.py` turns these
+into R(f), T(f) and compares them with the exact discrete TMM. At fixed kx the angle varies with frequency,
+sin θ = |k_t|/(2π f). Keep the pulse spectrum away from the cutoff f = |k_t|/2π (the solver warns).
+
+```bash
+./fdtd3d_oblique bloch=1 Lx=0.2 Lz=0.2 kxn=0.37 kzn=0.21 pol=s eps2=2.25 y1=60 tf=120 npml=40 \
+    src=g fc=1 fw=0.1 nfreq=51 fmin=0.75 fmax=1.25 nsteps=12000 energy_every=0 out=runs/demo
+python3 pulse_analysis.py runs/demo
+python3 tests/pulse_gate.py     # gate P (thresholds: tests/thresholds_pulse.json, status PROPOSED)
+```
+
 ## Nonuniform (tensor-product) grids — `SPEC_nonuniform.md`
 
 The solver has one code path: `mesh=uniform` (default) builds the legacy equally spaced layout above, `grid=<file>`
