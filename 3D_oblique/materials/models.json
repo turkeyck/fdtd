@@ -1,0 +1,111 @@
+{
+ "SiO2": {
+  "source": "SiO2_nk_Malitson.yml",
+  "references": "1) I. H. Malitson.\n    Interspecimen comparison of the refractive index of fused silica.\n    [*J. Opt. Soc. Am.* **55**, 1205-1208 (1965)](https://doi.org/10.1364/JOSA.55.001205)<br>\n    2) C. Z. Tan.\n    Determination of refractive index of silica glass for infrared wavelengths by IR spectroscopy.\n    [*J. Non-Cryst. Solids* **223**, 158-163 (1998)](https://doi.org/10.1016/S0022-3093(97)00438-9)<br>\n    * Sellmeier formula is reported in Ref. 1 for the 0.21–3.71 μm wavelength range. Ref. 2 verifies the validity of the formula up to 6.7 μm.",
+  "band_nm": [
+   400.0,
+   800.0
+  ],
+  "units": "nu = 1/lambda in 1/um; eps = eps_inf + sum de nu0^2/(nu0^2 - nu^2 - i g nu), e^{-i w t}",
+  "eps_inf": 1.0,
+  "poles": [
+   {
+    "de": 1.0976569518064876,
+    "nu0": 10.611736079401032,
+    "g": 6.14421235332821e-06
+   }
+  ],
+  "fit_rms_rel_eps": 0.0002077805805002774,
+  "fit_max_rel_eps": 0.00045958253812066613,
+  "fit_max_abs_dn": 0.00033392125360398595,
+  "fit_max_abs_dk": 5.707210879003657e-08
+ },
+ "Si3N4": {
+  "source": "Si3N4_nk_Luke.yml",
+  "references": "K. Luke, Y. Okawachi, M. R. E. Lamont, A. L. Gaeta, M. Lipson.\n    Broadband mid-infrared frequency comb generation in a Si<sub>3</sub>N<sub>4</sub> microresonator.\n    [*Opt. Lett.* **40**, 4823-4826 (2015)](https://doi.org/10.1364/OL.40.004823)",
+  "band_nm": [
+   400.0,
+   800.0
+  ],
+  "units": "nu = 1/lambda in 1/um; eps = eps_inf + sum de nu0^2/(nu0^2 - nu^2 - i g nu), e^{-i w t}",
+  "eps_inf": 1.0,
+  "poles": [
+   {
+    "de": 3.007818864972551,
+    "nu0": 7.239177151503067,
+    "g": 6.144212448330413e-06
+   }
+  ],
+  "fit_rms_rel_eps": 0.0003448232088061037,
+  "fit_max_rel_eps": 0.0007574790019952794,
+  "fit_max_abs_dn": 0.0007953618778357985,
+  "fit_max_abs_dk": 2.7044880877933295e-07
+ },
+ "Si": {
+  "source": "Si_nk_Green-2008.yml",
+  "references": "M. A. Green.\n    Self-consistent optical parameters of intrinsic silicon at 300K including temperature coefficients.\n    [*Sol. Energ. Mat. Sol. Cells* **92**, 1305–1310 (2008)](https://doi.org/10.1016/j.solmat.2008.06.009)",
+  "band_nm": [
+   400.0,
+   800.0
+  ],
+  "units": "nu = 1/lambda in 1/um; eps = eps_inf + sum de nu0^2/(nu0^2 - nu^2 - i g nu), e^{-i w t}",
+  "eps_inf": 1.0,
+  "poles": [
+   {
+    "de": 2.061264154020453,
+    "nu0": 2.755666667724735,
+    "g": 0.04855172328425822
+   },
+   {
+    "de": 4.450295317924769,
+    "nu0": 3.0931497122844274,
+    "g": 0.1252220102084445
+   },
+   {
+    "de": 4.194194814936052,
+    "nu0": 4.158371786627922,
+    "g": 0.007958827248060548
+   }
+  ],
+  "fit_rms_rel_eps": 0.00929877385285618,
+  "fit_max_rel_eps": 0.036358066006264116,
+  "fit_max_abs_dn": 0.033560988106732914,
+  "fit_max_abs_dk": 0.09623476798219807
+ },
+ "GaAs": {
+  "source": "GaAs_nk_Aspnes.yml",
+  "references": "D. E. Aspnes, S. M. Kelso, R. A. Logan, R. Bhat.\n    Optical properties of Al<sub>x</sub>Ga<sub>1−x</sub>As.\n    [*J. Appl. Phys.* **60**, 754-767 (1986)](https://doi.org/10.1063/1.337426)",
+  "band_nm": [
+   400.0,
+   800.0
+  ],
+  "units": "nu = 1/lambda in 1/um; eps = eps_inf + sum de nu0^2/(nu0^2 - nu^2 - i g nu), e^{-i w t}",
+  "eps_inf": 6.281837582828979,
+  "poles": [
+   {
+    "de": 2.8694430048999604,
+    "nu0": 2.555387629868906,
+    "g": 0.44008520535945206
+   },
+   {
+    "de": 0.5877236354624729,
+    "nu0": 2.3558377008300986,
+    "g": 0.18902276042003663
+   },
+   {
+    "de": 1.716341332438701,
+    "nu0": 2.8320670905680627,
+    "g": 6.14421235332821e-06
+   },
+   {
+    "de": 0.4363388160793066,
+    "nu0": 2.0159058613779437,
+    "g": 1.008119981331339
+   }
+  ],
+  "fit_rms_rel_eps": 0.00819841500892242,
+  "fit_max_rel_eps": 0.026454619363308438,
+  "fit_max_abs_dn": 0.06956008583820239,
+  "fit_max_abs_dk": 0.057282660471574376
+ }
+}

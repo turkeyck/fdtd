@@ -85,6 +85,9 @@ typedef struct {
     double fc, fw, pt0;     /* pulse centre frequency, spectral std dev (units c/lambda0), delay (periods T0; <0: 6/(2 pi fw)) */
     int nfreq;              /* >0: spectra of projected rows and aux line at nfreq frequencies in [fmin, fmax] */
     double fmin, fmax;
+    /* dispersive layered stack (docs/DISPERSION_SUBPIXEL.md) */
+    char stack[512];        /* stack JSON (materials/stack.py); empty: none */
+    char smode;             /* 's': subpixel averaging (tangential parallel, normal series), 'c': staircase */
 } Params;
 
 /* ------------------------------------------------------------------ globals */
@@ -173,6 +176,7 @@ static void parse_args(int argc, char **argv) {
     p.mode = 't'; p.jsrc = -1; p.eig_maxit = 200000; p.eig_tol = 1e-10;
     p.bloch = 0; p.kxn = NAN; p.kzn = NAN; p.src = 'c'; p.fc = 1.0; p.fw = 0.15; p.pt0 = -1.0;
     p.nfreq = 0; p.fmin = 0.5; p.fmax = 1.5;
+    p.stack[0] = 0; p.smode = 's';
     p.mesh = 'u'; p.dtfac = 1.0; p.dt_set = 0.0; p.auxref = 0; p.ref_every = 0; p.seed = 12345; p.divop = 'n';
     int got_eps = 0;
     for (int a = 1; a < argc; a++) {
@@ -244,6 +248,8 @@ static void parse_args(int argc, char **argv) {
         else if (!strcmp(k, "nfreq")) p.nfreq = atoi(v);
         else if (!strcmp(k, "fmin")) p.fmin = atof(v);
         else if (!strcmp(k, "fmax")) p.fmax = atof(v);
+        else if (!strcmp(k, "stack")) strncpy(p.stack, v, sizeof p.stack - 1);
+        else if (!strcmp(k, "smode")) p.smode = v[0];
         else { fprintf(stderr, "unknown key %s\n", k); exit(2); }
     }
     if (p.planar) p.proj = 1;
@@ -254,6 +260,10 @@ static void parse_args(int argc, char **argv) {
     if (p.bloch && p.inc != 'a' && p.inc != '0') die("bloch=1 supports inc=a or inc=0 only");
     if (p.bloch && (p.auxref || p.mode == 'e' || p.planar)) die("bloch=1 cannot be combined with auxref, mode=e or planar");
     if (p.nfreq < 0 || (p.nfreq > 0 && !(p.fmax >= p.fmin && p.fmin > 0.0))) die("nfreq needs 0 < fmin <= fmax");
+    if (p.stack[0] && (p.mesh != 'u' || got_eps)) die("stack= needs mesh=uniform without eps2/y1 (the stack defines the materials)");
+    if (p.stack[0] && (p.init != '0' || p.mode == 'e' || p.auxref || p.inc == 'm' || p.inc == 'p' || p.inc == 'j'))
+        die("stack= supports inc=a|n|0 time stepping from zero fields only");
+    if (p.smode != 's' && p.smode != 'c') die("smode must be s (subpixel) or c (staircase)");
     if (p.mesh == 'f' && !p.grid[0]) die("mesh=file needs grid=<path.json>");
     if (p.mesh == 'f' && got_eps) die("eps2/y1 cannot be combined with mesh=file (materials come from the grid file)");
     P = p;
@@ -1048,6 +1058,266 @@ static void build_materials(void) {
         }
 }
 
+/* ------------------------------------------------------------------ dispersive layered stack (docs/DISPERSION_SUBPIXEL.md)
+   Materials: eps(w) = eps_inf + sum_k de_k w_k^2 / (w_k^2 - w^2 - i g_k w) (e^{-i w t}); material 0 = vacuum.
+   Lorentz ADE (second order, explicit; P^{n+1} from E^n):
+       (1 + a) P^{n+1} = (2 - w_k^2 dt^2) P^n - (1 - a) P^{n-1} + de w_k^2 dt^2 E^n,   a = g dt / 2
+   so D^n = eps_inf E^n + sum P^n and the E update eps_inf (E^{n+1} - E^n) = dt curl H - (P^{n+1} - P^n).
+   Subpixel averaging of planar layers (normal = y):
+     tangential Ex, Ez at primal y_j, averaging interval = dual cell [y_{j-1/2}, y_{j+1/2}], fractions f_m:
+       parallel: eps_inf,eff = sum f_m eps_inf,m and the polarization sum f_m P_m (all driven by the node E);
+     normal Ey at dual y_{j+1/2}, averaging interval = primal cell [y_j, y_{j+1}]:
+       series: D common, E_m = (D - sum_k P_mk) / eps_inf,m per material, Ey = sum f_m E_m
+       (non-dispersive only: harmonic mean, folded into epsN).
+   smode=c (staircase): every node takes the material at its own position. */
+static FILE *xfopen(const char *name, const char *mode);
+#define MAXMAT 12
+#define MAXPOLE 6
+typedef struct { double einf; int np; double c1[MAXPOLE], c2[MAXPOLE], c3[MAXPOLE], w0[MAXPOLE], de[MAXPOLE], g[MAXPOLE]; } Mat;
+static Mat MT[MAXMAT];
+static int NMT, NLAY, stk_jfirst = -1, CUR = 0;
+static int lay_m[64];
+static double lay_y0[64], lay_y1[64], stk_lam_um, stk_nhi = -1.0;
+static double *fT, *fN;                          /* [j][m] fractions, tangential (primal) and normal (dual) */
+typedef struct { int j, c, m, k; double w; double *P[2], *Pm[2]; } TTerm;   /* tangential ADE term over one row */
+static TTerm *TT;
+static int NTT;
+static int *trow_c, *trow_j, NTR;                /* distinct (row, comp) with dispersive terms */
+static double **trow_dP;                         /* per (row, comp): sum_m f_m (P^{n+1} - P^n), Nx*Nz */
+typedef struct { int j, nm, m[MAXMAT]; double f[MAXMAT]; double *D[2], *Em[2][MAXMAT], *P[2][MAXMAT][MAXPOLE], *Pm[2][MAXMAT][MAXPOLE], *old; } SRow;
+static SRow *SR;
+static int NSR;
+
+static double frac_in(double a, double b, double y0, double y1) { /* |[a,b] cap [y0,y1]| / (b - a) */
+    double lo = fmax(a, y0), hi = fmin(b, y1);
+    return hi > lo ? (hi - lo) / (b - a) : 0.0;
+}
+
+static int mat_at(double y) {
+    for (int l = 0; l < NLAY; l++) if (y >= lay_y0[l] && y < lay_y1[l]) return lay_m[l];
+    return 0;
+}
+
+static void fractions(double a, double b, double y, double *f) {
+    for (int m = 0; m < NMT; m++) f[m] = 0.0;
+    if (P.smode == 'c') { f[mat_at(y)] = 1.0; return; }
+    double rest = 1.0;
+    for (int l = 0; l < NLAY; l++) {
+        double q = frac_in(a, b, lay_y0[l], lay_y1[l]);
+        f[lay_m[l]] += q;
+        rest -= q;
+    }
+    f[0] += fmax(rest, 0.0);
+}
+
+static void stack_setup(void) {
+    read_grid_file(P.stack);
+    stk_lam_um = *jget("lambda0_um", NULL, 1);
+    NMT = (int)lround(*jget("nmat", NULL, 1)) + 1;
+    if (NMT > MAXMAT) die("stack: too many materials");
+    MT[0].einf = 1.0; MT[0].np = 0;
+    char key[64];
+    for (int m = 1; m < NMT; m++) {
+        int n1, n2, n3;
+        snprintf(key, sizeof key, "mat%d.eps_inf", m); MT[m].einf = *jget(key, NULL, 1);
+        snprintf(key, sizeof key, "mat%d.de", m); double *de = jget(key, &n1, 1);
+        snprintf(key, sizeof key, "mat%d.nu0", m); double *nu = jget(key, &n2, 1);
+        snprintf(key, sizeof key, "mat%d.g", m); double *gg = jget(key, &n3, 1);
+        if (n1 != n2 || n1 != n3 || n1 > MAXPOLE) die("stack: bad pole arrays");
+        if (!(MT[m].einf >= 1.0)) die("stack: eps_inf < 1 would break the vacuum Courant bound");
+        MT[m].np = n1;
+        for (int k = 0; k < n1; k++) { /* nu in 1/um -> normalized angular frequency (lambda0 = 1, c = 1) */
+            double w0 = 2.0 * PI * nu[k] * stk_lam_um, g = 2.0 * PI * gg[k] * stk_lam_um, a = 0.5 * g * dt;
+            if (!(de[k] >= 0.0 && w0 > 0.0 && g >= 0.0)) die("stack: poles must have de >= 0, nu0 > 0, g >= 0");
+            if (w0 * dt >= 2.0) die("stack: w0 dt >= 2 (ADE unstable): refine dt");
+            MT[m].w0[k] = w0; MT[m].de[k] = de[k]; MT[m].g[k] = g;
+            MT[m].c1[k] = (2.0 - w0 * w0 * dt * dt) / (1.0 + a);
+            MT[m].c2[k] = -(1.0 - a) / (1.0 + a);
+            MT[m].c3[k] = de[k] * w0 * w0 * dt * dt / (1.0 + a);
+        }
+    }
+    int nl, n2, n3;
+    double *lm = jget("layer_mat", &nl, 1), *ly0 = jget("layer_y0", &n2, 1), *ly1 = jget("layer_y1", &n3, 1);
+    if (nl != n2 || nl != n3 || nl > 64) die("stack: bad layer arrays");
+    NLAY = nl;
+    double yref = yn[j0];                         /* layer coordinates are relative to the TF/SF plane */
+    for (int l = 0; l < NLAY; l++) {
+        lay_m[l] = (int)lround(lm[l]);
+        lay_y0[l] = yref + ly0[l]; lay_y1[l] = yref + ly1[l];
+        if (lay_m[l] < 0 || lay_m[l] >= NMT || !(lay_y1[l] > lay_y0[l])) die("stack: bad layer");
+        if (ly0[l] < 2.0 * hyv[j0]) die("stack: layers must start >= 2 cells after the TF/SF plane");
+        for (int q = 0; q < l; q++)
+            if (lay_y0[l] < lay_y1[q] && lay_y0[q] < lay_y1[l]) die("stack: overlapping layers");
+    }
+    double *pn = jget("pml_index_hi", NULL, 0);
+    if (pn) stk_nhi = *pn;
+    fT = xcalloc((size_t)SY * NMT, sizeof(double));
+    fN = xcalloc((size_t)SY * NMT, sizeof(double));
+    for (int j = 0; j <= Ny; j++) {
+        double a = (j > 0) ? yd[j - 1] : yn[0], b = (j < Ny) ? yd[j] : yn[Ny];
+        fractions(a, b, yn[j], fT + (size_t)j * NMT);
+        if (j < Ny) fractions(yn[j], yn[j + 1], yd[j], fN + (size_t)j * NMT);
+    }
+    /* first row touched by any layer (analysis: uniform vacuum TF rows end before it) */
+    for (int j = j0; j <= Ny && stk_jfirst < 0; j++)
+        if (fT[(size_t)j * NMT] < 1.0 || (j < Ny && fN[(size_t)j * NMT] < 1.0)) stk_jfirst = j;
+    /* static parts: eps_inf (tangential, arithmetic) and harmonic eps of non-dispersive normal rows */
+    size_t nq = (size_t)Nx * Nz;
+    int cap = 64;
+    TT = xcalloc(cap, sizeof(TTerm));
+    trow_c = xcalloc(2 * SY, sizeof(int)); trow_j = xcalloc(2 * SY, sizeof(int));
+    trow_dP = xcalloc(2 * SY, sizeof(double *));
+    SR = xcalloc(SY, sizeof(SRow));
+    int ncp = P.bloch ? 2 : 1;
+    for (int j = 0; j <= Ny; j++) {
+        const double *f = fT + (size_t)j * NMT;
+        double ei = 0.0;
+        int disp = 0;
+        for (int m = 0; m < NMT; m++) { ei += f[m] * MT[m].einf; if (f[m] > 0.0 && MT[m].np > 0) disp = 1; }
+        epsT[j] = ei;
+        if (disp && j > 0 && j < Ny)
+            for (int c = 0; c <= 2; c += 2) {
+                trow_c[NTR] = c; trow_j[NTR] = j; trow_dP[NTR] = xcalloc(nq, sizeof(double));
+                for (int m = 0; m < NMT; m++)
+                    for (int k = 0; f[m] > 0.0 && k < MT[m].np; k++) {
+                        if (NTT == cap) { cap *= 2; TT = realloc(TT, cap * sizeof(TTerm)); if (!TT) die("out of memory"); }
+                        TTerm *t = &TT[NTT++];
+                        t->j = j; t->c = NTR; t->m = m; t->k = k; t->w = f[m];
+                        for (int cp = 0; cp < ncp; cp++) { t->P[cp] = xcalloc(nq, sizeof(double)); t->Pm[cp] = xcalloc(nq, sizeof(double)); }
+                    }
+                NTR++;
+            }
+        if (j == Ny) continue;
+        const double *g = fN + (size_t)j * NMT;
+        double inv = 0.0;
+        disp = 0;
+        for (int m = 0; m < NMT; m++) { if (g[m] > 0.0) inv += g[m] / MT[m].einf; if (g[m] > 0.0 && MT[m].np > 0) disp = 1; }
+        if (!disp) { epsN[j] = 1.0 / inv; continue; }
+        epsN[j] = 1.0;                             /* series row: the main update advances D (eps = 1) */
+        SRow *r = &SR[NSR++];
+        r->j = j;
+        for (int m = 0; m < NMT; m++)
+            if (g[m] > 0.0) { r->m[r->nm] = m; r->f[r->nm] = g[m]; r->nm++; }
+        r->old = xcalloc(nq, sizeof(double));
+        for (int cp = 0; cp < ncp; cp++) {
+            r->D[cp] = xcalloc(nq, sizeof(double));
+            for (int q = 0; q < r->nm; q++) {
+                r->Em[cp][q] = xcalloc(nq, sizeof(double));
+                for (int k = 0; k < MT[r->m[q]].np; k++) { r->P[cp][q][k] = xcalloc(nq, sizeof(double)); r->Pm[cp][q][k] = xcalloc(nq, sizeof(double)); }
+            }
+        }
+    }
+    if (stk_nhi < 0.0) { /* far-PML index for the CPML profile: last material at f = 1 (continuous model) */
+        int m = fN[(size_t)(Ny - 1) * NMT] >= 1.0 ? 0 : -1;
+        for (int q = 0; q < NMT && m < 0; q++) if (fN[(size_t)(Ny - 1) * NMT + q] > 0.5) m = q;
+        double complex e = MT[m].einf;
+        for (int k = 0; k < MT[m].np; k++) {
+            double w0 = MT[m].w0[k], w = 2.0 * PI;
+            e += MT[m].de[k] * w0 * w0 / (w0 * w0 - w * w - I * MT[m].g[k] * w);
+        }
+        stk_nhi = creal(csqrt(e));
+        if (!(stk_nhi >= 1.0)) stk_nhi = 1.0;
+    }
+}
+
+/* before update_E (fields at time n): advance tangential polarizations, keep sum f (P^{n+1} - P^n); save Ey of series rows */
+static void stack_pre_E(void) {
+    size_t nq = (size_t)Nx * Nz;
+    for (int r = 0; r < NTR; r++) memset(trow_dP[r], 0, nq * sizeof(double));
+#pragma omp parallel for schedule(dynamic)
+    for (int r = 0; r < NTR; r++) {
+        double *E = trow_c[r] == 0 ? Ex : Ez, *dP = trow_dP[r];
+        int j = trow_j[r];
+        for (int t = 0; t < NTT; t++) {
+            if (TT[t].c != r) continue;
+            const Mat *M = &MT[TT[t].m];
+            int k = TT[t].k;
+            double c1 = M->c1[k], c2 = M->c2[k], c3 = M->c3[k], w = TT[t].w, *Pn = TT[t].P[CUR], *Pm = TT[t].Pm[CUR];
+            for (int i = 0; i < Nx; i++)
+                for (int kk = 0; kk < Nz; kk++) {
+                    size_t q = (size_t)i * Nz + kk;
+                    double pn = c1 * Pn[q] + c2 * Pm[q] + c3 * E[ID(i, j, kk)];
+                    dP[q] += w * (pn - Pn[q]);
+                    Pm[q] = Pn[q];
+                    Pn[q] = pn;
+                }
+        }
+    }
+    for (int s = 0; s < NSR; s++)
+        for (int i = 0; i < Nx; i++)
+            for (int kk = 0; kk < Nz; kk++) SR[s].old[(size_t)i * Nz + kk] = Ey[ID(i, SR[s].j, kk)];
+}
+
+/* after update_E: E -= sum f dP / eps_inf,eff (tangential); series rows: D += dt curl H, sub-material E_m, Ey */
+static void stack_post_E(void) {
+#pragma omp parallel for schedule(dynamic)
+    for (int r = 0; r < NTR; r++) {
+        double *E = trow_c[r] == 0 ? Ex : Ez, *dP = trow_dP[r];
+        int j = trow_j[r];
+        for (int i = 0; i < Nx; i++) {
+            double ie = 1.0 / (trow_c[r] == 0 ? eTx[(size_t)i * SY + j] : eTz[(size_t)i * SY + j]);
+            for (int kk = 0; kk < Nz; kk++) E[ID(i, j, kk)] -= dP[(size_t)i * Nz + kk] * ie;
+        }
+    }
+#pragma omp parallel for schedule(dynamic)
+    for (int s = 0; s < NSR; s++) {
+        SRow *r = &SR[s];
+        for (int i = 0; i < Nx; i++)
+            for (int kk = 0; kk < Nz; kk++) {
+                size_t q = (size_t)i * Nz + kk, id = ID(i, r->j, kk);
+                double Dn = r->D[CUR][q] + (Ey[id] - r->old[q]);
+                r->D[CUR][q] = Dn;
+                double ey = 0.0;
+                for (int a = 0; a < r->nm; a++) {
+                    const Mat *M = &MT[r->m[a]];
+                    double *Em = r->Em[CUR][a], ps = 0.0;
+                    for (int k = 0; k < M->np; k++) {
+                        double *Pn = r->P[CUR][a][k], *Pm = r->Pm[CUR][a][k];
+                        double pn = M->c1[k] * Pn[q] + M->c2[k] * Pm[q] + M->c3[k] * Em[q];
+                        Pm[q] = Pn[q];
+                        Pn[q] = pn;
+                        ps += pn;
+                    }
+                    Em[q] = (Dn - ps) / M->einf;
+                    ey += r->f[a] * Em[q];
+                }
+                Ey[id] = ey;
+            }
+    }
+}
+
+static void write_stack_used(void) {
+    FILE *f = xfopen("stack_used.json", "w");
+    fprintf(f, "{\n  \"stack_file\": \"%s\", \"smode\": \"%c\", \"lambda0_um\": %.17g, \"j_first\": %d, \"pml_index_hi\": %.17g,\n",
+            P.stack, P.smode, stk_lam_um, stk_jfirst, stk_nhi);
+    fprintf(f, "  \"materials\": [");
+    for (int m = 0; m < NMT; m++) {
+        fprintf(f, "%s{\"eps_inf\": %.17g, \"w0\": [", m ? ", " : "", MT[m].einf);
+        for (int k = 0; k < MT[m].np; k++) fprintf(f, "%s%.17g", k ? ", " : "", MT[m].w0[k]);
+        fprintf(f, "], \"de\": [");
+        for (int k = 0; k < MT[m].np; k++) fprintf(f, "%s%.17g", k ? ", " : "", MT[m].de[k]);
+        fprintf(f, "], \"g\": [");
+        for (int k = 0; k < MT[m].np; k++) fprintf(f, "%s%.17g", k ? ", " : "", MT[m].g[k]);
+        fprintf(f, "]}");
+    }
+    fprintf(f, "],\n  \"layers\": [");
+    for (int l = 0; l < NLAY; l++) fprintf(f, "%s[%d, %.17g, %.17g]", l ? ", " : "", lay_m[l], lay_y0[l], lay_y1[l]);
+    fprintf(f, "],\n  \"fT\": [");
+    for (int j = 0; j <= Ny; j++) {
+        fprintf(f, "%s[", j ? ", " : "");
+        for (int m = 0; m < NMT; m++) fprintf(f, "%s%.17g", m ? ", " : "", fT[(size_t)j * NMT + m]);
+        fprintf(f, "]");
+    }
+    fprintf(f, "],\n  \"fN\": [");
+    for (int j = 0; j < Ny; j++) {
+        fprintf(f, "%s[", j ? ", " : "");
+        for (int m = 0; m < NMT; m++) fprintf(f, "%s%.17g", m ? ", " : "", fN[(size_t)j * NMT + m]);
+        fprintf(f, "]");
+    }
+    fprintf(f, "]\n}\n");
+    fclose(f);
+}
+
 /* ------------------------------------------------------------------ setup */
 static void setup(void) {
     W0 = 2.0 * PI;
@@ -1133,6 +1403,7 @@ static void setup(void) {
     if (P.auxref && P.inc != 'a') die("auxref=1 needs inc=a");
     if (P.inc == 'j' && P.jsrc < 0) P.jsrc = j0;
     if (P.inc == 'j' && (P.jsrc <= NPlo || P.jsrc >= Ny - NPhi)) die("jsrc must lie outside the PML");
+    if (P.stack[0]) stack_setup();
     SZ = Nz + 2;
     NTOT = (size_t)(Nx + 2) * SY * SZ;
     Ex = xcalloc(NTOT, sizeof(double)); Ey = xcalloc(NTOT, sizeof(double)); Ez = xcalloc(NTOT, sizeof(double));
@@ -1192,6 +1463,7 @@ static void setup(void) {
     double nlo = sqrt(epsN[0]), nhi = sqrt(epsN[Ny - 1]);
     double Dlo = hyv[0], Dhi = hyv[Ny - 1];
     if (P.mesh == 'u') { nlo = 1.0; nhi = (j1 >= 0) ? sqrt(P.eps2) : 1.0; }
+    if (P.stack[0]) nhi = stk_nhi;
     for (int j = 0; j <= Ny; j++) {
         for (int h = 0; h < 2; h++) {
             double y = (h == 0) ? yn[j] : (j < Ny ? yd[j] : yn[Ny]);
@@ -1332,6 +1604,7 @@ static void ghost_bloch(int c, int fwd) {
 static void use_copy(int cp) {
     double **g[NCP] = {&Ex, &Ey, &Ez, &Hx, &Hy, &Hz, &psiExy, &psiEzy, &psiHxy, &psiHzy, &ExI, &EzI, &HxI, &HzI};
     for (int q = 0; q < NCP; q++) *g[q] = CPY[cp][q];
+    CUR = cp;
 }
 
 /* ------------------------------------------------------------------ updates (derivation_nonuniform §1)
@@ -2003,6 +2276,8 @@ static void write_meta(double runtime, long nsnap) {
             P.src, P.fc, P.fw, P.pt0, Ju[0], Ju[1], Ju[2]);
     fprintf(f, "  \"spec\": {\"nfreq\": %d, \"fmin\": %.17g, \"fmax\": %.17g, \"layout\": \"[comp][freq][j=0..Ny] complex128\", "
                "\"aux\": %d},\n", P.nfreq, P.fmin, P.fmax, spA != NULL);
+    fprintf(f, "  \"stack\": {\"file\": \"%s\", \"smode\": \"%c\", \"j_first\": %d, \"lambda0_um\": %.17g},\n",
+            P.stack, P.smode, stk_jfirst, stk_lam_um);
     fprintf(f, "  \"init\": \"%c\", \"nsteps\": %ld, \"dft0\": %ld, \"dft1\": %ld,\n", P.init, P.nsteps, P.dft0, P.dft1);
     fprintf(f, "  \"aux\": {\"jlo\": %ld, \"L\": %ld, \"ja\": %ld, \"dft_jlo\": %ld, \"dft_jhi\": %ld},\n",
             P.inc == 'a' ? Ajlo : 0, P.inc == 'a' ? AL : 0, P.inc == 'a' ? Ajlo + Aua : 0,
@@ -2177,6 +2452,7 @@ int main(int argc, char **argv) {
     long nsnap = 0;
     write_grid_used();
     if (P.inc == 'm') modal_write();
+    if (P.stack[0]) write_stack_used();
 
     time_t w0 = time(NULL);
     for (long n = 0; n < P.nsteps; n++) {
@@ -2204,7 +2480,9 @@ int main(int argc, char **argv) {
         double Wt = NAN, Wp = NAN;
         for (int cp = 0; cp < ncopy; cp++) {
             if (P.bloch) use_copy(cp);
+            if (P.stack[0]) stack_pre_E();
             update_E(doW);
+            if (P.stack[0]) stack_post_E();
             if (doW) { /* W at t = (n + 1/2) dt */
                 double a, b;
                 energy_sum(&a, &b);

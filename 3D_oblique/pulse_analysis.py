@@ -25,6 +25,8 @@ import tmm
 
 def load(outdir):
     meta = json.load(open(os.path.join(outdir, "meta.json")))
+    if meta.get("stack", {}).get("file"):
+        meta["stack"]["_dir"] = outdir
     used = json.load(open(os.path.join(outdir, "grid_used.json")))
     sp = meta["spec"]
     nf, SY = sp["nfreq"], meta["Ny"] + 1
@@ -49,6 +51,19 @@ def regions(meta, used):
     jump = [j for j in range(1, Ny) if eps[j] != eps[j - 1]]
     first_if = jump[0] if jump else Ny - hi
     last_if = jump[-1] if jump else None
+    stk = meta.get("stack", {})
+    if stk.get("file"):                          # dispersive stack: layers start at j_first
+        first_if = stk["j_first"]
+        last_if = None
+        su = json.load(open(os.path.join(stk["_dir"], "stack_used.json"))) if "_dir" in stk else None
+        if su is not None:                       # T rows only in a (numerically) lossless exit medium
+            import disp_tmm
+            ylast = max(l[1] for l in su["layers"])
+            mexit = [l[0] for l in su["layers"] if l[1] == ylast][0]
+            w = 2 * math.pi * meta["pulse"]["fc"]
+            if abs(disp_tmm.eps_fd(su["materials"][mexit], w, meta["dt"]).imag) < 1e-5:
+                y = np.array(used["y"])
+                last_if = int(np.searchsorted(y, ylast)) + 1
     sf = (lo + 2, j0 - 2)
     inc = (j0 + 2, first_if - 2)
     hy = np.array(used["hy"])
@@ -110,10 +125,15 @@ def measure(outdir):
 
 
 def theory(outdir, f=None):
-    """Exact Yee-lattice R(f), T(f) (tmm.tmm_discrete) for the run's y grid, dt and fixed tangential K~."""
+    """Exact Yee-lattice R(f), T(f) (tmm.tmm_discrete; disp_tmm.lattice_rt for dispersive stacks) for the run's
+    y grid, dt and fixed tangential K~."""
     d = load(outdir)
     m, u = d["meta"], d["used"]
     f = d["f"] if f is None else np.asarray(f)
+    if m.get("stack", {}).get("file"):
+        import disp_tmm
+        R, T = disp_tmm.lattice_rt(outdir, f)
+        return dict(f=f, R=R, T=T)
     Kt = math.hypot(m["Ktilde"][0], m["Ktilde"][2])
     h = np.array(u["hy"])
     eps = np.array(u["eps_n"])

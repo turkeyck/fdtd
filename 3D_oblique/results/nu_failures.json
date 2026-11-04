@@ -69,5 +69,19 @@
   "hypothesis": "R was measured as -flux(main SF rows)/flux(aux). On a nonuniform y grid the vacuum aux line follows the graded spacings and carries its own grading echo r_g; TF/SF subtracts the aux field, so the SF flux is |r - r_g|^2 while tmm_discrete (reflection of the whole y grid from j0) is |r|^2: error ~2|r||r_g|",
   "experiment": "same run, forward/backward split of the projected spectra on the uniform vacuum TF rows j0+3..179 (two-sample discrete plane-wave decomposition, ky from the local Yee dispersion): aux backward/forward |r_g| = 4.6e-4..1.9e-3 (f = 0.75..1.25); main-grid R_decomp - R_disc = -1.9e-6..+2.7e-6, row-to-row spread < 3e-9; 2|r||r_g| = 9.7e-4 at f = 1 vs flux error 6.2e-4",
   "fix": "measurement definition corrected in pulse_analysis.measure: R = |B|^2/|A|^2 of the main-grid total field on the uniform vacuum TF segment (the quantity tmm_discrete defines); the SF-flux value is kept as R_sf (INFO). Threshold unchanged; all gate P items re-run"
+ },
+ {
+  "gate": "D1-1 (structure B, s/p) -- gate D (tests/disp_gate.py), 2026-11-04",
+  "symptom": "GaAs 50 nm / SiO2: max |R - R_lat| = 1.45e-4 (s), 1.44e-4 (p), threshold 1e-5; A and C pass at <= 3.5e-7",
+  "hypothesis": "H1 far-CPML reflection (B is the only case whose transmitted wave reaches the far PML in a dispersive medium); H2 DFT truncation at 100 T0 of a slowly decaying resonance (GaAs fit pole at 353 nm has g = 6e-6/um, nearly lossless)",
+  "experiment": "same run with npml=80: |dR| unchanged (2.2e-5 at f=1.35) -> H1 rejected; 24000 steps (300 T0): max |dR| over the band 6.3e-7 -> H2 confirmed",
+  "fix": "t_end 100 -> 300 T0 (simulation length only, threshold unchanged; the same value as gate P). Also disp_tmm.lattice_rt treated SiO2 (Im eps_fd ~1e-8) as lossy and returned T = nan: lossless test now |Im eps| <= 1e-6 |eps|. Amendment recorded in thresholds_disp.json (PROPOSED, pending user decision)."
+ },
+ {
+  "gate": "D2-1 -- gate D, 2026-11-04",
+  "symptom": "subpixel convergence order over nl = 80, 113, 160, 226, 320 = 1.45, window [1.8, 2.2]; errors 2.0e-3, 2.8e-3, 1.7e-3, 6.2e-4, 3.6e-4 (non-monotone)",
+  "hypothesis": "H1 pre-asymptotic at the coarse end (Si n = 5.6 at 400 nm: 9.5 points per wavelength at nl = 80); H2 the error constant oscillates with the sub-cell interface offsets, which change irregularly with nl",
+  "experiment": "lattice reference (FDTD = lattice to <= 3.5e-7, D1) for nl up to 1280: 5-point slopes 1.45 (80-320), 2.24 (113-452), 2.20, 2.13, 2.15 (320-1280); offset-averaged (8 random sub-cell shifts) nl = 80..452: 2.14 with 80 -> 113 dropping 3.3x (pre-asymptotic)",
+  "fix": "H1: order fitted over nl = 160..640 (asymptotic range). Measurement-range change after a failure: recorded as an amendment in thresholds_disp.json, pending the user's decision; until then D2-1 is not a release."
  }
 ]

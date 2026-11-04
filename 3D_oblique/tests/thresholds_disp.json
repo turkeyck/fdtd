@@ -1,0 +1,79 @@
+{
+ "_doc": "Gate D: dispersive Lorentz ADE + subpixel (CMT-like) averaging of planar layers. docs/DISPERSION_SUBPIXEL.md. Separate from the frozen thresholds_nu.json (untouched).",
+ "_status": "PROPOSED 2026-11-04 -- written by Claude after diagnostic runs (Si3N4/Si ARC: FDTD vs exact lattice <= 4.5e-7; subpixel order 2.04; thickness sweep); awaiting the user's decision before it is frozen.",
+ "common": {
+  "lambda0_um": 0.6,
+  "band_nm": [
+   400,
+   800
+  ],
+  "S": 0.5,
+  "nl_fdtd": 40,
+  "cell_xz_cells": 4,
+  "k": {
+   "kxn": 0.2,
+   "kzn": 0.0
+  },
+  "pulse": {
+   "fc": 1.1,
+   "fw": 0.2,
+   "fmin": 0.75,
+   "fmax": 1.5,
+   "nfreq": 31
+  },
+  "t_end_T0": 300,
+  "layer_start_lambda0": 1.003,
+  "structures": {
+   "A": "Si3N4 75 nm on Si (anti-reflection coating)",
+   "B": "GaAs 50 nm on SiO2 (absorbing film, transparent substrate: R, T)",
+   "C": "(SiO2 103 nm / Si3N4 73.5 nm) x 3 on Si (quarter-wave stack at 600 nm)"
+  },
+  "materials": "materials/models.json (Lorentz fits of Green 2008 Si, Malitson SiO2, Luke Si3N4, Aspnes GaAs over 400-800 nm)",
+  "theory_discrete": "disp_tmm.lattice_rt: exact Yee lattice with the ADE eps_fd(w), subpixel/staircase weights",
+  "theory_continuous": "disp_tmm.stack_cont: continuous TMM with the fitted model (or the raw data)",
+  "_amend_t_end": "was 100 T0; D1-1 B failed (1.45e-4) from DFT truncation of the near-lossless GaAs 353 nm pole ringing (300 T0: <= 6.3e-7). results/nu_failures.json. Pending user decision."
+ },
+ "D0-1": {
+  "what": "non-dispersive stack (eps 2.25 half-space on a primal node) vs legacy eps2/y1, fields after 600 steps",
+  "max_rel": 1e-12
+ },
+ "D1-1": {
+  "what": "FDTD vs exact lattice, A/B/C, s and p, subpixel; A also staircase: max over band |R - R_lat|",
+  "abs": 1e-05
+ },
+ "D1-2": {
+  "what": "same, structure B: max over band |T - T_lat|",
+  "abs": 1e-05
+ },
+ "D2-1": {
+  "what": "subpixel convergence order of RMS_band |R - R_cont(model)| (structure A, s, nl listed)",
+  "order_window": [
+   1.8,
+   2.2
+  ],
+  "nl": [
+   160,
+   226,
+   320,
+   452,
+   640
+  ],
+  "_amend": "was nl = 80..320 (order 1.45, FAIL): nl=80 (Si 9.5 pts/lambda at 400 nm) is pre-asymptotic; every 5-point window from nl >= 113 gives 2.13-2.24, offset-averaged 2.14. results/nu_failures.json. Pending user decision."
+ },
+ "D2-2": {
+  "what": "staircase order, same metric",
+  "judged": "INFO"
+ },
+ "D3": {
+  "what": "thickness sweep of A (Si3N4 48-102 nm, 2.5 nm steps) at fixed Delta = 15 nm (nl=40) and 7.5 nm: max |R - R_cont| subpixel vs staircase at f = 1 (600 nm)",
+  "judged": "INFO"
+ },
+ "D4": {
+  "what": "mesh needed by staircase to match subpixel accuracy (Lumerical CMT claim analog: CMT at 10 ppw ~ staircase at 34 ppw)",
+  "judged": "INFO"
+ },
+ "D5": {
+  "what": "material fit quality (RMS rel eps error) and its effect on R: TMM(model) vs TMM(raw data)",
+  "judged": "INFO"
+ }
+}

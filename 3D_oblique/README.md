@@ -97,6 +97,15 @@ python3 pulse_analysis.py runs/demo
 python3 tests/pulse_gate.py     # gate P (thresholds: tests/thresholds_pulse.json, status PROPOSED)
 ```
 
+## Dispersive materials and subpixel interfaces — [`docs/DISPERSION_SUBPIXEL.md`](docs/DISPERSION_SUBPIXEL.md)
+
+`stack=<file.json>` adds a planar multilayer of dispersive materials, with layer boundaries anywhere on the mesh.
+Materials are multi-pole Lorentz fits (`materials/fit.py` → `materials/models.json`) of Si (Green 2008), GaAs
+(Aspnes 1986), Si3N4 (Luke 2015) and SiO2 (Malitson 1965) over 400–800 nm. The update is a Lorentz ADE.
+`smode=s` (default) uses subpixel averaging like Lumerical's conformal mesh: tangential E parallel, normal E series.
+`smode=c` is staircase. `disp_tmm.py` provides the exact lattice reference and the continuous TMM (model or raw
+data). `python3 tests/disp_gate.py` runs gate D (thresholds `tests/thresholds_disp.json`, status PROPOSED).
+
 ## Nonuniform (tensor-product) grids — `SPEC_nonuniform.md`
 
 The solver has one code path: `mesh=uniform` (default) builds the legacy equally spaced layout above, `grid=<file>`
