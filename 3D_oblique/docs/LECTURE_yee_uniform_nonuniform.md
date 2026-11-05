@@ -647,20 +647,20 @@ python3 tests/disp_gate.py                     # gate D：色散材料 + 子像�
 
 **教科書**
 
-1. A. Taflove, S. C. Hagness, *Computational Electrodynamics: The Finite-Difference Time-Domain Method*, 3rd ed., Artech House, 2005。FDTD 的標準參考書，本講義第 2–6 章的對應章節都在此。
-2. J. D. Jackson, *Classical Electrodynamics*, 3rd ed., Wiley, 1999。Maxwell 方程與平面波。
+1. A. Taflove, S. C. Hagness, *Computational Electrodynamics: The Finite-Difference Time-Domain Method*, 3rd ed., Artech House, 2005。FDTD 的標準參考書；本講義引用第 3 章（Maxwell 方程與 Yee 演算法）、第 4 章（數值色散與穩定性）、第 5 章（入射波源條件，TF/SF）、第 13 章（週期結構，sine–cosine 方法）。
+2. J. D. Jackson, *Classical Electrodynamics*, 3rd ed., Wiley, 1999（版權頁為 1998）。Maxwell 方程與平面波；§6.1 為位移電流與 Maxwell 方程。
 
 **原始論文**
 
-3. K. S. Yee, "Numerical solution of initial boundary value problems involving Maxwell's equations in isotropic media," *IEEE Trans. Antennas Propag.* 14(3), 302–307, 1966。（第 2 章）
-4. R. Courant, K. Friedrichs, H. Lewy, "Über die partiellen Differenzengleichungen der mathematischen Physik," *Math. Ann.* 100, 32–74, 1928。（第 3 章）
-5. K. R. Umashankar, A. Taflove, "A novel method to analyze electromagnetic scattering of complex objects," *IEEE Trans. Electromagn. Compat.* 24(4), 397–405, 1982。（第 6 章，TF/SF）
-6. J.-P. Berenger, "A perfectly matched layer for the absorption of electromagnetic waves," *J. Comput. Phys.* 114(2), 185–200, 1994。（第 6 章，PML）
-7. M. Kuzuoglu, R. Mittra, "Frequency dependence of the constitutive parameters of causal perfectly matched anisotropic absorbers," *IEEE Microw. Guided Wave Lett.* 6(12), 447–449, 1996。（第 6 章，CFS）
-8. J. A. Roden, S. D. Gedney, "Convolution PML (CPML): an efficient FDTD implementation of the CFS–PML for arbitrary media," *Microw. Opt. Technol. Lett.* 27(5), 334–339, 2000。（第 6 章，CPML）
-9. P. Monk, E. Süli, "A convergence analysis of Yee's scheme on nonuniform grids," *SIAM J. Numer. Anal.* 31(2), 393–412, 1994。（第 7 章，超收斂）
-10. A. Farjadpour, D. Roundy, A. Rodriguez, M. Ibanescu, P. Bermel, J. D. Joannopoulos, S. G. Johnson, G. W. Burr, "Improving accuracy by subpixel smoothing in the finite-difference time domain," *Opt. Lett.* 31(20), 2972–2974, 2006。（第 7 章，介面平均）
-11. A. F. Oskooi et al., "MEEP: a flexible free-software package for electromagnetic simulations by the FDTD method," *Comput. Phys. Commun.* 181(3), 687–702, 2010。（第 10 章的對照程式）
+3. K. S. Yee, "Numerical solution of initial boundary value problems involving Maxwell's equations in isotropic media," *IEEE Trans. Antennas Propag.* 14(3), 302–307, 1966，doi:10.1109/TAP.1966.1138693。（第 2 章）
+4. R. Courant, K. Friedrichs, H. Lewy, "Über die partiellen Differenzengleichungen der mathematischen Physik," *Math. Ann.* 100, 32–74, 1928，doi:10.1007/BF01448839。（第 3 章）
+5. K. R. Umashankar, A. Taflove, "A novel method to analyze electromagnetic scattering of complex objects," *IEEE Trans. Electromagn. Compat.* EMC-24(4), 397–405, 1982，doi:10.1109/TEMC.1982.304054。（第 6 章，TF/SF）
+6. J.-P. Berenger, "A perfectly matched layer for the absorption of electromagnetic waves," *J. Comput. Phys.* 114(2), 185–200, 1994，doi:10.1006/jcph.1994.1159。（第 6 章，PML）
+7. M. Kuzuoglu, R. Mittra, "Frequency dependence of the constitutive parameters of causal perfectly matched anisotropic absorbers," *IEEE Microw. Guided Wave Lett.* 6(12), 447–449, 1996，doi:10.1109/75.544545。（第 6 章，CFS）
+8. J. A. Roden, S. D. Gedney, "Convolution PML (CPML): an efficient FDTD implementation of the CFS–PML for arbitrary media," *Microw. Opt. Technol. Lett.* 27(5), 334–339, 2000，doi:10.1002/1098-2760(20001205)27:5<334::AID-MOP14>3.0.CO;2-A。（第 6 章，CPML）
+9. P. Monk, E. Süli, "A convergence analysis of Yee's scheme on nonuniform grids," *SIAM J. Numer. Anal.* 31(2), 393–412, 1994，doi:10.1137/0731021。同作者另有短文 "Error estimates for Yee's method on non-uniform grids," *IEEE Trans. Magn.* 30(5), 3200–3203, 1994。（第 7 章，超收斂）
+10. A. Farjadpour, D. Roundy, A. Rodriguez, M. Ibanescu, P. Bermel, J. D. Joannopoulos, S. G. Johnson, G. W. Burr, "Improving accuracy by subpixel smoothing in the finite-difference time domain," *Opt. Lett.* 31(20), 2972–2974, 2006，doi:10.1364/OL.31.002972。（第 7 章，介面平均）
+11. A. F. Oskooi, D. Roundy, M. Ibanescu, P. Bermel, J. D. Joannopoulos, S. G. Johnson, "MEEP: a flexible free-software package for electromagnetic simulations by the FDTD method," *Comput. Phys. Commun.* 181(3), 687–702, 2010。（第 10 章的對照程式）
 
 **本專案文件**（repo `turkeyck/fdtd`，分支 `feature/bloch-pulse`，目錄 `3D_oblique/`）
 
@@ -669,4 +669,4 @@ python3 tests/disp_gate.py                     # gate D：色散材料 + 子像�
 - `docs/PULSE_BLOCH.md`、`docs/DISPERSION_SUBPIXEL.md`：Bloch 邊界、寬頻脈衝、色散材料與子像素平均。
 - `SPEC.md`、`SPEC_nonuniform.md`：需求與驗證關卡的規格。
 
-書目資訊（卷期、頁碼、年份）是依撰寫者的知識整理，未逐筆在線上核對；引用前請先確認。專案文件與數據均取自 repo 內容。
+書目資訊（作者、卷期、頁碼、年份、DOI）與教科書章節已於 2026-11-05 逐筆在線上核對（IEEE Xplore、EuDML、ADS、AMS MathSciNet 引用、Optica／MIT、MIT DSpace 等書目紀錄）。Jackson §6.1 與 Taflove & Hagness 各章章號依書目與章節摘錄確認，未取得全書目錄頁。專案文件與數據均取自 repo 內容。
