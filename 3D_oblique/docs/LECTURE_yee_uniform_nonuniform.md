@@ -15,7 +15,7 @@
 3. 第 7–9 章把前面的結果推廣到非均勻網格，並說明守恆與穩定為什麼仍成立。
 4. 第 10 章是驗證對照表，可以拿來檢查自己的實作。
 
-只想了解非均勻網格的讀者，讀完第 2、3 章後可以直接跳到第 7 章。
+只想了解非均勻網格的讀者，讀完第 2–4 章後可以直接跳到第 7 章（9.3 節另需第 5 章的等效線）。
 
 **符號與單位約定**（全講義通用）：
 
@@ -28,7 +28,7 @@
 | Δ, Δt | 均勻網格的空間間距、時間步長 | 第 2 章 |
 | (i, j, k), n | 空間格點索引、時間步索引 | 第 2 章 |
 | S = cΔt/Δ | Courant 數，本專案預設 0.5 | 第 3 章 |
-| K\~, ω\~ | 離散波數、離散角頻率（差分算子的特徵值） | 第 4 章 |
+| K\~, ω\~ | 離散波數、離散角頻率（空間、時間差分算子的特徵值分別為 iK\~、−iω\~） | 第 4 章 |
 | h, d | 非均勻網格的主間距、對偶間距 | 第 7 章 |
 | W | 非均勻網格的內積權重 | 第 8 章 |
 
@@ -43,7 +43,7 @@ FDTD 只需要 Maxwell 的兩個旋度方程；把光速、ε0、μ0 和參考�
 在沒有自由電荷與電流、線性且各向同性的介質中，Maxwell 方程的兩條旋度式為（Faraday 定律與 Ampère–Maxwell 定律）：
 
 $$
-\mu_0\mu\,\frac{\partial \mathbf H}{\partial t} = -\nabla\times\mathbf E,\qquad \varepsilon_0\varepsilon\,\frac{\partial \mathbf E}{\partial t} = \nabla\times\mathbf H
+\mu_0\mu\thinspace \frac{\partial \mathbf H}{\partial t} = -\nabla\times\mathbf E,\qquad \varepsilon_0\varepsilon\thinspace \frac{\partial \mathbf E}{\partial t} = \nabla\times\mathbf H
 $$
 
 另外兩條散度式 ∇·D = 0、∇·B = 0 不必單獨求解：對旋度式取散度，因為 ∇·(∇×F) = 0，散度不隨時間改變；只要初始時為 0，就永遠為 0。第 2 章會看到 Yee 格式在離散層次也保留了這個性質（資料來源：Jackson, *Classical Electrodynamics*, 3rd ed., §6.1；Taflove & Hagness, *Computational Electrodynamics*, 3rd ed., 第 3 章）。
@@ -53,7 +53,7 @@ $$
 取參考波長 λ0 為長度單位、λ0/c 為時間單位，並把磁場乘上真空阻抗 η0 = √(μ0/ε0)：
 
 $$
-x' = \frac{x}{\lambda_0},\quad t' = \frac{c\,t}{\lambda_0},\quad \mathbf E' = \mathbf E,\quad \mathbf H' = \eta_0\,\mathbf H
+x' = \frac{x}{\lambda_0},\quad t' = \frac{c\thinspace t}{\lambda_0},\quad \mathbf E' = \mathbf E,\quad \mathbf H' = \eta_0\thinspace \mathbf H
 $$
 
 代回 1.1 的兩式，所有常數恰好消去，得到 μ ∂H/∂t = −∇×E 與 ε ∂E/∂t = ∇×H，等同於 c = ε0 = μ0 = 1。由此可得：
@@ -73,13 +73,13 @@ $$
 後面每一章都用時諧平面波來分析格式，所以先定下慣例。將場寫成
 
 $$
-\mathbf F(\mathbf r,t) = \mathrm{Re}\big[\mathbf F_0\,e^{i(\mathbf k\cdot\mathbf r-\omega t)}\big]
+\mathbf F(\mathbf r,t) = \mathrm{Re}\big[\mathbf F_0\thinspace e^{i(\mathbf k\cdot\mathbf r-\omega t)}\big]
 $$
 
 則 ∂/∂t → −iω、∇ → ik。代入 1.1 得 ωμH0 = k×E0 與 −ωεE0 = k×H0，消去 H0 並利用 k·E0 = 0，得到連續的色散關係：
 
 $$
-|\mathbf k|^2 = k_x^2+k_y^2+k_z^2 = \varepsilon\mu\,\omega^2
+|\mathbf k|^2 = k_x^2+k_y^2+k_z^2 = \varepsilon\mu\thinspace \omega^2
 $$
 
 第 4 章會推出離散版本，並拿它和這條式子比較：兩者的差異就是「數值色散」。此慣例下，損耗介質的 Im ε > 0，往 +y 傳播的波取 Re ky > 0。
@@ -122,20 +122,20 @@ $$
 把 2.1 的中央差分代入 Ex 的 Ampère 式，時間也用中央差分（中點在 (n+½)Δt，正好是 H 的時刻）：
 
 $$
-E_x\big|^{n+1}_{i+\frac12,j,k} = E_x\big|^{n}_{i+\frac12,j,k} + \frac{\Delta t}{\varepsilon\,\Delta}\Big[H_z\big|^{n+\frac12}_{i+\frac12,j+\frac12,k} - H_z\big|^{n+\frac12}_{i+\frac12,j-\frac12,k} - H_y\big|^{n+\frac12}_{i+\frac12,j,k+\frac12} + H_y\big|^{n+\frac12}_{i+\frac12,j,k-\frac12}\Big]
+E_x\big|^{n+1}_{i+\frac12,j,k} = E_x\big|^{n}_{i+\frac12,j,k} + \frac{\Delta t}{\varepsilon\thinspace \Delta}\Big[H_z\big|^{n+\frac12}_{i+\frac12,j+\frac12,k} - H_z\big|^{n+\frac12}_{i+\frac12,j-\frac12,k} - H_y\big|^{n+\frac12}_{i+\frac12,j,k+\frac12} + H_y\big|^{n+\frac12}_{i+\frac12,j,k-\frac12}\Big]
 $$
 
 其餘五條可用同樣方法得到（Taflove & Hagness 第 3 章）。注意式中不需要任何內插：右邊的每一個 H 就是陣列裡存的值。
 
 ### 2.4 離散散度自動為零
 
-定義節點 (i, j, k) 上的離散散度為三個方向的中央差分之和。把 E 的三條更新式代進去，每一個 H 都恰好以一正一負出現兩次（不同軸的差分算子可交換），所以
+定義節點 (i, j, k) 上的離散散度為三個方向的中央差分之和。介質中要對 D = εE 取散度（每個 E 分量先乘上自己位置的 ε）：E 的更新式是 ε(Eⁿ⁺¹ − Eⁿ) = Δt ∇h×Hⁿ⁺½，把三條代進去，每一個 H 都恰好以一正一負出現兩次（不同軸的差分算子可交換），所以
 
 $$
-\nabla_h\!\cdot\!\mathbf E^{n+1} = \nabla_h\!\cdot\!\mathbf E^{n} \quad(\text{無源區})
+\nabla_h\negthinspace \cdot\negthinspace (\varepsilon\mathbf E^{n+1}) = \nabla_h\negthinspace \cdot\negthinspace (\varepsilon\mathbf E^{n}) \quad(\text{無源區})
 $$
 
-這就是 1.1 「散度不隨時間改變」的離散版本。專案的 gate 0-5 量測這個量，結果為捨入誤差等級（第 10 章）。
+這就是 1.1 「∇·D 不隨時間改變」的離散版本；均勻介質（或真空）中 ε 可以提出，才簡化成 ∇h·E 不變。H 的散度同理（μ 乘在 H 上）。專案的 gate 0-5 在非均勻網格上量測這個量（差分分母依第 7 章換成 d），結果為捨入誤差等級（第 10 章）。
 
 下圖是一個 Yee 單元格內六個分量的位置。
 
@@ -161,16 +161,16 @@ E 與 H 輪流更新（蛙跳），每一步只用到已知的值，不必解聯
 第 4 章會推出均勻 Yee 格式的離散色散關係（真空、c = 1）：
 
 $$
-\sin^2\frac{\omega\Delta t}{2} = S^2\sum_{a=x,y,z}\sin^2\frac{k_a\Delta}{2},\qquad S = \frac{c\,\Delta t}{\Delta}
+\sin^2\frac{\omega\Delta t}{2} = S^2\sum_{a=x,y,z}\sin^2\frac{k_a\Delta}{2},\qquad S = \frac{c\thinspace \Delta t}{\Delta}
 $$
 
-右邊最大可到 3S²（每個方向都取最短可解析波長）。若 3S² > 1，就有某些 k 讓左邊大於 1，ω 變成複數，對應的模態每一步指數增長。所以穩定條件是
+右邊最大可到 3S²（每個方向都取最短可解析波長）。若 3S² > 1，就有某些 k 讓右邊大於 1；左邊的 sin² 對實數 ω 不可能超過 1，所以 ω 只能是複數，對應的模態每一步指數增長。所以穩定條件是
 
 $$
-S \le \frac{1}{\sqrt{3}}\quad(\text{3D 均勻}),\qquad S \le 1\quad(\text{1D})
+S < \frac{1}{\sqrt{3}}\quad(\text{3D 均勻}),\qquad S < 1\quad(\text{1D})
 $$
 
-這就是 Courant–Friedrichs–Lewy（CFL）條件在 Yee 格式上的形式（R. Courant, K. Friedrichs, H. Lewy, *Math. Ann.* 100, 32–74, 1928；Taflove & Hagness 第 4 章）。直觀解釋：顯式格式每一步只能把訊號傳到相鄰格點，所以物理上的波在一個時間步內走過的範圍，必須被數值格式在一步內能「看到」的範圍包住（數值影響域要包含物理影響域）。精確的上限 1/√3 仍以上面的色散分析為準。
+等號是臨界情形：最短波長模態的 ωΔt = π 成為重根，若網格上存在這個模態，它會線性（不是指數）增長，所以求解器要求嚴格小於。這就是 Courant–Friedrichs–Lewy（CFL）條件在 Yee 格式上的形式（R. Courant, K. Friedrichs, H. Lewy, *Math. Ann.* 100, 32–74, 1928；Taflove & Hagness 第 4 章）。直觀解釋：顯式格式每一步只能把訊號傳到相鄰格點，所以物理上的波在一個時間步內走過的範圍，必須被數值格式在一步內能「看到」的範圍包住（數值影響域要包含物理影響域）。精確的上限 1/√3 仍以上面的色散分析為準。
 
 ### 3.3 程式 demo：跨過上限的瞬間
 
@@ -202,7 +202,7 @@ S = 1.01   max|E| after 2000 steps = 4.983e+243
 S = 1.05   max|E| after 2000 steps = nan
 ```
 
-S 只超過上限 1%，2000 步後場就增長到 10²⁴³；上限內則永遠有界。S = 1 是 1D 的「魔術步長」：此時數值色散恰好為 0，脈衝每步前進一格而不變形。
+S 只超過上限 1%，2000 步後場就增長到 10²⁴³；上限內則永遠有界。S = 1 是 1D 的臨界值，也是「魔術步長」：此時數值色散恰好為 0，脈衝每步前進一格而不變形。這裡 S = 1 仍有界，是因為兩端 PEC 讓 E 節點上不存在 kΔ = π 的模態（sin(πj) ≡ 0），臨界的重根模態不會被激發。
 
 ### 3.4 本專案的選擇
 
@@ -217,7 +217,7 @@ Yee 格式有一個「精確」的平面波解，只是它的波數與連續解�
 對指數函數 f = e^{ikx}，第 2 章的中央差分不是近似，而是精確地等於「乘以一個常數」：
 
 $$
-\frac{e^{ik(x+\Delta/2)}-e^{ik(x-\Delta/2)}}{\Delta} = i\tilde K\,e^{ikx},\qquad \tilde K \equiv \frac{2}{\Delta}\sin\frac{k\Delta}{2}
+\frac{e^{ik(x+\Delta/2)}-e^{ik(x-\Delta/2)}}{\Delta} = i\tilde K\thinspace e^{ikx},\qquad \tilde K \equiv \frac{2}{\Delta}\sin\frac{k\Delta}{2}
 $$
 
 時間上同理，對 e^{−iωt} 得到 −iω\~，其中 ω\~ = (2/Δt) sin(ωΔt/2)。這兩個量稱為**離散波數**與**離散角頻率**：它們是差分算子的特徵值。當 kΔ → 0 時 K\~ → k，回到連續情形。
@@ -227,7 +227,7 @@ $$
 把 F = Re\[F0 e^{i(k·r − ωt)}\]（每個分量在自己的 Yee 點與時刻取樣）代入離散更新式，等於在連續 Maxwell 裡把 ∇ 換成 iK\~、∂/∂t 換成 −iω\~：
 
 $$
-\tilde\omega\,\mu\,\mathbf H_0 = \tilde{\mathbf K}\times\mathbf E_0,\qquad -\tilde\omega\,\varepsilon\,\mathbf E_0 = \tilde{\mathbf K}\times\mathbf H_0
+\tilde\omega\thinspace \mu\thinspace \mathbf H_0 = \tilde{\mathbf K}\times\mathbf E_0,\qquad -\tilde\omega\thinspace \varepsilon\thinspace \mathbf E_0 = \tilde{\mathbf K}\times\mathbf H_0
 $$
 
 與 1.3 的推導完全相同，得到 |K\~|² = εμ ω\~²，展開即為（εμ = n²）：
@@ -300,7 +300,7 @@ s 偏振的 E 沿 ŝ（垂直於入射平面），p 偏振的 E 沿 p̂（在入
 對任意 kx，平面波滿足的是 **Bloch 條件**（Floquet–Bloch 定理：週期結構中的場可寫成週期函數乘以 e^{ik·r}）：
 
 $$
-\mathbf F(x+L_x,\,y,\,z) = e^{ik_xL_x}\,\mathbf F(x,y,z),\qquad \mathbf F(x,\,y,\,z+L_z) = e^{ik_zL_z}\,\mathbf F(x,y,z)
+\mathbf F(x+L_x,\thinspace y,\thinspace z) = e^{ik_xL_x}\thinspace \mathbf F(x,y,z),\qquad \mathbf F(x,\thinspace y,\thinspace z+L_z) = e^{ik_zL_z}\thinspace \mathbf F(x,y,z)
 $$
 
 相位因子是複數，所以場必須是複數。求解器（`bloch=1`）把複數場 F = F\_re + iF\_im 存成兩份實數副本，兩份用同一組更新式，只在 ghost layer 填值時以相位旋轉互相耦合（一種 sine–cosine 方法，Taflove & Hagness 第 13 章）。這樣一來計算域可以很小：層狀結構只要 4 × 4 格。當 kx Lx 剛好是 2π 的整數倍時，相位為 1，兩份副本解耦，回到 5.1。gate P0-1 驗證這個特例與舊程式逐位元相同。
@@ -310,13 +310,13 @@ $$
 令每個分量 c 都具有同一個橫向相位：
 
 $$
-F_c(x,y,z,t) = \mathrm{Re}\big[a_c(y,t)\,e^{i(k_xx_c+k_zz_c)}\big]
+F_c(x,y,z,t) = \mathrm{Re}\big[a_c(y,t)\thinspace e^{i(k_xx_c+k_zz_c)}\big]
 $$
 
 x\_c、z\_c 是分量 c 自己的 Yee 座標。由 4.1，x、z 方向的差分作用在這個相位上，**逐點精確**地等於乘以 iK\~x、iK\~z，而且結果恰好落在目標分量的座標上，不會多出額外相位。y 方向的差分與係數完全不受影響。於是六條 3D 更新式變成六條複數 1D 更新式，例如
 
 $$
-a_{E_x}[j] \mathrel{+}= \frac{\Delta t}{\varepsilon}\Big[\frac{a_{H_z}[j+\tfrac12]-a_{H_z}[j-\tfrac12]}{\Delta}-i\tilde K_z\,a_{H_y}[j]\Big]
+a_{E_x}[j] \mathrel{+}= \frac{\Delta t}{\varepsilon}\Big[\frac{a_{H_z}[j+\tfrac12]-a_{H_z}[j-\tfrac12]}{\Delta}-i\tilde K_z\thinspace a_{H_y}[j]\Big]
 $$
 
 其餘五條見 derivation.md §6.2。這個約化是精確的，不是近似：對同一個 (kx, kz)，一維線的解乘上橫向相位，就等於 3D 的解到捨入誤差（gate 1-0：差 < 10⁻¹²）。
@@ -329,7 +329,7 @@ $$
 
 ## 第 6 章 TF/SF 平面波注入與 CPML 吸收邊界
 
-平面波從一個 y = y0 的平面注入：平面以上是「總場」，以下只剩「散射場」（反射）；y 兩端用 CPML 吸收外走的波。只要入射場逐步滿足離散方程，散射場區就精確為 0；本專案實測的漏入量在整段模擬中 ≤ 7×10⁻¹⁵（相對入射振幅），只剩浮點捨入。
+平面波從一個 y = y0 的平面注入：平面以上是「總場」，以下只剩「散射場」（反射）；y 兩端用 CPML 吸收外走的波。只要入射場逐步滿足離散方程，散射場區就只有真正的反射（沒有散射體時精確為 0），入射場不會漏進去；本專案在 λ0/20 基底的非均勻網格上實測，整段模擬的漏入量 ≤ 7.6×10⁻¹⁵（相對入射振幅），只剩浮點捨入。
 
 ### 6.1 總場/散射場（TF/SF）分區
 
@@ -366,7 +366,7 @@ $$
 分母中的 α 稱為複頻移（complex frequency shift, CFS）項，可以改善低頻與消逝波的吸收（M. Kuzuoglu, R. Mittra, *IEEE Microw. Guided Wave Lett.* 6(12), 447–449, 1996）。上式按本講義的 e^{−iωt} 慣例書寫。在時域中，1/s\_y 變成一個卷積，可以用遞迴方式實作，這就是卷積 PML（convolutional PML, CPML；J. A. Roden, S. D. Gedney, *Microw. Opt. Technol. Lett.* 27(5), 334–339, 2000）：
 
 $$
-\frac{1}{s_y}\partial_yF \ \to\ \frac{1}{\kappa}\partial_yF + \psi,\qquad \psi^{n} = b\,\psi^{n-1} + c\,\partial_yF,\quad b = e^{-(\sigma/\kappa+\alpha)\Delta t},\quad c = \frac{\sigma\,(b-1)}{\kappa(\sigma+\kappa\alpha)}
+\frac{1}{s_y}\partial_yF \ \to\ \frac{1}{\kappa}\partial_yF + \psi,\qquad \psi^{n} = b\thinspace \psi^{n-1} + c\thinspace \partial_yF,\quad b = e^{-(\sigma/\kappa+\alpha)\Delta t},\quad c = \frac{\sigma\thinspace (b-1)}{\kappa(\sigma+\kappa\alpha)}
 $$
 
 每個含 ∂y 的更新項各配一個輔助量 ψ，共四個（Ex、Ez、Hx、Hz）。剩下的問題是參數怎麼取：
@@ -378,7 +378,7 @@ $$
 | α | αmax (1 − ρ/d) | αmax = 0.05 ω0 = 0.1π |
 | 厚度 | — | 20 格（預設） |
 
-剖面取三次多項式，讓參數從 PML 入口逐漸增加，避免入口本身反射。預設設定下，斜入射 36.9° 的 PML 反射為 −110 dB（Level 3 與 Meep 比對時量測）。
+σ 與 κ 取三次多項式剖面，從 PML 入口的 0 與 1 逐漸增加，避免入口本身反射；α 則反過來線性遞減，入口最大、外端為 0。預設設定下，斜入射 36.9° 的 PML 反射為 −110.5 dB（Level 1 的 L1-6 量測；Level 3 也並列記錄，Meep 預設 PML 為 −100.4 dB）。
 
 下圖是 y 方向的完整配置。
 
@@ -435,14 +435,14 @@ $$
 介面放在主節點 y\[I\] 上。切向 E 在介面連續，對 Ex 的對偶胞 \[y\[I−½\], y\[I+½\]\] 積分 Ampère 式，得到以長度加權的算術平均：
 
 $$
-\varepsilon_t[I] = \frac{h_{I-\frac12}\,\varepsilon_1 + h_{I+\frac12}\,\varepsilon_2}{h_{I-\frac12}+h_{I+\frac12}}
+\varepsilon_t[I] = \frac{h_{I-\frac12}\thinspace \varepsilon_1 + h_{I+\frac12}\thinspace \varepsilon_2}{h_{I-\frac12}+h_{I+\frac12}}
 $$
 
 均勻時就是算術平均 (ε1 + ε2)/2。法向的 Ey 在對偶節點，永遠落在單一材料內，不需平均。介面不在格點上時，切向要取算術平均、法向要取調和平均（Farjadpour et al., *Opt. Lett.* 31(20), 2972–2974, 2006），這就是專案中子像素平均（smode=s）的做法，詳見 `docs/DISPERSION_SUBPIXEL.md`。
 
 ## 第 8 章 非均勻網格的能量守恆與穩定性
 
-非均勻的 Yee 格式仍精確守恆一個離散能量，但能量的加總必須乘上每個分量「代表的體積」；用錯權重，同一個正確的模擬看起來會有 48% 的能量漂移。穩定上限則由最小間距決定。
+非均勻的 Yee 格式仍精確守恆一個離散能量，但能量的加總必須乘上每個分量「代表的體積」；用錯權重，同一個正確的模擬看起來會有大幅的能量漂移（8.4 的例子中為 48%）。穩定上限則由最小間距決定。
 
 ### 8.1 每個分量代表多少體積
 
@@ -510,17 +510,17 @@ weighted   energy: max |W(n)/W(0) - 1| = 1.89e-15
 unweighted energy: max |W(n)/W(0) - 1| = 4.77e-01
 ```
 
-同一個模擬、同一組場，只差在能量怎麼加總。加權的版本守恆到 10⁻¹⁵，證明格式本身沒有問題；不加權的版本在漸變區把大格與小格當成同樣體積，漂移 48%。專案的 gate 0-3 在 3D 非均勻網格跑 10⁵ 步，漂移 < 10⁻¹⁰。
+同一個模擬、同一組場，只差在能量怎麼加總。加權的版本守恆到 10⁻¹⁵，證明格式本身沒有問題；不加權的版本在漸變區把大格與小格當成同樣體積，漂移 48%。專案的 gate 0-3 在 3D 非均勻網格跑 10⁵ 步，量到的漂移為 5.3×10⁻¹⁵（門檻 < 10⁻¹⁰）。
 
 ### 8.5 穩定上限
 
 𝓔ⁿ 守恆還不夠，還要它是正定的，場才會有界。把 Hⁿ⁻½ 用 Hⁿ⁺½ 表示，再用 Cauchy–Schwarz 不等式可證：下式成立時 𝓔ⁿ 正定。這個界也正是蛙跳格式精確的穩定上限（`docs/derivation_nonuniform.md` §2）：
 
 $$
-\Delta t < \Delta t_{\max} = \frac{2}{\sqrt{\lambda_{\max}(M)}},\qquad M = \varepsilon^{-1}C_H\,\mu^{-1}C_E
+\Delta t < \Delta t_{\max} = \frac{2}{\sqrt{\lambda_{\max}(M)}},\qquad M = \varepsilon^{-1}C_H\thinspace \mu^{-1}C_E
 $$
 
-λmax 是 M 的最大特徵值，專案 gate 0-4 用冪次法算出它，並驗證 0.99 Δtmax 穩定、1.02 Δtmax 發散。實務上不必算特徵值，可用 Gershgorin 圓盤定理得到充分條件：
+λmax 是 M 的最大特徵值，專案 gate 0-4 用冪次法算出它，並驗證 0.99 Δtmax 穩定、1.02 Δtmax 發散。實務上不必算特徵值：利用 C_H C_E ≤ −L_h（L_h 為非均勻離散 Laplacian），再對 −L_h 用 Gershgorin 圓盤定理，可在真空或 ε, μ ≥ 1 時得到充分條件：
 
 $$
 \Delta t \le \frac{1}{\sqrt{1/\Delta x_{\min}^2+1/\Delta y_{\min}^2+1/\Delta z_{\min}^2}} \le \Delta t_{\max}
@@ -530,7 +530,7 @@ $$
 
 ## 第 9 章 局部色散、漸變反射與介面
 
-在非均勻網格中，波在每一段均勻子區都依該區的間距改變波數，所以間距改變的地方會產生一點「數值反射」。間距變得越平緩，反射越小：漸變公比 r = 1.1 時，反射比一次跳四倍小約 500 倍。
+在非均勻網格中，波在每一段均勻子區都依該區的間距改變波數，所以間距改變的地方會產生一點「數值反射」。間距變得越平緩，反射越小：在 9.4 的例子中，漸變公比 r = 1.1 的反射比一次跳四倍小約 500 倍。
 
 ### 9.1 局部色散關係
 
@@ -540,18 +540,18 @@ $$
 \Big(\frac{2}{h}\Big)^2\sin^2\frac{k_y h}{2} = \tilde\omega^2\varepsilon\mu - \tilde K_t^2,\qquad \tilde K_t^2 = \tilde K_x^2+\tilde K_z^2
 $$
 
-左邊就是 K\~y²，它在每個子區都相同（由右邊決定），但對應的真實波數 ky(h) 隨 h 改變：h 越大，ky 越偏離連續值。因此局部入射角 θ(y) = atan(|K\~t|/ky) 也隨位置改變，專案 gate 1-3 量測了這個角度與理論的差，比值 < 0.1。
+左邊就是 K\~y²，它在每個子區都相同（由右邊決定），但對應的真實波數 ky(h) 隨 h 改變：h 越大，ky 越偏離連續值。因此局部入射角 θ(y) = atan(|K\~t|/ky) 也隨位置改變。專案 gate 1-3b 在漸變區量測這個角度，誤差比 |θ_meas − θ_pred|/|θ_pred − θ_cont| 為 4.5×10⁻³（門檻 ≤ 0.1）。
 
 ### 9.2 為什麼間距改變會反射
 
-間距不同的兩個子區對波來說就像兩種略有不同的介質。此外，接面處的主節點不是兩個對偶節點的中點（第 7 章的圖），那裡有一個局部一階的截斷誤差。專案的預研究發現，突變時實際反射約是「只用相速差估計」的 3 倍，多出來的就是這個截斷誤差（`docs/derivation_nonuniform.md` §5）。所以實務上要讓間距以固定公比 r 漸變，專案預設 r ≤ 1.1。
+間距不同的兩個子區對波來說就像兩種略有不同的介質。此外，接面處的主節點不是兩個對偶節點的中點（第 7 章的圖），那裡有一個局部一階的截斷誤差。專案的預研究發現，突變時實際的反射係數振幅約是「只用相速差估計」的 3 倍（s 偏振；換成反射率約 9 倍，p 偏振差距更大，gate 1-4a 量到振幅比約 11），多出來的就是這個截斷誤差（`docs/derivation_nonuniform.md` §5）。所以實務上要讓間距以固定公比 r 漸變，專案預設 r ≤ 1.1。
 
 ### 9.3 精確的離散反射：三點問題
 
-由第 5 章，給定 (kx, kz, ω) 後整個 3D 格式等價於 1D。消去代數分量後，s 與 p 偏振都能寫成一個三點遞迴：
+由第 5 章，給定 (kx, kz, ω) 後整個 3D 格式等價於 1D。消去代數分量後，s 與 p 偏振都能寫成一個三點遞迴（下表取 μ = 1）：
 
 $$
-\frac{1}{w_m}\Big[\frac{u_{m+1}-u_m}{g_{m+\frac12}} - \frac{u_m-u_{m-1}}{g_{m-\frac12}}\Big] + q_m\,u_m = 0
+\frac{1}{w_m}\Big[\frac{u_{m+1}-u_m}{g_{m+\frac12}} - \frac{u_m-u_{m-1}}{g_{m-\frac12}}\Big] + q_m\thinspace u_m = 0
 $$
 
 | 偏振 | 未知量 u | w\_m | g\[m+½\] | q\_m |
@@ -610,26 +610,26 @@ graded r=1.05  cells in taper =  28   R = 5.75e-06
 
 | 項目 | 章節 | 理論值 | 量測值 | 門檻 | 網格 |
 | --- | --- | --- | --- | --- | --- |
-| 解析離散平面波代入一步更新的殘差（Level 0） | 2.3、4.2 | 0 | ≈ 2×10⁻¹⁵ | 捨入等級 | Δ = λ0/20 |
-| 不精確注入（連續 ky）的殘差收斂階數（Level 0 對照組） | 4.4 | 2 | 1.995 | — | λ0/10–λ0/80 |
+| 解析離散平面波代入一步更新的殘差（Level 0） | 2.3、4.2 | 0 | ≤ 3.2×10⁻¹⁵ | < 10⁻¹² | λ0/10、λ0/20、λ0/40 |
+| 不精確注入（連續 ky）每弧度殘差的收斂階數（Level 0 對照組；每步殘差為 O(Δ³)） | 4.4 | 2 | 1.995 | — | λ0/10、λ0/20、λ0/40 |
 | 非均勻程式在均勻網格上 vs 凍結舊程式（gate 0-1a） | 7.4 | 0 | mesh=uniform：0（逐位元相同）；等間距網格檔：≤ 1.9×10⁻¹⁴ | < 10⁻¹² | λ0/20 |
 | 旋度算子伴隨性（gate 0-2） | 8.2 | 0 | ≤ 4×10⁻¹⁸ | < 10⁻¹³ | 漸變 r = 1.1、突變 ×4 |
 | 同上，改用全 1 權重（對照） | 8.2 | ≠ 0 | 3×10⁻³ – 3.9 | 參考 | 同上 |
-| 加權能量 10⁵ 步漂移（gate 0-3） | 8.3 | 0 | 5.3×10⁻¹⁵ | < 10⁻¹⁰ | 漸變 r = 1.1，PEC |
-| λmax 算出的 Δtmax vs Courant 公式（gate 0-4） | 8.5 | Δt\_C ≤ Δtmax | 0.011785 ≤ 0.011792 | — | 漸變 r = 1.1 |
+| 加權能量 10⁵ 步漂移（gate 0-3） | 8.3 | 0 | ≤ 5.3×10⁻¹⁵ | < 10⁻¹⁰ | 漸變 r = 1.1、突變 ×4，PEC |
+| λmax 算出的 Δtmax vs 8.5 的最小間距公式（gate 0-4） | 8.5 | Δt\_C ≤ Δtmax | 0.011785 ≤ 0.011792 | — | 漸變 r = 1.1（λ0/20 → λ0/80） |
 | 0.99 Δtmax 穩定、1.02 Δtmax 發散（gate 0-4） | 8.5 | 穩定 / 發散 | 穩定 / 第 900 步發散 | — | 同上 |
 | 離散散度（gate 0-5） | 2.4 | 0 | ≤ 2.4×10⁻¹³ | < 10⁻¹⁰ | 漸變 r = 1.1 |
 | 同上，改用「均勻」散度算子（對照） | 7.3 | 明顯 ≠ 0 | 0.54 | ≥ 10⁻⁶ | 同上 |
-| 3D 場 vs 等效線×橫向相位（gate 1-0） | 5.3 | 0 | 1.8×10⁻¹⁴ | < 10⁻¹² | 漸變 r = 1.1 |
-| TF/SF 漏入量（gate 1-1） | 6.2 | 0 | 因果時窗內 ≤ 10⁻²²；整段模擬 ≤ 7×10⁻¹⁵ | < 10⁻¹⁰ | 漸變 r = 1.1、突變 ×4 |
+| 3D 場 vs 等效線×橫向相位（gate 1-0） | 5.3 | 0 | ≤ 1.9×10⁻¹⁴ | < 10⁻¹² | 漸變 r = 1.1、突變 ×4（λ0/20 基底） |
+| TF/SF 漏入量（gate 1-1） | 6.2 | 0 | 因果時窗內 ≤ 1.0×10⁻²²；整段模擬 ≤ 7.6×10⁻¹⁵ | 時窗內 < 10⁻¹⁰（整段為 INFO） | 漸變 r = 1.1、突變 ×4（λ0/20 基底） |
 | 漸變區局部角度誤差比（gate 1-3b） | 9.1 | 0 | 4.5×10⁻³ | ≤ 0.1 | 漸變 r = 1.1 |
 | 非均勻網格上反射率的收斂階數（gate 2-3） | 7.3 | 2 | 2.005–2.026 | \[1.8, 2.2\] | 薄膜 F1、多層 F5，Δy 逐次減半 |
 | 真空 ky：本程式 vs Meep vs 理論（Level 3） | 4.4 | 5.029766886388 | 兩者皆 5.029766886388 | < 10⁻⁶ | λ0/20 |
-| n = 1.5 半空間 Rs：本程式 vs Meep（Level 3） | 9.3 | 0.066145（精確晶格） | 0.066145 / Meep 0.066159 | 相對差 < 0.5% | λ0/20 |
-| 寬頻脈衝 R(f) vs 精確晶格（gate P1-1） | 5.4 | 0 | ≤ 2.9×10⁻⁷ | < 10⁻⁵ | λ0/20，Bloch 4×4 |
+| n = 1.5 半空間 Rs：本程式 vs Meep（Level 3） | 9.3 | 0.066145（精確晶格；連續 Fresnel 為 0.069991，兩者差 −5.5% 是晶格本身的 O(Δ²) 誤差） | 0.066145 / Meep 0.066159 | 相對差 < 0.5% | λ0/20 |
+| 寬頻脈衝 R(f) vs 精確晶格（gate P1-1） | 5.4 | 0 | ≤ 2.8×10⁻⁷ | < 10⁻⁵ | λ0/20，Bloch 4×4 |
 | 子像素平均的收斂階數（gate D2-1） | 7.5 | 2 | 2.20 | \[1.8, 2.2\] | λ0/160–λ0/640 |
 
-表中數字取自 repo 的 `3D_oblique/results/regression_cloud.log`、`nu_regression_cloud_part1.log`、`level0.json`、`pulse_gate.json` 與 `disp_gate.json`；門檻取自凍結的 `tests/thresholds_*.json`。
+表中數字取自 repo 的 `3D_oblique/results/regression_cloud.log`、`nu_regression_cloud_part1.log`、`nu_regression_cloud.log`、`level0.json`、`pulse_gate.json` 與 `disp_gate.json`；門檻取自凍結的 `tests/thresholds_*.json`。
 
 ### 如何重現
 
