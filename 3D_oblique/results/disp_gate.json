@@ -1,6 +1,6 @@
 {
  "gate": "disp",
- "created_utc": "2026-11-04T14:14:01Z",
+ "created_utc": "2026-11-05T06:56:22Z",
  "table": [
   {
    "item": "D0-1",
@@ -294,7 +294,7 @@
   }
  ],
  "passed": true,
- "thresholds_status": "PROPOSED 2026-11-04 -- written by Claude after diagnostic runs (Si3N4/Si ARC: FDTD vs exact lattice <= 4.5e-7; subpixel order 2.04; thickness sweep); awaiting the user's decision before it is frozen.",
+ "thresholds_status": "APPROVED by the user 2026-11-05 (user decision; frozen, sha256 recorded in CLAUDE.md). amendments _amend_t_end (100 -> 300 T0) and D2-1 _amend (order fit over nl = 160..640) approved as part of this decision. History: PROPOSED 2026-11-04 -- written by Claude after diagnostic runs (Si3N4/Si ARC: FDTD vs exact lattice <= 4.5e-7; subpixel order 2.04; thickness sweep); awaiting the user's decision before it is frozen.",
  "detail": {
   "d1_A_s_s": {
    "f": [

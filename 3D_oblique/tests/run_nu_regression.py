@@ -34,10 +34,11 @@ STEPS = [
 
 
 def frozen_hashes():
-    """thresholds_nu.json and nu_predictions.json must match the hashes recorded in CLAUDE.md."""
+    """thresholds_nu.json, nu_predictions.json and the gate P / gate D thresholds must match the hashes in CLAUDE.md."""
     txt = open(os.path.join(ROOT, "CLAUDE.md"), encoding="utf-8").read()
     ok = True
-    for rel in ("tests/thresholds_nu.json", "results/nu_predictions.json"):
+    for rel in ("tests/thresholds_nu.json", "results/nu_predictions.json",
+                "tests/thresholds_pulse.json", "tests/thresholds_disp.json"):
         m = re.search(re.escape(rel) + r": ([0-9a-f]{64})", txt)
         h = hashlib.sha256(open(os.path.join(ROOT, rel), "rb").read()).hexdigest()
         good = m is not None and m.group(1) == h

@@ -1,23 +1,68 @@
 {
  "_doc": "Gate P: Bloch PBC (bloch=1) and broadband Gaussian pulse (src=g, nfreq>0). docs/PULSE_BLOCH.md. Separate from the frozen tests/thresholds_nu.json, which is not touched.",
- "_status": "PROPOSED 2026-11-04 -- written by Claude after diagnostic runs (fw=0.15 at k_t/k0=0.6 showed cutoff leakage, see P4); awaiting the user's decision before it is frozen. A release statement for gate P needs that decision recorded here and its sha256 added to CLAUDE.md.",
+ "_status": "APPROVED by the user 2026-11-05 (user decision; frozen, sha256 recorded in CLAUDE.md). History: PROPOSED 2026-11-04 -- written by Claude after diagnostic runs (fw=0.15 at k_t/k0=0.6 showed cutoff leakage, see P4); awaiting the user's decision before it is frozen. A release statement for gate P needs that decision recorded here and its sha256 added to CLAUDE.md.",
  "common": {
   "S": 0.5,
   "nl": 20,
   "cell_xz": "Lx = Lz = 0.2 lambda0 (4 x 4 cells) for Bloch runs",
-  "k_noncommensurate": {"kxn": 0.37, "kzn": 0.21},
-  "pulse": {"fc": 1.0, "fw": 0.1, "fmin": 0.75, "fmax": 1.25, "nfreq": 51},
+  "k_noncommensurate": {
+   "kxn": 0.37,
+   "kzn": 0.21
+  },
+  "pulse": {
+   "fc": 1.0,
+   "fw": 0.1,
+   "fmin": 0.75,
+   "fmax": 1.25,
+   "nfreq": 51
+  },
   "t_end_T0": 300,
   "band_rule": "judged frequencies: |J(f)| >= 1e-2 |J(fc)| and incident wave propagating (w~^2 > K~t^2)",
   "theory": "tmm.tmm_discrete (exact Yee-lattice R, T at each f, fixed K~t, same dt and y grid)"
  },
- "P0-1": {"what": "bloch=1 with an integer Bloch phase (kx = 2 pi m/Lx): copy 0 vs the legacy real solver, fields at n", "steps": [1, 10, 100, 1000], "max_rel": 1e-12, "threads": 1},
- "P0-2": {"what": "Bloch energy conservation, init=r, PEC y walls (npml=0), inc=0, non-commensurate k", "nsteps": 20000, "rel_drift": 1e-10},
- "P0-3": {"what": "pulse spectra: Bloch 4x4 cell vs legacy real supercell (Lx=2, Lz=3, m=n=1), s and p", "max_rel": 1e-12},
- "P1-1": {"what": "half-space eps=2.25, non-commensurate k, s and p: max over band |R - R_disc|", "abs": 1e-5},
- "P1-2": {"what": "same: max over band |T - T_disc|", "abs": 1e-5},
- "P1-3": {"what": "same: max over band |R + T - 1|", "abs": 1e-5},
- "P2-1": {"what": "normal incidence (kxn = kzn = 0), half-space eps=2.25, s and p: max |R - R_disc|, |T - T_disc|", "abs": 1e-5},
- "P3-1": {"what": "nonuniform-y film F1 (grid L2_F1_ppw40 with a 4x4 x-z cell), non-commensurate k, s and p: max |R - R_disc|, |T - T_disc|", "abs": 1e-5},
- "P4": {"what": "cutoff-leakage control: kxn=0.5, kzn=1/3 (f_cut=0.60), fw=0.15 -- solver must print the cutoff WARNING; error vs theory reported", "judged": "warning printed", "error": "INFO"}
+ "P0-1": {
+  "what": "bloch=1 with an integer Bloch phase (kx = 2 pi m/Lx): copy 0 vs the legacy real solver, fields at n",
+  "steps": [
+   1,
+   10,
+   100,
+   1000
+  ],
+  "max_rel": 1e-12,
+  "threads": 1
+ },
+ "P0-2": {
+  "what": "Bloch energy conservation, init=r, PEC y walls (npml=0), inc=0, non-commensurate k",
+  "nsteps": 20000,
+  "rel_drift": 1e-10
+ },
+ "P0-3": {
+  "what": "pulse spectra: Bloch 4x4 cell vs legacy real supercell (Lx=2, Lz=3, m=n=1), s and p",
+  "max_rel": 1e-12
+ },
+ "P1-1": {
+  "what": "half-space eps=2.25, non-commensurate k, s and p: max over band |R - R_disc|",
+  "abs": 1e-05
+ },
+ "P1-2": {
+  "what": "same: max over band |T - T_disc|",
+  "abs": 1e-05
+ },
+ "P1-3": {
+  "what": "same: max over band |R + T - 1|",
+  "abs": 1e-05
+ },
+ "P2-1": {
+  "what": "normal incidence (kxn = kzn = 0), half-space eps=2.25, s and p: max |R - R_disc|, |T - T_disc|",
+  "abs": 1e-05
+ },
+ "P3-1": {
+  "what": "nonuniform-y film F1 (grid L2_F1_ppw40 with a 4x4 x-z cell), non-commensurate k, s and p: max |R - R_disc|, |T - T_disc|",
+  "abs": 1e-05
+ },
+ "P4": {
+  "what": "cutoff-leakage control: kxn=0.5, kzn=1/3 (f_cut=0.60), fw=0.15 -- solver must print the cutoff WARNING; error vs theory reported",
+  "judged": "warning printed",
+  "error": "INFO"
+ }
 }

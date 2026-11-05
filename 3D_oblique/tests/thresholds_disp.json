@@ -1,6 +1,6 @@
 {
  "_doc": "Gate D: dispersive Lorentz ADE + subpixel (CMT-like) averaging of planar layers. docs/DISPERSION_SUBPIXEL.md. Separate from the frozen thresholds_nu.json (untouched).",
- "_status": "PROPOSED 2026-11-04 -- written by Claude after diagnostic runs (Si3N4/Si ARC: FDTD vs exact lattice <= 4.5e-7; subpixel order 2.04; thickness sweep); awaiting the user's decision before it is frozen.",
+ "_status": "APPROVED by the user 2026-11-05 (user decision; frozen, sha256 recorded in CLAUDE.md). amendments _amend_t_end (100 -> 300 T0) and D2-1 _amend (order fit over nl = 160..640) approved as part of this decision. History: PROPOSED 2026-11-04 -- written by Claude after diagnostic runs (Si3N4/Si ARC: FDTD vs exact lattice <= 4.5e-7; subpixel order 2.04; thickness sweep); awaiting the user's decision before it is frozen.",
  "common": {
   "lambda0_um": 0.6,
   "band_nm": [
@@ -31,7 +31,7 @@
   "materials": "materials/models.json (Lorentz fits of Green 2008 Si, Malitson SiO2, Luke Si3N4, Aspnes GaAs over 400-800 nm)",
   "theory_discrete": "disp_tmm.lattice_rt: exact Yee lattice with the ADE eps_fd(w), subpixel/staircase weights",
   "theory_continuous": "disp_tmm.stack_cont: continuous TMM with the fitted model (or the raw data)",
-  "_amend_t_end": "was 100 T0; D1-1 B failed (1.45e-4) from DFT truncation of the near-lossless GaAs 353 nm pole ringing (300 T0: <= 6.3e-7). results/nu_failures.json. Pending user decision."
+  "_amend_t_end": "was 100 T0; D1-1 B failed (1.45e-4) from DFT truncation of the near-lossless GaAs 353 nm pole ringing (300 T0: <= 6.3e-7). results/nu_failures.json. Approved by the user 2026-11-05."
  },
  "D0-1": {
   "what": "non-dispersive stack (eps 2.25 half-space on a primal node) vs legacy eps2/y1, fields after 600 steps",
@@ -58,7 +58,7 @@
    452,
    640
   ],
-  "_amend": "was nl = 80..320 (order 1.45, FAIL): nl=80 (Si 9.5 pts/lambda at 400 nm) is pre-asymptotic; every 5-point window from nl >= 113 gives 2.13-2.24, offset-averaged 2.14. results/nu_failures.json. Pending user decision."
+  "_amend": "was nl = 80..320 (order 1.45, FAIL): nl=80 (Si 9.5 pts/lambda at 400 nm) is pre-asymptotic; every 5-point window from nl >= 113 gives 2.13-2.24, offset-averaged 2.14. results/nu_failures.json. Approved by the user 2026-11-05."
  },
  "D2-2": {
   "what": "staircase order, same metric",
